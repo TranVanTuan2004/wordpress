@@ -1,0 +1,91 @@
+/**
+ * Movie Booking System - Admin Styles
+ */
+
+/* Dashboard Stats */
+.mbs-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mbs-stat-box {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mbs-stat-box h3 {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.mbs-stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+/* Booking Status */
+.mbs-status-pending {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mbs-status-completed {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #d1fae5;
+    color: #065f46;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mbs-status-cancelled {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Dashboard Content */
+.mbs-dashboard-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.mbs-dashboard-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+/* Custom Table Styles */
+.wp-list-table.mbs-table {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.wp-list-table.mbs-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
