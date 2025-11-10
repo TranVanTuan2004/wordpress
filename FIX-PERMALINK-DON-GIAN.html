@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Permalink - Cách Đơn Giản Nhất</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 32px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        .step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .step-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .step h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .step p {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        .btn {
+            display: inline-block;
+            padding: 20px 40px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .alert {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        .alert h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .alert p {
+            color: #856404;
+            line-height: 1.6;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .success h3, .success p {
+            color: #155724;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .file-info strong {
+            color: #667eea;
+            font-size: 18px;
+        }
+        .file-info p {
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        .links {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .links a:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Fix Permalink - Cách Đơn Giản Nhất</h1>
+        <p class="subtitle">Chỉ 2 bước - Không cần config phức tạp!</p>
+        
+        <div class="step">
+            <div class="step-number">1️⃣</div>
+            <h2>Cấu hình Permalink</h2>
+            <p>Vào WordPress Admin → Settings → Permalinks</p>
+            <p style="margin-top: 10px;">Chọn <strong>"Post name"</strong> → Nhấn <strong>"Save Changes"</strong></p>
+            <a href="http://localhost:8000/wp-admin/options-permalink.php" class="btn" target="_blank">
+                ⚙️ Mở Permalink Settings
+            </a>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2️⃣</div>
+            <h2>Chạy File Tự Động</h2>
+            <p>Mở File Explorer → Tìm file trong folder WordPress:</p>
+            <p style="margin-top: 15px; font-size: 24px; font-weight: 700;">📄 fix-permalink.bat</p>
+            <p style="margin-top: 10px;"><strong>Double click</strong> vào file đó</p>
+            <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;">File này sẽ tự động stop server cũ và start lại với router mới</p>
+        </div>
+        
+        <div class="success alert">
+            <h3>✅ Xong rồi!</h3>
+            <p>Sau khi chạy <strong>fix-permalink.bat</strong>, URL sẽ đẹp ngay:</p>
+            <p style="margin-top: 10px; font-weight: 600;">
+                http://localhost:8000/dangky/<br>
+                http://localhost:8000/dang-nhap/<br>
+                http://localhost:8000/profile/
+            </p>
+        </div>
+        
+        <div class="file-info">
+            <strong>📁 File fix-permalink.bat làm gì?</strong>
+            <p>
+                1. Tự động stop tất cả PHP processes cũ<br>
+                2. Start server mới với router.php<br>
+                3. Mở browser để test<br>
+                4. URL đẹp không còn index.php
+            </p>
+        </div>
+        
+        <div class="alert">
+            <h3>⚠️ Lưu Ý</h3>
+            <p>
+                • Đừng tắt cửa sổ CMD sau khi chạy file (server đang chạy ở đó)<br>
+                • Để stop server, chạy file <strong>stop-server.bat</strong><br>
+                • Nếu cần restart, chạy lại <strong>fix-permalink.bat</strong>
+            </p>
+        </div>
+        
+        <div class="links">
+            <h3 style="color: #333; margin-bottom: 20px;">🔗 Test URL</h3>
+            <a href="http://localhost:8000/dangky/" target="_blank">📝 Đăng Ký</a>
+            <a href="http://localhost:8000/dang-nhap/" target="_blank">🔐 Đăng Nhập</a>
+            <a href="http://localhost:8000/profile/" target="_blank">👤 Profile</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+            <p style="color: #999;">Made with ❤️ for easy WordPress development</p>
+        </div>
+    </div>
+</body>
+</html>
+

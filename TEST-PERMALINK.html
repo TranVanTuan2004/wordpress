@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Permalink - Xóa Index.php</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+        .step h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .step p, .step ul {
+            color: #666;
+            line-height: 1.8;
+        }
+        .step ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        .step li {
+            margin-bottom: 8px;
+        }
+        .command {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .alert {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .alert.success {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .alert.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .checklist {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .checklist h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .checklist label {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 HƯỚNG DẪN XÓA INDEX.PHP KHỎI URL</h1>
+        
+        <div class="alert">
+            <strong>⚠️ LƯU Ý QUAN TRỌNG:</strong><br>
+            Bạn PHẢI làm đủ 3 bước và theo đúng thứ tự!
+        </div>
+        
+        <div class="checklist">
+            <h3>📋 CHECKLIST - Đánh dấu khi làm xong:</h3>
+            <label>
+                <input type="checkbox" id="step1">
+                <strong>Bước 1:</strong> Vào Permalink Settings và chọn "Post name"
+            </label>
+            <label>
+                <input type="checkbox" id="step2">
+                <strong>Bước 2:</strong> Nhấn "Save Changes" ở cuối trang
+            </label>
+            <label>
+                <input type="checkbox" id="step3">
+                <strong>Bước 3:</strong> Stop server cũ (Ctrl + C)
+            </label>
+            <label>
+                <input type="checkbox" id="step4">
+                <strong>Bước 4:</strong> Start server mới với router.php
+            </label>
+            <label>
+                <input type="checkbox" id="step5">
+                <strong>Bước 5:</strong> Refresh browser (Ctrl + F5)
+            </label>
+        </div>
+        
+        <div class="step">
+            <h2>📝 BƯỚC 1: Cấu Hình Permalink</h2>
+            <p>1. Click vào nút bên dưới để mở Permalink Settings:</p>
+            <a href="http://localhost:8000/wp-admin/options-permalink.php" class="btn" target="_blank">
+                🔗 Mở Permalink Settings
+            </a>
+            <p style="margin-top: 15px;">2. Trong phần <strong>"Common Settings"</strong>, chọn radio button <strong>"Post name"</strong></p>
+            <p>3. Scroll xuống cuối → Nhấn nút <strong>"Save Changes"</strong></p>
+        </div>
+        
+        <div class="step">
+            <h2>🛑 BƯỚC 2: Stop Server Hiện Tại</h2>
+            <p><strong>QUAN TRỌNG:</strong> Bạn PHẢI stop server cũ trước!</p>
+            <ul>
+                <li>Tìm cửa sổ terminal/CMD đang chạy server</li>
+                <li>Nhấn <strong>Ctrl + C</strong> trên bàn phím</li>
+                <li>Đợi cho đến khi server dừng hẳn</li>
+            </ul>
+            <div class="alert error">
+                <strong>⚠️ Nếu không stop server cũ:</strong><br>
+                URL vẫn sẽ có index.php vì server cũ không dùng router!
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>🚀 BƯỚC 3: Start Server Mới</h2>
+            <p><strong>CÓ 3 CÁCH:</strong></p>
+            
+            <p><strong>Cách 1 (ĐƠN GIẢN NHẤT):</strong></p>
+            <p>Double click file <strong>restart-server.bat</strong> trong folder WordPress</p>
+            
+            <p style="margin-top: 15px;"><strong>Cách 2 (KHUYÊN DÙNG):</strong></p>
+            <p>Double click file <strong>START-SERVER.bat</strong></p>
+            
+            <p style="margin-top: 15px;"><strong>Cách 3 (COMMAND LINE):</strong></p>
+            <div class="command">cd C:\hk5\cms-pj2\wordpress<br>php -S localhost:8000 router.php</div>
+            
+            <div class="alert success">
+                <strong>✅ Khi server start thành công, bạn sẽ thấy:</strong><br>
+                <code>PHP 8.x Development Server (http://localhost:8000) started</code>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>🔄 BƯỚC 4: Test Kết Quả</h2>
+            <p>1. <strong>Hard refresh</strong> browser: <kbd>Ctrl + F5</kbd></p>
+            <p>2. Test các URL sau:</p>
+            <ul>
+                <li><a href="http://localhost:8000/dangky/" target="_blank">http://localhost:8000/dangky/</a></li>
+                <li><a href="http://localhost:8000/dang-nhap/" target="_blank">http://localhost:8000/dang-nhap/</a></li>
+                <li><a href="http://localhost:8000/profile/" target="_blank">http://localhost:8000/profile/</a></li>
+            </ul>
+            
+            <div class="alert success">
+                <strong>✅ THÀNH CÔNG nếu:</strong><br>
+                URL không có <code>index.php</code> ở giữa
+            </div>
+            
+            <div class="alert error">
+                <strong>❌ CHƯA THÀNH CÔNG nếu:</strong><br>
+                URL vẫn có dạng: <code>http://localhost:8000/index.php/dangky/</code>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>🔍 TROUBLESHOOTING</h2>
+            
+            <p><strong>Vấn đề 1: Vẫn thấy index.php</strong></p>
+            <ul>
+                <li>✅ Kiểm tra đã SAVE permalink settings chưa</li>
+                <li>✅ Kiểm tra đã STOP server cũ chưa (Ctrl + C)</li>
+                <li>✅ Kiểm tra đã START server với <code>router.php</code> chưa</li>
+                <li>✅ Hard refresh: Ctrl + Shift + R hoặc Ctrl + F5</li>
+                <li>✅ Clear cache browser: Ctrl + Shift + Delete</li>
+            </ul>
+            
+            <p style="margin-top: 15px;"><strong>Vấn đề 2: Lỗi 404 Not Found</strong></p>
+            <ul>
+                <li>✅ Kiểm tra file <code>router.php</code> có tồn tại ở root không</li>
+                <li>✅ Check terminal xem có lỗi gì không</li>
+                <li>✅ Thử tắt server và start lại</li>
+            </ul>
+            
+            <p style="margin-top: 15px;"><strong>Vấn đề 3: Server không start được</strong></p>
+            <div class="command">netstat -ano | findstr :8000</div>
+            <p>Nếu port 8000 đang được dùng, kill process hoặc đổi port khác</p>
+        </div>
+        
+        <div class="alert">
+            <strong>💡 GỢI Ý:</strong><br>
+            Nếu vẫn không được, thử dùng XAMPP thay vì PHP built-in server.<br>
+            XAMPP sẽ xử lý permalink tự động mà không cần config gì!
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <h2>🎯 QUICK ACTIONS</h2>
+            <a href="http://localhost:8000/wp-admin/options-permalink.php" class="btn" target="_blank">
+                ⚙️ Permalink Settings
+            </a>
+            <a href="http://localhost:8000/dangky/" class="btn" target="_blank">
+                🧪 Test: Đăng Ký
+            </a>
+            <a href="http://localhost:8000/dang-nhap/" class="btn" target="_blank">
+                🧪 Test: Đăng Nhập
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Save checkbox state
+        document.querySelectorAll('.checklist input').forEach(cb => {
+            const id = cb.id;
+            cb.checked = localStorage.getItem(id) === 'true';
+            cb.addEventListener('change', function() {
+                localStorage.setItem(id, this.checked);
+            });
+        });
+    </script>
+</body>
+</html>
+
