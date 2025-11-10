@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 Hướng Dẫn: Tạo URL Cho Phim</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 48px;
+            color: #1f2937;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 20px;
+            margin-bottom: 50px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 50px;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+        }
+        
+        .highlight-box h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .highlight-box p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .url-example {
+            background: #1f2937;
+            color: #10b981;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            text-align: center;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            color: #7c3aed;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #7c3aed;
+        }
+        
+        .steps {
+            display: grid;
+            gap: 25px;
+        }
+        
+        .step-card {
+            background: #f9fafb;
+            border-left: 5px solid #7c3aed;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .step-content h3 {
+            display: inline;
+            font-size: 22px;
+            color: #1f2937;
+        }
+        
+        .step-content p {
+            margin-top: 15px;
+            color: #4b5563;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .example-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        
+        .example-card:hover {
+            border-color: #7c3aed;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.2);
+        }
+        
+        .example-card h4 {
+            color: #7c3aed;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .example-card .url {
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #065f46;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            border-left: 5px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .info-box h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .warning-box h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        
+        .warning-box p {
+            color: #78350f;
+            line-height: 1.6;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .comparison-table th {
+            background: #7c3aed;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f3f4f6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
+            color: #6b7280;
+        }
+        
+        code {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #7c3aed;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        
+        <h1>🔗 Tạo URL Cho Phim</h1>
+        <p class="subtitle">WordPress tự động tạo URL cho mỗi phim!</p>
+        
+        <div class="highlight-box">
+            <h2>✨ URL Tự Động!</h2>
+            <p>Bạn KHÔNG CẦN làm gì phức tạp. Chỉ cần tạo phim → WordPress tự tạo URL!</p>
+        </div>
+        
+        <!-- Cấu trúc URL -->
+        <div class="section">
+            <h2 class="section-title">📐 Cấu Trúc URL</h2>
+            
+            <div class="url-example">
+                http://localhost:8000/phim/[slug-phim]/
+            </div>
+            
+            <div class="examples-grid">
+                <div class="example-card">
+                    <h4>🎬 Phim 1</h4>
+                    <p><strong>Tiêu đề:</strong> Avengers Endgame</p>
+                    <p><strong>Slug:</strong> avengers-endgame</p>
+                    <div class="url">http://localhost:8000/phim/avengers-endgame/</div>
+                </div>
+                
+                <div class="example-card">
+                    <h4>🎬 Phim 2</h4>
+                    <p><strong>Tiêu đề:</strong> Spider Man No Way Home</p>
+                    <p><strong>Slug:</strong> spider-man-no-way-home</p>
+                    <div class="url">http://localhost:8000/phim/spider-man-no-way-home/</div>
+                </div>
+                
+                <div class="example-card">
+                    <h4>🎬 Phim 3</h4>
+                    <p><strong>Tiêu đề:</strong> Cô Ba Sài Gòn</p>
+                    <p><strong>Slug:</strong> co-ba-sai-gon</p>
+                    <div class="url">http://localhost:8000/phim/co-ba-sai-gon/</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hướng dẫn từng bước -->
+        <div class="section">
+            <h2 class="section-title">📝 Hướng Dẫn Từng Bước</h2>
+            
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-content">
+                        <span class="step-number">1</span>
+                        <h3>Tạo Phim Mới</h3>
+                        <p>Vào <strong>WordPress Admin → Phim → Thêm mới</strong></p>
+                        <p>Điền tiêu đề: "Avengers Endgame"</p>
+                    </div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-content">
+                        <span class="step-number">2</span>
+                        <h3>Xem Permalink</h3>
+                        <p>Bên phải màn hình, tìm phần <strong>"Đường dẫn tĩnh"</strong></p>
+                        <p>WordPress đã tự tạo slug: <code>avengers-endgame</code></p>
+                    </div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-content">
+                        <span class="step-number">3</span>
+                        <h3>Tùy Chỉnh Slug (Tùy chọn)</h3>
+                        <p>Click <strong>[Chỉnh sửa]</strong> → Đổi slug nếu muốn</p>
+                        <p>Ví dụ: đổi thành <code>avengers-4</code></p>
+                    </div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-content">
+                        <span class="step-number">4</span>
+                        <h3>Xuất Bản</h3>
+                        <p>Click <strong>Xuất bản</strong> → URL sẵn sàng! ✅</p>
+                        <div class="url">http://localhost:8000/phim/avengers-endgame/</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thay đổi cấu trúc -->
+        <div class="section">
+            <h2 class="section-title">🔧 Thay Đổi Cấu Trúc URL</h2>
+            
+            <div class="info-box">
+                <h3>💡 Muốn đổi từ /phim/ sang /movie/?</h3>
+                <p>Bạn có thể thay đổi base slug trong file plugin!</p>
+            </div>
+            
+            <h3 style="margin: 30px 0 15px 0; color: #1f2937;">📂 Edit file:</h3>
+            <div class="url-example" style="font-size: 16px; text-align: left;">
+                wp-content/plugins/movies-cpt/movies-cpt.php
+            </div>
+            
+            <h3 style="margin: 30px 0 15px 0; color: #1f2937;">🔍 Tìm dòng 35:</h3>
+            <div class="url-example" style="font-size: 16px; text-align: left;">
+                'rewrite' => array('slug' => 'phim')
+            </div>
+            
+            <h3 style="margin: 30px 0 15px 0; color: #1f2937;">✏️ Đổi thành:</h3>
+            <div class="url-example" style="font-size: 16px; text-align: left;">
+                'rewrite' => array('slug' => 'movie')
+            </div>
+            
+            <div class="warning-box">
+                <h3>⚠️ Quan trọng!</h3>
+                <p>Sau khi thay đổi, bắt buộc phải <strong>Flush Permalinks</strong>:</p>
+                <p>👉 Vào <strong>Cài đặt → Đường dẫn tĩnh → Lưu thay đổi</strong></p>
+            </div>
+        </div>
+        
+        <!-- Ví dụ slug khác nhau -->
+        <div class="section">
+            <h2 class="section-title">🎨 Các Slug Khác Nhau</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Slug trong code</th>
+                        <th>URL kết quả</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>'phim'</code></td>
+                        <td><code>/phim/avengers/</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>'movie'</code></td>
+                        <td><code>/movie/avengers/</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>'cinema'</code></td>
+                        <td><code>/cinema/avengers/</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>'films'</code></td>
+                        <td><code>/films/avengers/</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>'xem-phim'</code></td>
+                        <td><code>/xem-phim/avengers/</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>''</code> (rỗng)</td>
+                        <td><code>/avengers/</code> (trực tiếp)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Tips -->
+        <div class="section">
+            <h2 class="section-title">💡 Mẹo Hay</h2>
+            
+            <div class="examples-grid">
+                <div class="example-card">
+                    <h4>✅ Slug TỐT</h4>
+                    <div class="url">/phim/avengers/</div>
+                    <div class="url">/phim/spider-man-2024/</div>
+                    <div class="url">/phim/inception/</div>
+                    <p style="margin-top: 15px; color: #065f46;">Ngắn gọn, dễ đọc, dễ nhớ</p>
+                </div>
+                
+                <div class="example-card">
+                    <h4>❌ Slug XẤU</h4>
+                    <div class="url" style="background: #fee2e2; border-color: #dc2626; color: #7f1d1d;">
+                        /phim/phim-sieu-anh-hung-avengers-endgame-2019-full-hd/
+                    </div>
+                    <p style="margin-top: 15px; color: #7f1d1d;">Quá dài, khó đọc, không cần thiết</p>
+                </div>
+                
+                <div class="example-card">
+                    <h4>🎯 Slug Tiếng Việt</h4>
+                    <div class="url">/phim/co-ba-sai-gon/</div>
+                    <div class="url">/phim/mat-biec/</div>
+                    <div class="url">/phim/nha-ba-nu/</div>
+                    <p style="margin-top: 15px; color: #065f46;">Hỗ trợ tốt, không dấu</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lưu ý -->
+        <div class="section">
+            <h2 class="section-title">⚠️ Lưu Ý Quan Trọng</h2>
+            
+            <div class="warning-box">
+                <h3>1. Slug phải duy nhất</h3>
+                <p>Không được có 2 phim cùng slug. WordPress sẽ tự thêm số: <code>avengers</code>, <code>avengers-2</code>, <code>avengers-3</code></p>
+            </div>
+            
+            <div class="warning-box">
+                <h3>2. Không dùng ký tự đặc biệt</h3>
+                <p>Chỉ dùng: chữ cái, số, gạch ngang <code>-</code>. Tránh: <code>!@#$%^&*()</code></p>
+            </div>
+            
+            <div class="warning-box">
+                <h3>3. Đổi slug = URL cũ mất</h3>
+                <p>Nếu phim đã publish, đổi slug sẽ làm URL cũ trả về 404. Người đã share link cũ không vào được!</p>
+            </div>
+            
+            <div class="warning-box">
+                <h3>4. Luôn flush permalinks sau khi thay đổi</h3>
+                <p>Vào <strong>Cài đặt → Đường dẫn tĩnh → Lưu thay đổi</strong></p>
+            </div>
+        </div>
+        
+        <!-- CTA -->
+        <div style="text-align: center; margin: 50px 0;">
+            <a href="http://localhost:8000/wp-admin/post-new.php?post_type=movie" class="btn" target="_blank">
+                🎬 Tạo Phim Mới Ngay
+            </a>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>🔗 Hướng Dẫn Tạo URL Cho Phim</strong></p>
+            <p>Plugin: Movies CPT</p>
+            <p>Đọc thêm: <code>HUONG-DAN-URL.md</code></p>
+        </div>
+        
+    </div>
+    
+</body>
+</html>
+

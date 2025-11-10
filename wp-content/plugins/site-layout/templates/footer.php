@@ -1,10 +1,10 @@
 <!-- Footer -->
-<footer class="site-footer">
-    <div class="footer-container">
+<footer class="slp-footer">
+    <div class="slp-footer-container">
         <!-- Footer Columns -->
-        <div class="footer-columns">
+        <div class="slp-footer-columns">
             <!-- Column 1: About -->
-            <div class="footer-col">
+            <div class="slp-footer-col">
                 <h3>Về chúng tôi</h3>
                 <ul>
                     <li><a href="<?php echo home_url('/gioi-thieu'); ?>">Giới thiệu</a></li>
@@ -14,7 +14,7 @@
             </div>
             
             <!-- Column 2: Services -->
-            <div class="footer-col">
+            <div class="slp-footer-col">
                 <h3>Dịch vụ</h3>
                 <ul>
                     <li><a href="<?php echo home_url('/dat-ve'); ?>">Đặt vé xem phim</a></li>
@@ -24,7 +24,7 @@
             </div>
             
             <!-- Column 3: Support -->
-            <div class="footer-col">
+            <div class="slp-footer-col">
                 <h3>Hỗ trợ</h3>
                 <ul>
                     <li><a href="<?php echo home_url('/huong-dan'); ?>">Hướng dẫn</a></li>
@@ -34,7 +34,7 @@
             </div>
             
             <!-- Column 4: Contact -->
-            <div class="footer-col">
+            <div class="slp-footer-col">
                 <h3>Liên hệ</h3>
                 <ul>
                     <li>📞 Hotline: 1900 xxxx</li>
@@ -43,7 +43,7 @@
                 </ul>
                 
                 <!-- Social Links -->
-                <div class="social-links">
+                <div class="slp-social-links">
                     <a href="#" target="_blank" title="Facebook">
                         <svg width="24" height="24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
                     </a>
@@ -58,7 +58,7 @@
         </div>
         
         <!-- Footer Bottom -->
-        <div class="footer-bottom">
+        <div class="slp-footer-bottom">
             <p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. All rights reserved.</p>
             <p>Designed with ❤️ in Vietnam</p>
         </div>
@@ -66,6 +66,7 @@
 </footer>
 
 <script src="<?php echo SITE_LAYOUT_URL; ?>assets/layout.js"></script>
+<?php wp_footer(); // Quan trọng: Inject scripts của WordPress và plugins ?>
 </body>
 </html>
 

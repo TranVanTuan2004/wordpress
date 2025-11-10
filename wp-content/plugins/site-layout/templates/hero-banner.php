@@ -96,13 +96,13 @@
 <style>
 .hero-banner {
     background: linear-gradient(135deg, #FFE5F0 0%, #FFF0F5 50%, #FFF8DC 100%);
-    padding: 80px 20px;
+    padding: 80px 0;
     overflow: hidden;
 }
 
 .hero-container {
-    max-width: 1400px;
     margin: 0 auto;
+    padding: 0 20px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 60px;
@@ -110,7 +110,7 @@
 }
 
 .hero-content {
-    padding: 0 20px;
+    padding: 0;
 }
 
 .hero-title {
@@ -337,7 +337,11 @@
 
 @media (max-width: 640px) {
     .hero-banner {
-        padding: 40px 15px;
+        padding: 40px 0;
+    }
+    
+    .hero-container {
+        padding: 0 16px;
     }
     
     .hero-title {
@@ -362,6 +366,18 @@
     
     .promo-highlight {
         font-size: 24px;
+    }
+}
+
+@media (min-width: 768px) {
+    .hero-container {
+        padding: 0 40px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .hero-container {
+        padding: 0 60px;
     }
 }
 </style>

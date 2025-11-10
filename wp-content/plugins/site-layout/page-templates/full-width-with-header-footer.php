@@ -27,9 +27,11 @@ include plugin_dir_path(dirname(__FILE__)) . 'templates/footer.php';
 
 <style>
 .content-wrapper {
-    max-width: 1400px;
+    /* max-width: 1400px; */
+    max-width: 100%;
     margin: 0 auto;
-    padding: 60px 20px;
+    /* padding: 60px 20px; */
+    overflow: hidden;
 }
 </style>
 

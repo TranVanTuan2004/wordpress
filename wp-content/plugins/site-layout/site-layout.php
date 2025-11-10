@@ -42,6 +42,62 @@ function site_layout_hero_banner() {
     return ob_get_clean();
 }
 
+// Shortcode: Phim đang chiếu
+add_shortcode('movies_now_showing', 'site_layout_movies_now_showing');
+function site_layout_movies_now_showing() {
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/movies-now-showing.php';
+    return ob_get_clean();
+}
+
+// Shortcode: Phim sắp chiếu
+add_shortcode('movies_coming_soon', 'site_layout_movies_coming_soon');
+function site_layout_movies_coming_soon() {
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/movies-coming-soon.php';
+    return ob_get_clean();
+}
+
+// Shortcode: Lịch chiếu phim
+add_shortcode('movie_schedule', 'site_layout_movie_schedule');
+function site_layout_movie_schedule() {
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/movie-schedule.php';
+    return ob_get_clean();
+}
+
+// Shortcode: Trang Home đầy đủ
+add_shortcode('full_home_page', 'site_layout_full_home');
+function site_layout_full_home() {
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/hero-banner.php';
+    include SITE_LAYOUT_DIR . 'templates/movies-now-showing.php';
+    include SITE_LAYOUT_DIR . 'templates/movies-coming-soon.php';
+    include SITE_LAYOUT_DIR . 'templates/movie-schedule.php';
+    return ob_get_clean();
+}
+
+// Shortcode: Debug Movies (kiểm tra data)
+add_shortcode('debug_movies', 'site_layout_debug_movies');
+function site_layout_debug_movies() {
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/debug-movies.php';
+    return ob_get_clean();
+}
+
+// Shortcode: Movie Detail (chi tiết phim)
+// Usage: [movie_detail id="123"]
+add_shortcode('movie_detail', 'site_layout_movie_detail');
+function site_layout_movie_detail($atts) {
+    $atts = shortcode_atts(array(
+        'id' => 0,
+    ), $atts);
+    
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/movie-detail-shortcode.php';
+    return ob_get_clean();
+}
+
 // Function helper để tạo trang full layout
 function site_render_full_layout($content) {
     ob_start();

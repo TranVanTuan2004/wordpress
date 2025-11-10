@@ -1,28 +1,40 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html <?php language_attributes(); ?>>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo is_home() ? get_bloginfo('name') : wp_title('|', false, 'right') . get_bloginfo('name'); ?></title>
     <link rel="stylesheet" href="<?php echo SITE_LAYOUT_URL; ?>assets/layout.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <?php wp_head(); // Quan trọng: Inject CSS/JS của WordPress và plugins ?>
+    <style>
+        /* Ẩn WordPress Admin Bar */
+        #wpadminbar {
+            display: none !important;
+        }
+        html {
+            margin-top: 0 !important;
+        }
+        * html body {
+            margin-top: 0 !important;
+        }
+    </style>
 </head>
-<body>
+<body <?php body_class(); ?>>
     
 <!-- Header -->
-<header class="site-header">
-    <div class="header-container">
+<header class="slp-header">
+    <div class="slp-header-container">
         <!-- Logo -->
-        <div class="site-logo">
+        <div class="slp-logo">
             <a href="<?php echo home_url(); ?>">
                 <img src="<?php echo get_site_icon_url(); ?>" alt="Logo" style="height: 40px;">
-                <span class="site-name"><?php bloginfo('name'); ?></span>
+                <span class="slp-site-name"><?php bloginfo('name'); ?></span>
             </a>
         </div>
         
         <!-- Navigation Menu -->
-        <nav class="site-nav">
-            <ul class="nav-menu">
+        <nav class="slp-nav">
+            <ul class="slp-nav-menu">
                 <li><a href="<?php echo home_url(); ?>">Trang chủ</a></li>
                 <li><a href="<?php echo home_url('/phim'); ?>">Phim</a></li>
                 <li><a href="<?php echo home_url('/lich-chieu'); ?>">Lịch chiếu</a></li>
@@ -32,32 +44,32 @@
         </nav>
         
         <!-- User Menu -->
-        <div class="user-menu">
+        <div class="slp-user-menu">
             <?php if (is_user_logged_in()): 
                 $current_user = wp_get_current_user();
             ?>
-                <div class="user-dropdown">
-                    <button class="user-btn">
+                <div class="slp-user-dropdown">
+                    <button class="slp-user-btn">
                         <?php echo get_avatar($current_user->ID, 32); ?>
                         <span><?php echo $current_user->display_name; ?></span>
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
                             <path d="M6 9L1 4h10L6 9z"/>
                         </svg>
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="slp-dropdown-menu">
                         <a href="<?php echo home_url('/tai-khoan'); ?>">Tài khoản</a>
                         <a href="<?php echo home_url('/lich-su-dat-ve'); ?>">Lịch sử đặt vé</a>
                         <a href="<?php echo wp_logout_url(home_url()); ?>">Đăng xuất</a>
                     </div>
                 </div>
             <?php else: ?>
-                <a href="<?php echo home_url('/dang-nhap'); ?>" class="btn-login">Đăng nhập</a>
-                <a href="<?php echo home_url('/dang-ky'); ?>" class="btn-register">Đăng ký</a>
+                <a href="<?php echo home_url('/dang-nhap'); ?>" class="slp-btn-login">Đăng nhập</a>
+                <a href="<?php echo home_url('/dang-ky'); ?>" class="slp-btn-register">Đăng ký</a>
             <?php endif; ?>
         </div>
         
         <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle">
+        <button class="slp-mobile-menu-toggle">
             <span></span>
             <span></span>
             <span></span>
@@ -65,7 +77,7 @@
     </div>
     
     <!-- Mobile Menu -->
-    <div class="mobile-menu">
+    <div class="slp-mobile-menu">
         <ul>
             <li><a href="<?php echo home_url(); ?>">Trang chủ</a></li>
             <li><a href="<?php echo home_url('/phim'); ?>">Phim</a></li>
