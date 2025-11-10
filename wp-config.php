@@ -37,10 +37,8 @@ define( 'DB_CHARSET', 'utf8mb4' );
 /** The database collate type. Don't change this if in doubt. */
 define( 'DB_COLLATE', '' );
 
-define('WP_HOME', 'http://localhost:8000');
-define('WP_SITEURL', 'http://localhost:8000');
 
-/**#@+
+/**#@+s
  * Authentication unique keys and salts.
  *
  * Change these to different unique phrases! You can generate these using
