@@ -36,7 +36,7 @@
         <nav class="slp-nav">
             <ul class="slp-nav-menu">
                 <li><a href="<?php echo home_url(); ?>">Trang chủ</a></li>
-                <li><a href="<?php echo home_url('/phim'); ?>">Phim</a></li>
+                <li><a href="<?php echo home_url('/danh-sach-phim'); ?>">Phim</a></li>
                 <li><a href="<?php echo home_url('/lich-chieu'); ?>">Lịch chiếu</a></li>
                 <li><a href="<?php echo home_url('/rap'); ?>">Rạp chiếu</a></li>
                 <li><a href="<?php echo home_url('/tin-tuc'); ?>">Tin tức</a></li>

@@ -73,7 +73,7 @@ function uas_register_form() {
             </form>
             
             <div class="uas-auth-footer">
-                <p>Đã có tài khoản? <a href="<?php echo home_url('/login'); ?>">Đăng nhập ngay</a></p>
+                <p>Đã có tài khoản? <a href="<?php echo home_url('/dang-nhap'); ?>">Đăng nhập ngay</a></p>
             </div>
         </div>
     </div>
@@ -120,7 +120,7 @@ function uas_handle_register() {
         
         wp_send_json_success(array(
             'message' => 'Đăng ký thành công!',
-            'redirect' => home_url('/profile')
+            'redirect' => home_url('/')
         ));
     }
 }

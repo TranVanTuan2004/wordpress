@@ -56,6 +56,12 @@ class Movie_Booking_System {
         new MBS_Shortcodes();
         new MBS_Ajax();
         new MBS_Admin();
+        
+        // Auto flush rewrite rules if needed
+        if (get_option('mbs_flush_rewrite_rules') == 'yes') {
+            flush_rewrite_rules();
+            delete_option('mbs_flush_rewrite_rules');
+        }
     }
     
     public function enqueue_scripts() {
@@ -82,6 +88,9 @@ class Movie_Booking_System {
         add_option('mbs_vip_seat_price', 100000);
         add_option('mbs_sweetbox_seat_price', 150000);
         add_option('mbs_version', MBS_VERSION);
+        
+        // Mark for flush rewrite rules on next init
+        add_option('mbs_flush_rewrite_rules', 'yes');
         
         flush_rewrite_rules();
     }

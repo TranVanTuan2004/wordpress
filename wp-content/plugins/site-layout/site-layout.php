@@ -106,6 +106,18 @@ function site_layout_movie_detail($atts) {
     return ob_get_clean();
 }
 
+// Shortcode: Movies List (danh sách phim từ CPT "movie")
+// Usage: [movies_list genre="hanh-dong" status="dang-chieu" per_page="12"]
+add_shortcode('movies_list', 'site_layout_movies_list');
+function site_layout_movies_list($atts) {
+   ob_start();
+//    include SITE_LAYOUT_DIR . 'templates/hero-banner.php';
+   include SITE_LAYOUT_DIR . 'templates/movies-now-showing.php';
+   include SITE_LAYOUT_DIR . 'templates/movies-coming-soon.php';
+   return ob_get_clean();
+   
+}
+
 // Function helper để tạo trang full layout
 function site_render_full_layout($content) {
     ob_start();
@@ -126,6 +138,7 @@ function site_layout_add_page_templates($templates) {
     $templates['page-templates/centered-box.php'] = 'Centered Box - Hộp Giữa Màn Hình';
     $templates['page-templates/auth-minimal.php'] = 'Auth Minimal - Không Header Footer';
     $templates['page-templates/empty-layout.php'] = 'Empty Layout - Layout Trống';
+    $templates['page-templates/movies-list-page.php'] = 'Movies List Page - Danh Sách Phim Có Phân Trang';
     return $templates;
 }
 
@@ -145,5 +158,60 @@ function site_layout_load_page_templates($template) {
     }
     
     return $template;
+}
+
+// Auto create Movie List page on activation
+register_activation_hook(__FILE__, 'site_layout_create_movie_list_page');
+function site_layout_create_movie_list_page() {
+    // Check if page already exists
+    $page_title = 'Danh Sách Phim';
+    $page_slug = 'danh-sach-phim';
+    
+    $existing_page = get_page_by_path($page_slug);
+    
+    if (!$existing_page) {
+        // Create the page
+        $page_data = array(
+            'post_title'    => $page_title,
+            'post_name'     => $page_slug,
+            'post_content'  => '',
+            'post_status'   => 'publish',
+            'post_type'     => 'page',
+            'post_author'   => 1,
+            'page_template' => 'page-templates/movies-list-page.php'
+        );
+        
+        $page_id = wp_insert_post($page_data);
+        
+        if ($page_id && !is_wp_error($page_id)) {
+            // Set page template
+            update_post_meta($page_id, '_wp_page_template', 'page-templates/movies-list-page.php');
+        }
+    }
+}
+
+// Add admin notice to guide user
+add_action('admin_notices', 'site_layout_movie_list_page_notice');
+function site_layout_movie_list_page_notice() {
+    $screen = get_current_screen();
+    
+    // Only show on pages list and edit page
+    if ($screen && ($screen->id === 'edit-page' || $screen->id === 'page')) {
+        $page_slug = 'danh-sach-phim';
+        $existing_page = get_page_by_path($page_slug);
+        
+        if (!$existing_page) {
+            ?>
+            <div class="notice notice-info is-dismissible">
+                <p>
+                    <strong>Site Layout Plugin:</strong> 
+                    Bạn có thể tạo trang "Danh Sách Phim" bằng cách: 
+                    <a href="<?php echo admin_url('post-new.php?post_type=page'); ?>">Tạo trang mới</a> 
+                    và chọn template <strong>"Movies List Page - Danh Sách Phim Có Phân Trang"</strong>
+                </p>
+            </div>
+            <?php
+        }
+    }
 }
 

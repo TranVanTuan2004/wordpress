@@ -62,7 +62,7 @@ function uas_login_form() {
             </form>
             
             <div class="uas-auth-footer">
-                <p>Chưa có tài khoản? <a href="<?php echo home_url('/register'); ?>">Đăng ký ngay</a></p>
+                <p>Chưa có tài khoản? <a href="<?php echo home_url('/dang-ky'); ?>">Đăng ký ngay</a></p>
             </div>
         </div>
     </div>
