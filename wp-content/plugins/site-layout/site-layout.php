@@ -85,6 +85,14 @@ function site_layout_debug_movies() {
     return ob_get_clean();
 }
 
+// Shortcode: Lịch sử đặt vé của user
+add_shortcode('user_booking_history', 'site_layout_user_booking_history');
+function site_layout_user_booking_history() {
+    ob_start();
+    include SITE_LAYOUT_DIR . 'templates/user-booking-history.php';
+    return ob_get_clean();
+}
+
 // Shortcode: Movie Detail (chi tiết phim)
 // Usage: [movie_detail id="123"]
 add_shortcode('movie_detail', 'site_layout_movie_detail');
@@ -116,6 +124,8 @@ function site_layout_add_page_templates($templates) {
     $templates['page-templates/container-with-header-footer.php'] = 'Container - Có Header Footer';
     $templates['page-templates/blank-no-header-footer.php'] = 'Blank - Không Header Footer';
     $templates['page-templates/centered-box.php'] = 'Centered Box - Hộp Giữa Màn Hình';
+    $templates['page-templates/auth-minimal.php'] = 'Auth Minimal - Không Header Footer';
+    $templates['page-templates/empty-layout.php'] = 'Empty Layout - Layout Trống';
     return $templates;
 }
 

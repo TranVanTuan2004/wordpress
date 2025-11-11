@@ -2,17 +2,29 @@
    USER AUTH SYSTEM - MODERN UI
    =================================== */
 
+/* Reset để full màn hình */
+body:has(.uas-auth-container),
+html:has(.uas-auth-container) {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+}
+
 /* Reset và Base */
 .uas-auth-container,
 .uas-profile-container {
-    min-height: calc(100vh - 200px); /* Để chỗ cho header/footer */
+    min-height: 100vh;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 60px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 50%, #fff4e6 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; /* Bỏ margin mặc định */
+    margin: 0;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 /* Auth Card */
@@ -20,8 +32,8 @@
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 50px;
-    max-width: 500px;
+    padding: 32px 28px;
+    max-width: 420px;
     width: 100%;
     animation: slideUp 0.5s ease;
 }
@@ -40,82 +52,82 @@
 /* Auth Header */
 .uas-auth-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 24px;
 }
 
 .uas-auth-header h2 {
-    font-size: 32px;
+    font-size: 22px;
     color: #2D3748;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     font-weight: 700;
 }
 
 .uas-auth-header p {
     color: #718096;
-    font-size: 16px;
+    font-size: 13px;
 }
 
 /* Form Styles */
 .uas-form {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .uas-form-group {
-    margin-bottom: 25px;
+    margin-bottom: 16px;
 }
 
 .uas-form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #2D3748;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .uas-form-group input[type="text"],
 .uas-form-group input[type="email"],
 .uas-form-group input[type="password"] {
     width: 100%;
-    padding: 15px 20px;
+    padding: 10px 14px;
     border: 2px solid #E2E8F0;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 13px;
     transition: all 0.3s ease;
     background: #F7FAFC;
 }
 
 .uas-form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #ff6b9d;
     background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.1);
 }
 
 /* Form Row - 2 columns */
 .uas-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 12px;
 }
 
 /* Checkbox */
 .uas-checkbox {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
     color: #4A5568;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .uas-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
 .uas-checkbox a {
-    color: #667eea;
+    color: #ff6b9d;
     text-decoration: none;
 }
 
@@ -128,13 +140,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 18px;
 }
 
 .uas-forgot-link {
-    color: #667eea;
+    color: #ff6b9d;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
 }
 
@@ -145,10 +157,10 @@
 /* Buttons */
 .uas-button {
     width: 100%;
-    padding: 16px 30px;
+    padding: 10px 20px;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -160,14 +172,14 @@
 }
 
 .uas-button-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8c69 100%);
     color: white;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
 }
 
 .uas-button-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 12px 30px rgba(255, 107, 157, 0.4);
 }
 
 .uas-button-primary:active {
@@ -176,12 +188,12 @@
 
 .uas-button-secondary {
     background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    color: #ff6b9d;
+    border: 2px solid #ff6b9d;
 }
 
 .uas-button-secondary:hover {
-    background: #667eea;
+    background: #ff6b9d;
     color: white;
 }
 
@@ -229,10 +241,10 @@
 
 /* Messages */
 .uas-message {
-    padding: 15px 20px;
+    padding: 12px 16px;
     border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 14px;
+    margin-bottom: 16px;
+    font-size: 12px;
     display: none;
 }
 
@@ -253,14 +265,14 @@
 /* Auth Footer */
 .uas-auth-footer {
     text-align: center;
-    padding-top: 25px;
+    padding-top: 18px;
     border-top: 1px solid #E2E8F0;
     color: #718096;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .uas-auth-footer a {
-    color: #667eea;
+    color: #ff6b9d;
     text-decoration: none;
     font-weight: 600;
 }
@@ -385,11 +397,11 @@
 /* Responsive */
 @media (max-width: 768px) {
     .uas-auth-card {
-        padding: 30px 25px;
+        padding: 24px 20px;
     }
     
     .uas-auth-header h2 {
-        font-size: 26px;
+        font-size: 20px;
     }
     
     .uas-form-row {
@@ -400,7 +412,7 @@
     .uas-form-options {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 12px;
     }
     
     .uas-profile-header {
@@ -430,16 +442,16 @@
     }
     
     .uas-auth-card {
-        padding: 25px 20px;
+        padding: 20px 18px;
     }
     
     .uas-auth-header h2 {
-        font-size: 24px;
+        font-size: 18px;
     }
     
     .uas-form-group input {
-        padding: 12px 15px;
-        font-size: 14px;
+        padding: 9px 12px;
+        font-size: 12px;
     }
 }
 

@@ -23,11 +23,11 @@
     
 <!-- Header -->
 <header class="slp-header">
-    <div class="slp-header-container">
+    <div class="slp-header-container" style="display: flex; justify-content: space-between; align-items: center;">
         <!-- Logo -->
         <div class="slp-logo">
             <a href="<?php echo home_url(); ?>">
-                <img src="<?php echo get_site_icon_url(); ?>" alt="Logo" style="height: 40px;">
+                <img src="<?php echo "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3pdEdV4w4UdgSAjuKeTdUqqS8ltRa8YLCVg&s"; ?>" alt="Logo" style="height: 40px;">
                 <span class="slp-site-name"><?php bloginfo('name'); ?></span>
             </a>
         </div>
@@ -95,3 +95,8 @@
     </div>
 </header>
 
+<style>
+    ul {
+        margin: 0px !important;
+    }
+</style>
