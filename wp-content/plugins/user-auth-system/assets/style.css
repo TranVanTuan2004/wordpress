@@ -169,6 +169,7 @@ html:has(.uas-auth-container) {
     justify-content: center;
     gap: 10px;
     text-decoration: none;
+    box-shadow: 0 10px 25px rgba(17, 24, 39, 0.08), inset 0 1px 0 rgba(255,255,255,0.35);
 }
 
 .uas-button-primary {
@@ -178,7 +179,7 @@ html:has(.uas-auth-container) {
 }
 
 .uas-button-primary:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.01);
     box-shadow: 0 12px 30px rgba(255, 107, 157, 0.4);
 }
 
@@ -187,14 +188,14 @@ html:has(.uas-auth-container) {
 }
 
 .uas-button-secondary {
-    background: white;
-    color: #ff6b9d;
-    border: 2px solid #ff6b9d;
+    background: linear-gradient(180deg, #eef2ff 0%, #e0e7ff 100%);
+    color: #3730a3;
+    border: 1px solid rgba(99,102,241,0.25);
 }
 
 .uas-button-secondary:hover {
-    background: #ff6b9d;
-    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(99,102,241,0.25);
 }
 
 .uas-button-danger {
@@ -286,14 +287,57 @@ html:has(.uas-auth-container) {
    =================================== */
 
 .uas-profile-container {
-    background: transparent; /* Để dùng background của theme */
-    padding: 60px 20px;
-    min-height: auto; /* Tự động theo nội dung */
+    /* Nền trong suốt, gradient sẽ áp dụng ở body để phủ toàn trang */
     display: block;
 }
 
+/* Áp dụng gradient toàn trang khi có khối profile */
+body:has(#uas-profile-root) {
+    /* Palette mát mắt, hiện đại */
+    background: linear-gradient(135deg, #0f172a 0%, #111827 45%, #0b1220 100%);
+    background-size: 300% 300%;
+    background-attachment: fixed;
+    animation: uas-bg-shift 24s ease infinite;
+}
+
+.uas-profile-container::before,
+.uas-profile-container::after {
+    content: "";
+    position: fixed;
+    inset: auto auto 10% -10%;
+    width: 42vw;
+    height: 42vw;
+    pointer-events: none;
+    /* Indigo glow */
+    background: radial-gradient(closest-side, rgba(99,102,241,0.28), rgba(99,102,241,0) 70%);
+    filter: blur(36px);
+    transform: translateZ(0);
+    z-index: 0;
+    animation: uas-blob-1 22s ease-in-out infinite;
+}
+.uas-profile-container::after {
+    inset: 5% -10% auto auto;
+    width: 36vw;
+    height: 36vw;
+    /* Cyan glow */
+    background: radial-gradient(closest-side, rgba(14,165,233,0.28), rgba(14,165,233,0) 70%);
+    animation: uas-blob-2 28s ease-in-out infinite;
+}
+
+@keyframes uas-bg-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+@keyframes uas-blob-1 {
+    0%, 100% { transform: translate(-3%, 0) scale(1); }
+    50% { transform: translate(6%, -4%) scale(1.08); }
+}
+@keyframes uas-blob-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-5%, 3%) scale(1.06); }
+}
 .uas-profile-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
     color: white;
     border-radius: 20px;
     padding: 50px;
@@ -302,9 +346,28 @@ html:has(.uas-auth-container) {
     gap: 40px;
     max-width: 1000px;
     margin: 0 auto 40px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 50px rgba(76, 29, 149, 0.35), inset 0 0 0 1px rgba(255,255,255,0.12);
+    position: relative;
+    overflow: hidden;
+    background-size: 200% 200%;
+    animation: uas-gradient-header 12s ease infinite;
+    transform: translateZ(0);
 }
 
+.uas-profile-header::after {
+    content: "";
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 120%;
+    background: radial-gradient(closest-side, rgba(255,255,255,0.18), rgba(255,255,255,0) 70%);
+    pointer-events: none;
+    transform: translateY(-10%) rotate(-8deg);
+}
+.uas-profile-header:hover { transform: translateY(-2px); }
+@keyframes uas-gradient-header {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
 .profile-avatar {
     flex-shrink: 0;
 }
@@ -339,14 +402,18 @@ html:has(.uas-auth-container) {
 .uas-profile-content {
     max-width: 1000px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 .profile-card {
-    background: white;
-    border-radius: 15px;
+    background: rgba(255,255,255,0.66);
+    border-radius: 16px;
     padding: 35px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 10px 40px rgba(31,41,55,0.08);
+    backdrop-filter: blur(10px) saturate(120%);
 }
 
 .profile-card h3 {
@@ -363,7 +430,7 @@ html:has(.uas-auth-container) {
 
 .detail-item {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 220px 1fr;
     gap: 20px;
     padding: 15px;
     background: #F7FAFC;
@@ -380,7 +447,30 @@ html:has(.uas-auth-container) {
 }
 
 .activity-list {
-    min-height: 200px;
+    min-height: 220px;
+    border: 2px dashed #e5e7eb;
+    background: rgba(255,255,255,.65);
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+}
+
+.uas-empty {
+    text-align: center;
+    color: #6b7280;
+}
+.uas-empty .title {
+    font-weight: 700;
+    color: #374151;
+    margin-top: 10px;
+    margin-bottom: 4px;
+}
+.uas-empty .subtitle {
+    font-size: 12px;
+    color: #6b7280;
 }
 
 .profile-actions {
@@ -392,6 +482,31 @@ html:has(.uas-auth-container) {
 .profile-actions .uas-button {
     width: auto;
     flex: 1;
+}
+
+/* Editable inputs on profile */
+.uas-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #E2E8F0;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 13px;
+    transition: all .2s;
+    height: 44px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.05), 0 4px 12px rgba(17,24,39,0.05);
+}
+.uas-input:focus {
+    outline: none;
+    border-color: #ff6b9d;
+    box-shadow: 0 0 0 4px rgba(255,107,157,.12);
+    background: #fff;
+    transform: translateZ(0) scale(1.005);
+}
+.uas-input:disabled {
+    background: #F1F5F9;
+    color: #64748B;
+    cursor: default;
 }
 
 /* Responsive */

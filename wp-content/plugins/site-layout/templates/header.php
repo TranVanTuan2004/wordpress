@@ -57,7 +57,7 @@
                         </svg>
                     </button>
                     <div class="slp-dropdown-menu">
-                        <a href="<?php echo home_url('/tai-khoan'); ?>">Tài khoản</a>
+                        <a href="<?php echo home_url('/profile'); ?>">Tài khoản</a>
                         <a href="<?php echo home_url('/lich-su-dat-ve'); ?>">Lịch sử đặt vé</a>
                         <a href="<?php echo wp_logout_url(home_url()); ?>">Đăng xuất</a>
                     </div>
