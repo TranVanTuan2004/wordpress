@@ -1,9 +1,3 @@
-
-
-
-
-
-<!-- ****** Event ****** -->
 <?php
     // ===== Đăng ký Custom Post Type: Event =====
 function mytheme_register_event_post_type() {
@@ -36,5 +30,20 @@ function mytheme_register_event_post_type() {
     register_post_type('event', $args);
 }
 add_action('init', 'mytheme_register_event_post_type');
+?>
+
+<?php
+    // thêm file front-page.css để css cho front-page.php
+    function enqueue_front_page_styles() {
+    if ( is_front_page() ) { // chỉ load trên trang chủ
+        wp_enqueue_style(
+            'front-page-style',
+            get_template_directory_uri() . '/front-page.css',
+            array(), // dependencies nếu có
+            filemtime(get_template_directory() . '/front-page.css') // cache-busting
+            );
+        }
+    }
+add_action('wp_enqueue_scripts', 'enqueue_front_page_styles');
 
 ?>

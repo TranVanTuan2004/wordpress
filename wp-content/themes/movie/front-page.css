@@ -1,0 +1,153 @@
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background-color: #001f3f;
+    color: #fff;
+}
+
+/* title */
+.cinestar-menu {
+    background-color: #001f3f;
+    padding: 15px 0;
+    font-family: Arial, sans-serif;
+}
+
+.cinestar-menu ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 40px;
+}
+
+.cinestar-menu li a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.cinestar-menu li a:hover {
+    color: #ffcc00; /* vàng nổi bật khi hover */
+}
+
+
+/*  */
+
+.title{
+    text-align: center;
+    color: #e80a0aff;
+}
+/* Container bao toàn bộ slider */
+.movie-slider-wrapper {
+    /* width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center; */
+    position: relative;
+    width: 100%;
+    max-width: 880px;
+    margin: 100px auto;
+    overflow: hidden;
+    padding: 0 60px; /* chừa chỗ cho nút trái/phải */
+}
+
+/* Slider ngang */
+.movie-slider {
+    display: flex;
+    gap: 20px;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    padding: 20px;
+    max-width: 880px; /* 4 phim x 200px + 3 khoảng cách 20px */
+    scroll-behavior: smooth;
+}
+
+.movie-slider {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+.movie-slider::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+
+/* Mỗi thẻ phim */
+.movie-card {
+    flex: 0 0 300px;
+    scroll-snap-align: start;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 15px;
+    transition: transform 0.3s ease;
+}
+.movie-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Ảnh phim */
+.movie-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+/* Tiêu đề */
+.movie-card h3 {
+    font-size: 18px;
+    margin: 10px 0;
+    text-align: center;
+    color: #e80a0aff;
+}
+
+/* Thông tin phim */
+.movie-info {
+    list-style: none;
+    padding: 0;
+    font-size: 14px;
+    color: #555;
+}
+.movie-info li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+.movie-info a {
+    color: #e50914;
+    text-decoration: none;
+    font-weight: bold;
+}
+.movie-info a:hover {
+    text-decoration: underline;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #e50914;
+    color: #fff;
+    border: none;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Đặt nút nằm trong wrapper */
+.prev {
+    left: 0;
+}
+.next {
+    right: 0;
+}
