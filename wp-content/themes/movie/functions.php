@@ -1,49 +1,62 @@
-<?php
-    // ===== Đăng ký Custom Post Type: Event =====
-function mytheme_register_event_post_type() {
+<?php 
+function mytheme_enqueue_styles() {
+    wp_enqueue_style('mytheme-style', get_stylesheet_uri());
+}
+add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
+
+//thêm navbar phim
+function create_movie_post_type() {
     $labels = array(
-        'name'               => 'Sự kiện',
-        'singular_name'      => 'Sự kiện',
-        'menu_name'          => 'Event',
-        'name_admin_bar'     => 'Event',
-        'add_new'            => 'Thêm sự kiện',
-        'add_new_item'       => 'Thêm sự kiện mới',
-        'new_item'           => 'Sự kiện mới',
-        'edit_item'          => 'Chỉnh sửa sự kiện',
-        'view_item'          => 'Xem sự kiện',
-        'all_items'          => 'Tất cả sự kiện',
-        'search_items'       => 'Tìm sự kiện',
-        'not_found'          => 'Không có sự kiện nào',
-        'not_found_in_trash' => 'Không có sự kiện trong thùng rác'
+        'name' => 'Phim',
+        'singular_name' => 'Phim',
+        'add_new' => 'Thêm phim',
+        'add_new_item' => 'Thêm phim mới',
+        'edit_item' => 'Chỉnh sửa phim',
+        'all_items' => 'Tất cả phim',
+        'menu_name' => 'Phim'
     );
 
     $args = array(
         'labels' => $labels,
-        'public' => true, // hiển thị cả frontend và admin
+        'public' => true,
         'has_archive' => true,
-        'menu_icon' => 'dashicons-calendar-alt', // icon lịch
         'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
-        'rewrite' => array('slug' => 'event'),
-        'show_in_rest' => true // bật Gutenberg và REST API
+        'menu_position' => 5,
+        'menu_icon' => 'dashicons-video-alt2',
+        'show_in_rest' => true, // để Gutenberg editor hoạt động
     );
 
-    register_post_type('event', $args);
+    register_post_type('movie', $args);
 }
-add_action('init', 'mytheme_register_event_post_type');
-?>
+add_action('init', 'create_movie_post_type');
 
-<?php
-    // thêm file front-page.css để css cho front-page.php
-    function enqueue_front_page_styles() {
-    if ( is_front_page() ) { // chỉ load trên trang chủ
+// css in file front-page.php
+function mytheme_front_page_styles() {
+    if ( is_front_page() ) {  
         wp_enqueue_style(
-            'front-page-style',
+            'mytheme-front-page-style',
             get_template_directory_uri() . '/front-page.css',
-            array(), // dependencies nếu có
-            filemtime(get_template_directory() . '/front-page.css') // cache-busting
-            );
-        }
+            array(),      // không phụ thuộc file khác
+            '1.0'         // version (để tránh cache)
+        );
     }
-add_action('wp_enqueue_scripts', 'enqueue_front_page_styles');
+}
+add_action( 'wp_enqueue_scripts', 'mytheme_front_page_styles' );
+
+// script in file front-page.php
+function mytheme_front_page_scripts() {
+    if ( is_front_page() ) {
+        wp_enqueue_script(
+            'mytheme-front-script',
+            get_template_directory_uri() . '/script.js',
+            array('jquery'), // phụ thuộc jquery nếu cần
+            '1.0',
+            true // load ở footer
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'mytheme_front_page_scripts');
 
 ?>
+
+

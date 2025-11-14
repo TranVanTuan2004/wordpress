@@ -1,153 +1,1167 @@
-
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+}
+html, body{
+    /* background-color: #071e3d; */
+    
 }
 
-body{
-    background-color: #001f3f;
+body {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #8e2de2, #4a00e0, #00c6ff);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+ul, li, a{
+    text-decoration: none;
+    list-style: none;
     color: #fff;
 }
-
-/* title */
-.cinestar-menu {
-    background-color: #001f3f;
-    padding: 15px 0;
-    font-family: Arial, sans-serif;
+/* container */
+.container {
+  max-width: 1200px; 
+  margin: 0 auto;      
+  /* border: 1px solid black; */
+  padding-bottom: 100px;
 }
 
-.cinestar-menu ul {
+.header{
     display: flex;
-    justify-content: center;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 20px 0px;
+    border-bottom: 1px solid rgba(211, 211, 211, .4);
+}
+.po
+/* logo */
+.header .logo-header img{
+    width: 120px;
+}
+
+/* actions */
+.header .actions{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     gap: 40px;
 }
 
-.cinestar-menu li a {
-    color: #ffffff;
-    text-decoration: none;
+.header .actions .book{
+    /* transform: translateX(-100px); */
+}
+
+.header .actions .action-ticker,
+.header .actions .action-popcorn{
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    background-size: 200% 100%; /* để gradient di chuyển */
+    background-repeat: no-repeat;
+    transition: color 0.6s;
+    font-size: 18px;
+}
+
+
+/* action-ticker: gradient vàng -> tím */
+.header .actions .action-ticker {
+    background-image: linear-gradient(270deg, yellow, orange, #fff);
+    color: black;
+    animation: move-bg 4s linear infinite alternate;
+    transition: color 1s, background-image 1s;
+}
+
+.header .actions .action-ticker:hover {
+    background-image: linear-gradient(270deg, purple, blue, purple);
+    color: #fff;
+    animation: move-bg 1s linear infinite alternate;
+    transition: color .6s, background-image 1s;
+}
+
+/* action-popcorn: gradient tím -> cam */
+.header .actions .action-popcorn {
+    background-image: linear-gradient(270deg, purple, blue, #fff);
+    animation: move-bg 4s linear infinite alternate;
+    transition: color 1s, background-image 1s;
+}
+
+.header .actions .action-popcorn:hover {
+    background-image: linear-gradient(270deg, purple, orange, #fff);
+    animation: move-bg 1s linear infinite alternate;
+    transition: background-image 1s;
+}
+
+/* animation di chuyển gradient */
+@keyframes move-bg {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
+}
+
+/* search */
+.header .action-search {
+  position: relative;
+  display: inline-block;
+}
+
+.header .action-search input {
+  width: 250px;
+  font-size: 14px;
+  padding: 8px 30px 8px 10px;
+  border: none;
+  border-radius: 12px;
+  background-color: #fff;
+  color: #000;
+}
+
+.header .action-search button {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.header .action-search button img {
+  width: 18px;
+  height: 18px;
+  background-color: #fff;
+}
+
+/* Ẩn nút xóa mặc định trên Chrome, Edge, Safari */
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* login */
+.header .action-login a{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header .action-login a img{
+    width: 30px;
+}
+
+.header .action-login a p{
+    font-size: 16px;
+}
+.header .action-login a p:hover{
+    color: yellow;
+}
+
+/* language */
+.header .action-language{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.header .action-language img{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.header .action-language p{
+    font-size: 16px;
+}
+
+/* navbar */
+.navbar{
+    padding: 10px 0px;
+}
+
+.navbar .menu{
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbar .menu .menu-item{
+    padding: 10px 0px;
+}
+
+.navbar .menu .menu-item a{
+    font-size: 16px;
+}
+
+.navbar .menu .menu-left{
+    display: flex;
+    gap: 20px;
+}
+.navbar .menu .menu-left a:hover{
+    color: yellow;
+}
+
+.navbar .menu .menu-left a .location-icon{
+    color: white;
+    font-size: 18px;
+    padding: 0px 4px;
+}
+.navbar .menu .menu-left a:hover .location-icon{
+    color: yellow;
+}
+
+.navbar .menu .menu-right{
+    display: flex;
+    gap: 20px;
+}
+.navbar .menu .menu-right a:hover{
+    color: yellow;
+    border-bottom: 1px solid yellow;
+}
+
+.navbar .menu .menu-left .menu-item:first-child:hover > .dropdown{
+    display: flex;
+}
+
+/* làm dropdown */
+.navbar .menu .menu-left {
+    position: relative;
+}
+
+.navbar .menu .menu-left .menu-item{
+    position: relative;
+}
+
+.navbar .menu .dropdown{
+    display: none;
+    position: absolute;
+    top: calc(100% + 0px);
+    left: 0;
+    justify-content: space-around;
+    gap: 80px;
+    width: 1200px;
+    border: 1px solid gray;
+    z-index: 99;
+    padding: 20px 0px;
+    border-radius: 12px;
+    background-color: #071e3d;
+}
+
+.navbar .menu .dropdown .dropdown-column a{
+    display: block;
+    padding: 10px 0px;
+    font-size: 16px;
+}
+
+/* slider */
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  /* overflow: hidden; */
+  border-radius: 10px;
+}
+
+.slides {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.slides a {
+  min-width: 100%;
+  display: none;
+}
+
+.slides a.active {
+  display: block;
+}
+
+.slides img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
+button.prev, button.next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 50px;
+  background-color: transparent;
+}
+button.prev:hover, button.next:hover{
+    color: yellow;
+}
+
+button.prev { left: -50px; }
+button.next { right: -50px; }
+
+.slider .slides .active .book-ticker{
+    position: absolute;
+    bottom: 50px;
+    right: 200px;
+    display: inline-block;
+    padding: 12px 24px;
     font-size: 16px;
     font-weight: bold;
-    transition: color 0.3s ease;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    background-color: yellow;
+    color: #000;
+    overflow: hidden;
+    z-index: 1;
 }
 
-.cinestar-menu li a:hover {
-    color: #ffcc00; /* vàng nổi bật khi hover */
+/* Tạo lớp nền động */
+.slider .slides .active .book-ticker::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, purple, blue);
+  transition: left 0.4s ease;
+  z-index: -1;
+color: #fff;
 }
 
+/* Khi hover, lớp nền trượt qua */
+.slider .slides .active .book-ticker:hover::before {
+    left: 0;
+}
+
+.slider .slides .active .book-ticker:hover {
+  color: #fff;
+  transition: all .6s;
+}
+
+/* booking */
+
+/* color: #6a1b9a; */
+.booking {
+  max-width: 1200px;
+  margin-top: 40px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.booking .booking-title {
+  font-size: 26px;
+  color: #000;
+  background-color: #fff;
+  padding-right: 20px;
+}
+
+.booking .form-group {}
+.booking .form-group .form-select{
+    color: #6a1b9a;
+    font-size: 20px;
+    font-weight: bold;
+    width: 180px;
+    background-color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 10px;
+    
+}
+.booking .form-group .form-select.active {
+  background-color: yellow;
+  color: #6a1b9a;
+}
+
+.booking .form-group .form-select option{
+    font-size: 16px;
+    background-color: #071e3d;
+}
+
+.booking .btn-booking {
+  position: relative;
+  background-color: #6a1b9a;
+  padding: 15px 10px;
+  color: #fff;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+.booking .btn-booking::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(255, 123, 0),rgb(250, 182, 57));
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+.booking .btn-booking:hover::before {
+  left: 0;
+}
+
+.booking .btn-booking:hover {
+  color: #fff;
+}
+
+/* movie */
+.movie-section {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px;
+  color: #fff;
+  position: relative;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #f5f5f5;
+}
+
+.movie-carousel {
+  position: relative;
+  overflow: hidden;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.movie-link{
+    display: block;
+    flex: 0 0 25%;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 380px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+}
+
+.movie-list {
+  display: flex;
+  transition: transform 0.5s ease;
+  width: calc(100%); /* nếu có 2 nhóm phim */
+}
+
+.movie-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+}
+.movie-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(10, 10, 10, 0.8);
+  color: #fff;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 10px;
+  text-align: start;
+}
+.movie-card:hover .movie-overlay {
+  opacity: 1;
+}
+
+.movie-overlay h3,
+.movie-overlay p {
+  background-color: rgba(10, 10, 10, 0.6); /* giống lớp phủ */
+  padding: 10px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+
+.movie-overlay i{
+    color: yellow;
+    padding: 2px;
+    background-color: rgba(10, 10, 10, 0.6);
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  /* transform: translateY(-50%); */
+  border: none;
+  color: #fff;
+  font-size: 30px;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 99;
+  transition: background 0.3s;
+}
+
+.nav-btn:hover {
+  color: yellow;
+}
+
+.nav-btn.left {
+  left: -30px;
+  background-color: transparent;
+}
+
+.nav-btn.right {
+  right: -30px;
+    background-color: transparent;
+}
+
+/* movie action */
+.movie-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    background-color: rgba(10, 10, 10, 0.6);
+}
+
+.btn {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  padding: 8px;
+  font-size: 12px;
+  background-color: #007bff; /* nền xanh dương */
+  color: #fff; /* chữ trắng mặc định */
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  z-index: 1;
+}
+
+/* lớp phủ gradient tím → xanh dương */
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgb(128, 0, 128), rgb(0, 123, 255));
+  transition: left 0.4s ease;
+  z-index: 0;
+}
+
+/* khi hover, lớp phủ trượt vào */
+.btn:hover::before {
+  left: 0;
+}
+
+/* giữ chữ trắng khi hover */
+.btn:hover {
+  color: #fff;
+  background-color: #007bff;
+}
+
+/* đảm bảo chữ nằm trên lớp phủ */
+.btn span {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(to right, rgb(0, 123, 255), rgb(136, 2, 136));
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  height: 100%;
+  width: 100%;
+}
+
+.trailer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgb(221, 13, 13), rgb(0, 123, 255));
+  transition: left 0.4s ease;
+  z-index: 1;
+}
+
+.btn:hover::before {
+  left: 0;
+}
+
+.btn:hover {
+  color: #fff;
+}
+
+/* view more */
+.btn-viewmore {
+  position: relative;
+  width: 200px;
+  padding: 10px 10px;
+  color: #000;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease;
+  border: 1px solid #fff;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: yellow;
+}
+.btn-viewmore::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(255, 123, 0),rgb(250, 182, 57));
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+.btn-viewmore:hover::before {
+  left: 0;
+}
+
+.btn-viewmore:hover {
+  color: #fff;
+}
+
+/* comming soon */
+.coming{
+    margin-top: 100px;
+}
+
+/* promotion */
+.promotion {
+  padding: 40px 20px;
+  /* text-align: center; */
+  color: white;
+}
+
+.promotion h1 {
+  font-size: 36px;
+  margin-bottom: 30px;
+}
+
+.promotion-slider {
+  position: relative;
+  max-width: 1200px;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.promotion-slides {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.promotion-slide {
+  min-width: 100%;
+  display: none;
+}
+
+.promotion-slide.promotion-active {
+  display: block;
+}
+
+.promotion-slide a{
+  display: block;
+}
+
+.promotion-slide img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.promotion-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255,255,255,0.3);
+  border: none;
+  font-size: 30px;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.promotion-prev {
+  left: 10px;
+}
+
+.promotion-next {
+  right: 10px;
+}
+
+/* membership */
+.membership {
+  max-width: 1200vw;
+  height: 800px;
+  border: 1px solid aqua;
+  background-image: url('https://cinestar.com.vn/assets/images/bg-cfriends.webp');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+
+.membership .overlay{
+  text-align: center
+}
+
+.membership .overlay h2{
+    font-size: 33px;
+    padding: 100px 0;
+}
+
+.membership .cards{
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  text-align: start;
+  position: relative;
+}
+
+.membership .cards .card a{
+  display: block;
+}
+
+.membership .cards .card p{
+  padding: 20px 0;
+}
+
+
+.membership .cards .card img{
+  width: 500px;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6),
+            0 0 20px rgba(255, 215, 0, 0.5),
+            0 0 30px rgba(255, 215, 0, 0.4);
+  border-radius: 6px;
+}
+
+.name_member{
+  font-size: 32px;
+  font-weight: bold;
+  padding: 20px 0px;
+  margin-top: 10px;
+}
+
+/* entertainment */
+.entertainment {
+  background-color: transparent;
+  color: white;
+  text-align: center;
+  margin-top: 150px;
+}
+
+.entertainment h2 {
+  font-size: 36px;
+  margin-bottom: 30px;
+  padding: 20px;
+}
+
+.entertainment p {
+  font-size: 18px;
+  margin-bottom: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.service-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+  transform: scale(1.05);
+}
+
+.service-card img {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* contact */
+.contact{
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1200vw;
+  margin-top: 100px ;
+  background-color: #071e3d;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.contact-left, .contact-right {
+  flex: 1;
+  padding: 30px;
+}
+
+.contact-left {
+  background-color: #071e3d;
+  text-align: center;
+    display: flex;
+  flex-direction: column;
+  align-items: center;     /* căn giữa theo chiều ngang */
+  justify-content: center
+}
+
+.contact-left h2 {
+  margin: 50px 0px;
+  color: #fff;
+  text-align: center;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.social-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 5px;
+  color: white;
+  background: linear-gradient(to right, #8e2de2, #4a00e0, #00c6ff);
+  margin: 50px 0;
+  height: 80px;
+  width: 400px;
+}
+
+
+.facebook img {
+  position: absolute;
+  top: 50%;
+  left: -40px;
+  transform: translateY(-50%);
+  height: 205px;
+  background: transparent;
+}
+
+.zalo img {
+  position: absolute;
+  top: -20px;
+  right: -60px;
+  /* transform: translateY(-50%); */
+  height: 150px;
+  background: transparent;
+}
+
+
+.facebook {
+  background-color: #3b5998;
+  justify-content: end;
+}
+
+.zalo {
+  background-color: #008fe5;
+  justify-content: start;
+}
+
+.contact-right{
+    background-color: #0077cc;
+    border-radius: 12px;
+}
+
+.contact-right h2 {
+  margin-bottom: 20px;
+  /* color: #fff; */
+  background-color: #0077cc;
+}
+
+.contact-right p {
+  margin: 10px;
+  font-size: 16px;
+  background-color: #0077cc;
+}
+
+.contact-right p a{
+  padding: 0 10px;
+}
+
+.contact-right a {
+  color: #fff;
+  text-decoration: none;
+  background-color: #0077cc;
+}
+
+form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  background-color: #0077cc;
+}
+
+form input, form textarea {
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #000;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+form button {
+  padding: 12px;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #e65c00;
+}
+
+/* footer */
+.cinestar-footer {
+  background: linear-gradient(to right, #8e2de2, #4a00e0, #00c6ff);
+  color: white;
+  padding: 40px 20px;
+}
+
+.footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 30px;
+  border-bottom: 1px solid #fff;
+  padding: 50px 0;
+}
+
+.brand {
+  flex: 1 1 250px;
+}
+
+.brand .book-brand{
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+#zalo{
+  transform: translateY(5px);
+}
+/*  */
+.brand .book-brand .btn-ticker {
+  position: relative;
+  width: 140px;
+  padding: 10px 10px;
+  color: #000;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease;
+  background-color: yellow;
+}
+.brand .book-brand .btn-ticker::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(51, 138, 238),rgb(14, 35, 155));
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+.brand .book-brand .btn-ticker:hover::before {
+  left: 0;
+}
+
+.brand .book-brand .btn-ticker:hover {
+  color: #fff;
+}
 
 /*  */
 
-.title{
-    text-align: center;
-    color: #e80a0aff;
+.brand .book-brand .btn-corn {
+  position: relative;
+  width: 140px;
+  padding: 10px 10px;
+  color: yellow;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease;
+  background-color: transparent;
+  border: 1px solid yellow;
 }
-/* Container bao toàn bộ slider */
-.movie-slider-wrapper {
-    /* width: 100%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center; */
-    position: relative;
-    width: 100%;
-    max-width: 880px;
-    margin: 100px auto;
-    overflow: hidden;
-    padding: 0 60px; /* chừa chỗ cho nút trái/phải */
-}
-
-/* Slider ngang */
-.movie-slider {
-    display: flex;
-    gap: 20px;
-    scroll-snap-type: x mandatory;
-    overflow-x: auto;
-    padding: 20px;
-    max-width: 880px; /* 4 phim x 200px + 3 khoảng cách 20px */
-    scroll-behavior: smooth;
-}
-
-.movie-slider {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE 10+ */
-}
-.movie-slider::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
-}
-
-/* Mỗi thẻ phim */
-.movie-card {
-    flex: 0 0 300px;
-    scroll-snap-align: start;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    padding: 15px;
-    transition: transform 0.3s ease;
-}
-.movie-card:hover {
-    transform: translateY(-5px);
-}
-
-/* Ảnh phim */
-.movie-card img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    object-fit: cover;
-    margin-bottom: 10px;
-}
-
-/* Tiêu đề */
-.movie-card h3 {
-    font-size: 18px;
-    margin: 10px 0;
-    text-align: center;
-    color: #e80a0aff;
-}
-
-/* Thông tin phim */
-.movie-info {
-    list-style: none;
-    padding: 0;
-    font-size: 14px;
-    color: #555;
-}
-.movie-info li {
-    margin-bottom: 6px;
-    line-height: 1.4;
-}
-.movie-info a {
-    color: #e50914;
-    text-decoration: none;
-    font-weight: bold;
-}
-.movie-info a:hover {
-    text-decoration: underline;
-}
-
-.slider-btn {
+.brand .book-brand .btn-corn::before{
+    content: "";
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #e50914;
-    color: #fff;
-    border: none;
-    font-size: 24px;
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-    border-radius: 50%;
-    z-index: 10;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(230, 157, 89),rgb(202, 116, 18));
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+.brand .book-brand .btn-corn:hover::before {
+  left: 0;
 }
 
-/* Đặt nút nằm trong wrapper */
-.prev {
-    left: 0;
+.brand .book-brand .btn-corn:hover {
+  color: #fff;
 }
-.next {
-    right: 0;
+
+.brand h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
 }
+
+.brand p {
+  margin-bottom: 10px;
+}
+
+.brand ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.brand ul li {
+  margin-bottom: 5px;
+}
+
+.brand ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+.social-icons a {
+  margin-right: 10px;
+}
+
+.social-icons img {
+  width: 24px;
+  height: 24px;
+}
+
+.language {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.language img{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 5px;
+  transform: translateY(5px);
+}
+
+.footer-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  flex: 3;
+}
+
+.column {
+  flex: 1 1 180px;
+}
+
+.column h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.column ul li {
+  margin-bottom: 6px;
+}
+
+.column ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.column ul li a:hover {
+  text-decoration: underline;
+}
+
+
