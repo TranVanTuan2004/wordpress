@@ -1,72 +1,34 @@
 /*
-Theme Name: Movie Theme
-Theme URI: https://example.com/movie-theme
-Author: Generated
-Author URI: https://example.com
-Description: A minimal starter theme for building a movie website. Includes a custom post type "movie" and basic templates.
-Version: 1.0.0
-License: GPLv2 or later
-Text Domain: movie-theme
-Tags: custom-background, custom-logo, custom-menu, featured-images, theme-options
-*/
+ Theme Name: Movie
+ Theme URI: https://wordpress.org/
+ Author: Phuong Thao
+ Author URI: https://wordpress.org/
+ Description: My first basic theme
+ Tags: theme, basic theme
+ Version: 1.0
+ Requires at least: 5.0
+ Tested up to: 5.4
+ Requires PHP: 7.0
+ Text Domain: movie
+ */
 
-/* Basic styles */
+/* --- CSS bắt đầu từ đây --- */
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
-  color: #222;
-  background: #fff;
+  font-family: Arial, sans-serif;
 }
-.site-header,
-.site-footer {
-  background: #111;
-  color: #fff;
-  padding: 16px;
+
+header {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  text-align: center;
 }
-.site-title {
-  font-size: 24px;
-  margin: 0;
+
+main {
+  padding: 20px;
 }
-.container {
-  width: 1100px;
-  max-width: 95%;
-  margin: 20px auto;
-}
-.movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-.movie-card {
-  border: 1px solid #e5e5e5;
-  padding: 12px;
-  border-radius: 6px;
-  background: #fafafa;
-}
-.movie-card img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 4px;
-}
-.movie-meta {
-  font-size: 14px;
-  color: #666;
-  margin-top: 8px;
-}
-.movie-title {
-  font-weight: 700;
-  margin: 8px 0;
-}
-.read-more {
-  display: inline-block;
-  margin-top: 8px;
-  color: #0073aa;
-  text-decoration: none;
-}
-@media (max-width: 600px) {
-  .container {
-    padding: 12px;
-  }
-}
+
+/* style slider front-page */
