@@ -1,47 +1,5 @@
 <?php get_header(); ?>
-      <!-- navbar -->
-      <nav class="navbar">
-        <ul class="menu">
-          <!-- menu-left -->
-          <div class="menu-left">
-            <li class="menu-item">
-              <a href="#">
-                <i class="fas fa-map-marker-alt location-icon"></i> Chọn rạp
-              </a>
-              <div class="dropdown">
-                <div class="dropdown-column">
-                  <a href="#">Cinestar Quốc Thanh (TP.HCM)</a>
-                  <a href="#">Cinestar Huế (TP. Huế)</a>
-                  <a href="#">Cinestar Mỹ Tho (Đồng Tháp)</a>
-                </div>
-                <div class="dropdown-column">
-                  <a href="#">Cinestar Hai Bà Trưng (TP.HCM)</a>
-                  <a href="#">Cinestar Đà Lạt (Lâm Đồng)</a>
-                  <a href="#">Cinestar Kiên Giang (An Giang)</a>
-                </div>
-                <div class="dropdown-column">
-                  <a href="#">Cinestar Sinh Viên (TP.HCM)</a>
-                  <a href="#">Cinestar Lâm Đồng (Đức Trọng)</a>
-                  <a href="#">Cinestar Satra Quận 6 (TP.HCM)</a>
-                </div>
-              </div>
-            </li>
-            <li class="menu-item">
-              <a href="#">
-                <i class="fas fa-map-marker-alt location-icon"></i>
-                Lịch chiếu</a
-              >
-            </li>
-          </div>
-          <!-- menu-right -->
-          <div class="menu-right">
-            <li class="menu-item"><a href="#">Khuyến mãi</a></li>
-            <li class="menu-item"><a href="#">Tổ chức sự kiện</a></li>
-            <li class="menu-item"><a href="#">Dịch vụ giải trí khác</a></li>
-            <li class="menu-item"><a href="#">Giới thiệu</a></li>
-          </div>
-        </ul>
-      </nav>
+
 
       <!-- slider -->
       <div class="slider">
