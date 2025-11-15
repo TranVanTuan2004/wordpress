@@ -1,5 +1,15 @@
 <?php get_header(); ?>
-
+<?php 
+  // Lấy các custom fields của phim hiện tại
+  $duration     = get_post_meta(get_the_ID(), '_mbs_duration', true);
+  $director     = get_post_meta(get_the_ID(), '_mbs_director', true);
+  $actors       = get_post_meta(get_the_ID(), '_mbs_actors', true);
+  $release_date = get_post_meta(get_the_ID(), '_mbs_release_date', true);
+  $rating       = get_post_meta(get_the_ID(), '_mbs_rating', true);
+  $trailer_url  = get_post_meta(get_the_ID(), '_mbs_trailer_url', true);
+  $language     = get_post_meta(get_the_ID(), '_mbs_language', true);
+  $thumb_url    = get_the_post_thumbnail_url(get_the_ID(), 'large');
+?>
       <!-- movie detail -->
       <div class="movie-detail">
         <div class="movie-poster">
@@ -10,32 +20,25 @@
         </div>
 
         <div class="movie-info">
-          <h1>NÚI TẾ VONG (T16)</h1>
+          <h1><?php the_title(); ?>
+              </h1>
           <ul class="movie-meta">
             <li><strong>Thể loại:</strong> Kinh Dị</li>
-            <li><strong>Thời lượng:</strong> 89'</li>
+            <li><strong>Thời lượng:</strong> <?php echo esc_html($duration); ?></li>
             <li><strong>Định dạng:</strong> 2D, Phụ Đề</li>
             <li>
               <strong>Phân loại:</strong> T16 - Phim dành cho khán giả từ đủ 16
               tuổi trở lên
             </li>
-            <li><strong>Khởi chiếu:</strong> Thứ Sáu, 14/11/2025</li>
+            <li><strong>Khởi chiếu:</strong> <?php echo esc_html($release_date); ?></li>
             <li>
-              <strong>Diễn viên:</strong> Tào Hựu Ninh, Lưu Dĩ Hào, Viên Lễ Lâm
+              <strong>Diễn viên:</strong> <?php echo esc_html($actors); ?>
             </li>
           </ul>
 
           <div class="movie-description">
             <h2>Nội dung phim</h2>
-            <p>
-              Ở Đài Loan có một câu nói truyền miệng nổi tiếng về khu rừng dưới
-              Núi Ngọc Sơn, rằng: “Nếu chẳng may lạc trong rừng mà thấy bóng
-              người mặc áo mưa màu vàng thì tuyệt đối đừng đi theo.” Gia Minh,
-              Ngọc Hân và An Vĩ là những người bạn thân trong câu lạc bộ leo núi
-              ở trường đại học. Trong một chuyến leo núi, thay vì đi theo lộ
-              trình ban đầu thì cả 3 lại liều lĩnh bước vào khu vực cấm đã được
-              cảnh báo trong rừng và bị lạc...
-            </p>
+             <p><?php the_content(); ?></p>
             <a href="#" class="trailer-button">🎬 Xem Trailer</a>
           </div>
         </div>

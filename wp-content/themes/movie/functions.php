@@ -80,9 +80,7 @@ function mytheme_front_page_scripts() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_front_page_scripts');
 
-//single-movieregister_post_type
 // css in file single-mbs_movie.php
-// single-movie.php
 function mytheme_single_movie_styles() {
     if ( is_singular('mbs_movie') ) { // hoặc 'movie' nếu bạn đổi lại
         wp_enqueue_style(
@@ -95,6 +93,19 @@ function mytheme_single_movie_styles() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_single_movie_styles');
 
+// Script riêng cho trang chi tiết phim (single-mbs_movie.php)
+function mytheme_single_movie_scripts() {
+    if ( is_singular('mbs_movie') ) {
+        wp_enqueue_script(
+            'mytheme-single-movie-script',
+            get_stylesheet_directory_uri() . '/script-movie.js',
+            array('jquery'), // phụ thuộc jquery nếu cần
+            '1.0',
+            true // load ở footer
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'mytheme_single_movie_scripts');
 
 
 ?>
