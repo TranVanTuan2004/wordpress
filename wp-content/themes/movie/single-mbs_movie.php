@@ -14,7 +14,7 @@
       <div class="movie-detail">
         <div class="movie-poster">
           <img
-            src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75"
+            src="<?php echo $thumb_url ? $thumb_url : 'https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75'; ?>"
             alt="Núi Tế Vong Poster"
           />
         </div>
