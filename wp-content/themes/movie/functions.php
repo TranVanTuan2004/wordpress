@@ -37,8 +37,15 @@ function mytheme_front_page_styles() {
             'mytheme-front-page-style',
             get_template_directory_uri() . '/front-page.css',
             array(),      // không phụ thuộc file khác
+            // filemtime(get_template_directory() . '/front-page.css'), //Update khi thay đổi
             '1.0'         // version (để tránh cache)
         );
+        
+        // CSS riêng cho header
+        wp_enqueue_style('header-style', get_template_directory_uri() . '/header.css');
+
+        // CSS riêng cho footer
+        wp_enqueue_style('footer-style', get_template_directory_uri() . '/footer.css');
     }
 }
 add_action( 'wp_enqueue_scripts', 'mytheme_front_page_styles' );
