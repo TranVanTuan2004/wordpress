@@ -1,6 +1,11 @@
+<?php
+  $args = array(
+    'post_type' => 'mbs_movie',
+    // 'posts_per_page' => 3
+  );
+  $query = new WP_Query($args);
+?>
 <?php get_header(); ?>
-
-
       <!-- slider -->
       <div class="slider">
         <div class="slides">
@@ -122,18 +127,33 @@
           </button>
           <div class="movie-carousel">
             <div class="movie-list" id="movieList1">
+              <?php 
+                while($query->have_posts()){
+                  $query->the_post();
+                  // Lấy nội dung của từng phim
+                  $duration = get_post_meta(get_the_ID(), '_mbs_duration', true);
+                  $director = get_post_meta(get_the_ID(), '_mbs_director', true);
+                  $actors = get_post_meta(get_the_ID(), '_mbs_actors', true);
+                  $release_date = get_post_meta(get_the_ID(), '_mbs_release_date', true);
+                  $rating = get_post_meta(get_the_ID(), '_mbs_rating', true);
+                  $trailer_url = get_post_meta(get_the_ID(), '_mbs_trailer_url', true);
+                  $language = get_post_meta(get_the_ID(), '_mbs_language', true);
+                  // ảnh
+                  $thumb_url = get_the_post_thumbnail_url(get_the_ID(), 'medium');
+              ?>
+
               <a href="#" class="movie-link">
                 <div class="movie-card">
                   <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75"
+                     src="<?php echo $thumb_url ? $thumb_url : 'https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75'; ?>"
                     alt="NÚI TẾ VONG"
                   />
                   <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
+                    <h3><?php the_title(); ?></h3>
                     <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
+                    <p><i class="bx bx-time"></i> <?php echo esc_html($duration); ?> </p>
                     <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
+                    <p><i class="bx bx-message-square-dots"></i> <?php echo esc_html($language); ?></p>
                     <div class="movie-actions">
                       <button class="btn trailer">
                         <span>Xem trailer</span>
@@ -143,69 +163,10 @@
                   </div>
                 </div>
               </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftruy-tien-long-dien-huong-poster.jpg&w=1920&q=75"
-                    alt="TRUY TÌM LONG DIÊN HƯƠNG"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fkhong-bong-tuyet-nao-trong-sach-poster.jpg&w=1920&q=75"
-                    alt="KHÔNG BÔNG TUYẾT NÀO TRONG SẠCH"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
+                <?php
+                }
+                wp_reset_postdata(); 
+              ?>
 
               <!-- 4 -->
               <a href="#" class="movie-link">
