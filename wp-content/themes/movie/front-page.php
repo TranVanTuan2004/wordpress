@@ -142,7 +142,7 @@
                   $thumb_url = get_the_post_thumbnail_url(get_the_ID(), 'medium');
               ?>
 
-              <a href="#" class="movie-link">
+              <a href="<?php echo get_permalink(); ?>" class="movie-link">
                 <div class="movie-card">
                   <img
                      src="<?php echo $thumb_url ? $thumb_url : 'https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75'; ?>"
