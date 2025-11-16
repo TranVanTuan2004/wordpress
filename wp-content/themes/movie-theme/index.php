@@ -13,3 +13,12 @@ while (have_posts()){
     ?>
     <a href="<?php the_permalink(); ?>"><?php the_permalink(); //Đường link tới bài viết ?></a>
 <?php }?>
+
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+</style>
