@@ -129,3 +129,4 @@ startPromotionAuto();
 
 showPromotionSlide(currentPromotionIndex);
 startPromotionAuto();
+
