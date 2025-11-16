@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home page</title>
+    <!-- links -->
+    <!-- <?php wp_head(); ?> -->
+    <link rel="stylesheet" href="front-page.css" />
+    <link rel="stylesheet" href="single-movie.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- header -->
+      <div class="header">
+        <a href="#" class="logo-header">
+          <img
+            src="https://cinestar.com.vn/_next/image/?url=%2Fassets%2Fimages%2Fheader-logo.png&w=1920&q=75"
+            alt="header-logo"
+          />
+        </a>
+        <div class="actions">
+          <!--  -->
+          <div class="book">
+            <a href="#" class="action-ticker">ĐẶT VÉ NGAY</a>
+            <a href="#" class="action-popcorn">ĐẶT BẮP NƯỚC</a>
+          </div>
+          <!--  -->
+          <div class="action-search">
+            <input
+              type="search"
+              name="search"
+              id="search"
+              placeholder="Tìm phim, rạp"
+            />
+            <button type="submit">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/149/149852.png"
+                alt="search"
+              />
+            </button>
+          </div>
+          <!--  -->
+          <div class="action-login">
+            <a href="#">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                alt=""
+              />
+              <p>Đăng nhập</p>
+            </a>
+          </div>
+          <!--  -->
+          <a href="#" class="action-language">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg"
+              alt="icon language"
+            />
+            <p>VN</p>
+            <span class="arrow-down">&#9662;</span>
+            <!-- ▼ -->
+          </a>
+        </div>
+      </div>
+      <!-- navbar -->
+      <nav class="navbar">
+        <ul class="menu">
+          <!-- menu-left -->
+          <div class="menu-left">
+            <li class="menu-item">
+              <a href="#">
+                <i class="fas fa-map-marker-alt location-icon"></i> Chọn rạp
+              </a>
+              <div class="dropdown">
+                <div class="dropdown-column">
+                  <a href="#">Cinestar Quốc Thanh (TP.HCM)</a>
+                  <a href="#">Cinestar Huế (TP. Huế)</a>
+                  <a href="#">Cinestar Mỹ Tho (Đồng Tháp)</a>
+                </div>
+                <div class="dropdown-column">
+                  <a href="#">Cinestar Hai Bà Trưng (TP.HCM)</a>
+                  <a href="#">Cinestar Đà Lạt (Lâm Đồng)</a>
+                  <a href="#">Cinestar Kiên Giang (An Giang)</a>
+                </div>
+                <div class="dropdown-column">
+                  <a href="#">Cinestar Sinh Viên (TP.HCM)</a>
+                  <a href="#">Cinestar Lâm Đồng (Đức Trọng)</a>
+                  <a href="#">Cinestar Satra Quận 6 (TP.HCM)</a>
+                </div>
+              </div>
+            </li>
+            <li class="menu-item">
+              <a href="#">
+                <i class="fas fa-map-marker-alt location-icon"></i>
+                Lịch chiếu</a
+              >
+            </li>
+          </div>
+          <!-- menu-right -->
+          <div class="menu-right">
+            <li class="menu-item"><a href="#">Khuyến mãi</a></li>
+            <li class="menu-item"><a href="#">Tổ chức sự kiện</a></li>
+            <li class="menu-item"><a href="#">Dịch vụ giải trí khác</a></li>
+            <li class="menu-item"><a href="#">Giới thiệu</a></li>
+          </div>
+        </ul>
+      </nav>
+
+      <!-- movie detail -->
+      <div class="movie-detail">
+        <div class="movie-poster">
+          <img
+            src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75"
+            alt="Núi Tế Vong Poster"
+          />
+        </div>
+
+        <div class="movie-info">
+          <h1>NÚI TẾ VONG (T16)</h1>
+          <ul class="movie-meta">
+            <li><strong>Thể loại:</strong> Kinh Dị</li>
+            <li><strong>Thời lượng:</strong> 89'</li>
+            <li><strong>Định dạng:</strong> 2D, Phụ Đề</li>
+            <li>
+              <strong>Phân loại:</strong> T16 - Phim dành cho khán giả từ đủ 16
+              tuổi trở lên
+            </li>
+            <li><strong>Khởi chiếu:</strong> Thứ Sáu, 14/11/2025</li>
+            <li>
+              <strong>Diễn viên:</strong> Tào Hựu Ninh, Lưu Dĩ Hào, Viên Lễ Lâm
+            </li>
+          </ul>
+
+          <div class="movie-description">
+            <h2>Nội dung phim</h2>
+            <p>
+              Ở Đài Loan có một câu nói truyền miệng nổi tiếng về khu rừng dưới
+              Núi Ngọc Sơn, rằng: “Nếu chẳng may lạc trong rừng mà thấy bóng
+              người mặc áo mưa màu vàng thì tuyệt đối đừng đi theo.” Gia Minh,
+              Ngọc Hân và An Vĩ là những người bạn thân trong câu lạc bộ leo núi
+              ở trường đại học. Trong một chuyến leo núi, thay vì đi theo lộ
+              trình ban đầu thì cả 3 lại liều lĩnh bước vào khu vực cấm đã được
+              cảnh báo trong rừng và bị lạc...
+            </p>
+            <a href="#" class="trailer-button">🎬 Xem Trailer</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- showtime -->
+      <div class="showtime-section">
+        <h2 class="section-title">LỊCH CHIẾU</h2>
+
+        <div class="showtime-dates">
+          <button class="date active">14/11 Thứ Sáu</button>
+          <button class="date">15/11 Thứ Bảy</button>
+          <button class="date">16/11 Chủ Nhật</button>
+        </div>
+
+        <div class="cinema">
+          <h3>DANH SÁCH RẠP</h3>
+          <select class="location-selector">
+            <option>HỒ CHÍ MINH</option>
+            <option>HÀ NỘI</option>
+            <option>ĐÀ NẴNG</option>
+            <option>CẦN THƠ</option>
+          </select>
+        </div>
+      <!-- cinema-list -->
+        <div class="cinema-list">
+          <!-- Rạp 1 -->
+          <div class="cinema-item" onclick="toggleCinema(this)">
+            <div class="cinema-header">
+              <span>Cinestar Quốc Thanh (TP.HCM)</span>
+              <span class="arrow">▶</span>
+            </div>
+            <div class="cinema-detail">
+              <p>📍 271 Nguyễn Trãi, Phường Nguyễn Cư Trinh, Quận 1, TP.HCM</p>
+              <p><strong>Deluxe:</strong></p>
+              <div class="showtimes">
+                <span class="disabled">10:00</span>
+                <span>16:20</span>
+                <span>22:15</span>
+                <span>23:59</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rạp 2 -->
+          <div class="cinema-item" onclick="toggleCinema(this)">
+            <div class="cinema-header">
+              <span>Cinestar Satra Quận 6 (TP.HCM)</span>
+              <span class="arrow">▶</span>
+            </div>
+            <div class="cinema-detail">
+              <p>📍 TTTM Satra, Đường 3/2, Quận 6, TP.HCM</p>
+              <p><strong>Standard:</strong></p>
+              <div class="showtimes">
+                <span>11:00</span>
+                <span>17:30</span>
+                <span>20:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rạp 3 -->
+          <div class="cinema-item" onclick="toggleCinema(this)">
+            <div class="cinema-header">
+              <span>Cinestar Hai Bà Trưng (TP.HCM)</span>
+              <span class="arrow">▶</span>
+            </div>
+            <div class="cinema-detail">
+              <p>📍 135 Hai Bà Trưng, Quận 1, TP.HCM</p>
+              <p><strong>VIP:</strong></p>
+              <div class="showtimes">
+                <span>12:00</span>
+                <span>18:45</span>
+                <span>21:30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <footer class="cinestar-footer">
+      <div class="container">
+        <div class="footer-top">
+          <div class="brand">
+            <img
+              src="https://cinestar.com.vn/_next/image/?url=%2Fassets%2Fimages%2Fheader-logo.png&w=1920&q=75"
+              alt=""
+            />
+            <p>BE HAPPY, BE A STAR</p>
+            <div class="book-brand">
+              <button class="btn-ticker">ĐẶT VÉ</button>
+              <button class="btn-corn">ĐẶT BẮP NƯỚC</button>
+            </div>
+            <div class="social-icons">
+              <a href="#"><i class="bx bxl-facebook-circle"></i></a>
+              <a href="#"><i class="bx bxl-youtube"></i></a>
+              <a href="#"><i class="bx bxl-tiktok"></i></a>
+              <a href="#"
+                ><img
+                  id="zalo"
+                  width="24"
+                  height="24"
+                  loading="lazy"
+                  sizes="(max-width: 768px) 24px, 24px"
+                  src="https://cinestar.com.vn/assets/images/ic-zl-white.svg"
+                  alt=""
+              /></a>
+            </div>
+            <p class="language">
+              Ngôn ngữ:
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg"
+                alt="icon language"
+              />
+              VN
+            </p>
+          </div>
+
+          <div class="footer-columns">
+            <div class="column">
+              <h4>TÀI KHOẢN</h4>
+              <ul>
+                <li><a href="#">Đăng nhập</a></li>
+                <li><a href="#">Đăng ký</a></li>
+                <li><a href="#">Membership</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h4>THUÊ SỰ KIỆN</h4>
+              <ul>
+                <li><a href="#">Thuê rạp</a></li>
+                <li><a href="#">Các loại hình cho thuê khác</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h4>DỊCH VỤ KHÁC</h4>
+              <ul>
+                <li><a href="#">Nhà hàng</a></li>
+                <li><a href="#">Kidzone</a></li>
+                <li><a href="#">Bowling</a></li>
+                <li><a href="#">Billiards</a></li>
+                <li><a href="#">Gym</a></li>
+                <li><a href="#">Nhà hát Opera</a></li>
+                <li><a href="#">Coffee</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h4>XEM PHIM</h4>
+              <ul>
+                <li><a href="#">Phim đang chiếu</a></li>
+                <li><a href="#">Phim sắp chiếu</a></li>
+                <li><a href="#">Suất chiếu đặc biệt</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h4>CINESTAR</h4>
+              <ul>
+                <li><a href="#">Giới thiệu</a></li>
+                <li><a href="#">Liên hệ</a></li>
+                <li><a href="#">Tuyển dụng</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h4>HỆ THỐNG RẠP</h4>
+              <ul>
+                <li><a href="#">Tất cả hệ thống rạp</a></li>
+                <li><a href="#">Cinestar Quốc Thanh (TP.HCM)</a></li>
+                <li><a href="#">Cinestar Hai Bà Trưng (TP.HCM)</a></li>
+                <li><a href="#">Cinestar Sinh Viên (TP.HCM)</a></li>
+                <li><a href="#">Cinestar Huế (TP. Huế)</a></li>
+                <li><a href="#">Cinestar Đà Lạt (Lâm Đồng)</a></li>
+                <li><a href="#">Cinestar Lâm Đồng (Đức Trọng)</a></li>
+                <li><a href="#">Cinestar Mỹ Tho (Đồng Tháp)</a></li>
+                <li><a href="#">Cinestar Kiên Giang (An Giang)</a></li>
+                <li><a href="#">Cinestar Satra Quận 6 (TP.HCM)</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <?php wp_footer(); ?>
+    <script src="script.js"></script>
+  </body>
+</html>
