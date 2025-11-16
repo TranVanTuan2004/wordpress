@@ -26,17 +26,40 @@ function create_movie_post_type() {
         'show_in_rest' => true, // để Gutenberg editor hoạt động
     );
 
-    register_post_type('movie', $args);
+    register_post_type('mbs_movie', $args);
 }
 add_action('init', 'create_movie_post_type');
+
+//css header, footer in all page
+function mytheme_global_styles() {
+    // Header CSS
+    wp_enqueue_style(
+        'header-style',
+        get_stylesheet_directory_uri() . '/header.css',
+        array(),
+        '1.0',
+        
+    );
+
+    // Footer CSS
+    wp_enqueue_style(
+        'footer-style',
+        get_stylesheet_directory_uri() . '/footer.css',
+        array(),
+        '1.0'
+    );
+}
+add_action('wp_enqueue_scripts', 'mytheme_global_styles');
+
 
 // css in file front-page.php
 function mytheme_front_page_styles() {
     if ( is_front_page() ) {  
         wp_enqueue_style(
             'mytheme-front-page-style',
-            get_template_directory_uri() . '/front-page.css',
+            get_stylesheet_directory_uri() . '/front-page.css',
             array(),      // không phụ thuộc file khác
+            // filemtime(get_template_directory() . '/front-page.css'), //Update khi thay đổi
             '1.0'         // version (để tránh cache)
         );
     }
@@ -48,7 +71,7 @@ function mytheme_front_page_scripts() {
     if ( is_front_page() ) {
         wp_enqueue_script(
             'mytheme-front-script',
-            get_template_directory_uri() . '/script.js',
+            get_stylesheet_directory_uri() . '/script.js',
             array('jquery'), // phụ thuộc jquery nếu cần
             '1.0',
             true // load ở footer
@@ -61,6 +84,32 @@ add_shortcode('movie_list', 'movie_theme_movie_list_shortcode');
 add_action('after_setup_theme', function () {
     add_image_size('movie-thumb', 400, 225, true);
 });
+// css in file single-mbs_movie.php
+function mytheme_single_movie_styles() {
+    if ( is_singular('mbs_movie') ) { // hoặc 'movie' nếu bạn đổi lại
+        wp_enqueue_style(
+            'single-movie-style',
+            get_stylesheet_directory_uri() . '/single-movie.css',
+            array('header-style', 'footer-style'),
+            filemtime(get_stylesheet_directory() . '/single-movie.css')
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'mytheme_single_movie_styles');
+
+// Script riêng cho trang chi tiết phim (single-mbs_movie.php)
+function mytheme_single_movie_scripts() {
+    if ( is_singular('mbs_movie') ) {
+        wp_enqueue_script(
+            'mytheme-single-movie-script',
+            get_stylesheet_directory_uri() . '/script-movie.js',
+            array('jquery'), // phụ thuộc jquery nếu cần
+            '1.0',
+            true // load ở footer
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'mytheme_single_movie_scripts');
 
 
 function movie_theme_handle_auth_post()
@@ -244,3 +293,5 @@ function movie_theme_profile_shortcode()
     return ob_get_clean();
 }
 add_shortcode('cns_profile', 'movie_theme_profile_shortcode');
+?>
+
