@@ -54,6 +54,14 @@ class MBS_Admin {
             'mbs-settings',
             array($this, 'settings_page')
         );
+        add_submenu_page(
+            'mbs-dashboard',
+            'Check-in Vé',
+            'Check-in',
+            'manage_options',
+            'mbs-checkin',
+            array($this, 'checkin_page')
+        );
     }
     
     /**
