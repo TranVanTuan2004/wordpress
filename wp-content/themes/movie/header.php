@@ -102,21 +102,44 @@
                 <i class="fas fa-map-marker-alt location-icon"></i> Chọn rạp
               </a>
               <div class="dropdown">
-                <div class="dropdown-column">
-                  <a href="#">Cinestar Quốc Thanh (TP.HCM)</a>
-                  <a href="#">Cinestar Huế (TP. Huế)</a>
-                  <a href="#">Cinestar Mỹ Tho (Đồng Tháp)</a>
-                </div>
-                <div class="dropdown-column">
-                  <a href="#">Cinestar Hai Bà Trưng (TP.HCM)</a>
-                  <a href="#">Cinestar Đà Lạt (Lâm Đồng)</a>
-                  <a href="#">Cinestar Kiên Giang (An Giang)</a>
-                </div>
-                <div class="dropdown-column">
-                  <a href="#">Cinestar Sinh Viên (TP.HCM)</a>
-                  <a href="#">Cinestar Lâm Đồng (Đức Trọng)</a>
-                  <a href="#">Cinestar Satra Quận 6 (TP.HCM)</a>
-                </div>
+                <?php
+                  // Lấy danh sách rạp từ CPT (thử các slug phổ biến)
+                  $candidates = array('rap_phim','rap-phim','cinema','theater','mbs_cinema','rap','rapfilm','rap_phim_cpt');
+                  $cinema_pt  = null;
+                  foreach ($candidates as $cpt) {
+                    $probe = new WP_Query(array('post_type'=>$cpt, 'posts_per_page'=>1));
+                    if ($probe->have_posts()) { $cinema_pt = $cpt; wp_reset_postdata(); break; }
+                    wp_reset_postdata();
+                  }
+
+                  $items = array();
+                  if ($cinema_pt) {
+                    $cinemas = new WP_Query(array(
+                      'post_type'      => $cinema_pt,
+                      'posts_per_page' => -1,
+                      'orderby'        => 'title',
+                      'order'          => 'ASC',
+                    ));
+                    while ($cinemas->have_posts()) { $cinemas->the_post();
+                      $items[] = array('title'=>get_the_title(), 'link'=>get_permalink());
+                    }
+                    wp_reset_postdata();
+                  }
+                  // Chia thành 3 cột
+                  $cols = array(array(), array(), array());
+                  foreach ($items as $i => $it) {
+                    $cols[$i % 3][] = $it;
+                  }
+                  for ($c = 0; $c < 3; $c++) {
+                    echo '<div class="dropdown-column">';
+                    if (!empty($cols[$c])) {
+                      foreach ($cols[$c] as $it) {
+                        echo '<a href="'.esc_url($it['link']).'">'.esc_html($it['title']).'</a>';
+                      }
+                    }
+                    echo '</div>';
+                  }
+                ?>
               </div>
             </li>
             <li class="menu-item">

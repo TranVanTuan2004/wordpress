@@ -29,3 +29,14 @@ if ($query->have_posts()) {
 
 wp_reset_postdata();
 ?>
+
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        overflow: hidden !important;
+        max-width: 100% !important;
+    }
+</style>

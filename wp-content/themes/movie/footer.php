@@ -113,6 +113,13 @@
 <style>
   
 /* footer */
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+/* footer */
 .cinestar-footer {
   background: linear-gradient(to right, #8e2de2, #4a00e0, #00c6ff);
   color: white;
@@ -121,17 +128,10 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
+  position: relative;
 }
 .cinestar-footer .container{max-width:1200px;margin:0 auto;padding:0 20px}
 
-.footer-top {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 30px;
-  border-bottom: 1px solid #fff;
-  padding: 50px 0;
-}
 
 .brand {
   flex: 1 1 250px;

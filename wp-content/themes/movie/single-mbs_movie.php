@@ -20,8 +20,13 @@
         </div>
 
         <div class="movie-info">
-          <h1><?php the_title(); ?>
-              </h1>
+          <h1><?php the_title(); ?></h1>
+          <?php
+            // Link tới trang đặt vé
+            $book_page = get_page_by_path('datve');
+            $book_link_base = $book_page ? get_permalink($book_page) : home_url('/datve/');
+            $current_movie_id = get_the_ID();
+          ?>
           <ul class="movie-meta">
             <li><strong>Thể loại:</strong> Kinh Dị</li>
             <li><strong>Thời lượng:</strong> <?php echo esc_html($duration); ?></li>
@@ -39,7 +44,10 @@
           <div class="movie-description">
             <h2>Nội dung phim</h2>
              <p><?php the_content(); ?></p>
-            <a href="#" class="trailer-button">🎬 Xem Trailer</a>
+            <a href="<?php echo esc_url( add_query_arg('movie', get_the_ID(), $book_link_base) ); ?>" class="trailer-button" style="background:#ffe44d;color:#0e1220;font-weight:800">🎟 Đặt vé</a>
+            <?php if (! empty($trailer_url)) : ?>
+              <a href="<?php echo esc_url($trailer_url); ?>" class="trailer-button">🎬 Xem Trailer</a>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -48,76 +56,108 @@
       <div class="showtime-section">
         <h2 class="section-title">LỊCH CHIẾU</h2>
 
-        <div class="showtime-dates">
-          <button class="date active">14/11 Thứ Sáu</button>
-          <button class="date">15/11 Thứ Bảy</button>
-          <button class="date">16/11 Chủ Nhật</button>
-        </div>
+        <?php
+          // Chuẩn bị dữ liệu suất chiếu từ plugin nếu có
+          $showtimes_by_cinema = array();
+          $debug = array('source'=>'', 'count'=>0, 'items'=>array());
+          global $wpdb;
+          $today = date('Y-m-d');
+          $st_table = $wpdb->prefix . 'mbs_showtimes';
+          $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $st_table));
 
-        <div class="cinema">
-          <h3>DANH SÁCH RẠP</h3>
-          <select class="location-selector">
-            <option>HỒ CHÍ MINH</option>
-            <option>HÀ NỘI</option>
-            <option>ĐÀ NẴNG</option>
-            <option>CẦN THƠ</option>
-          </select>
-        </div>
-      <!-- cinema-list -->
-      <div class="cinema-list">
-        <!-- Rạp 1 -->
-        <div class="cinema-item" onclick="toggleCinema(this)">
-          <div class="cinema-header">
-            <span>Cinestar Quốc Thanh (TP.HCM)</span>
-            <span class="arrow">▶</span>
-          </div>
-          <div class="cinema-detail">
-            <p>📍 271 Nguyễn Trãi, Phường Nguyễn Cư Trinh, Quận 1, TP.HCM</p>
-            <p><strong>Deluxe:</strong></p>
-            <div class="showtimes">
-              <span class="disabled">10:00</span>
-              <span>16:20</span>
-              <span>22:15</span>
-              <span>23:59</span>
-            </div>
-          </div>
-        </div>
+          if ( $table_exists === $st_table ) {
+            $debug['source'] = 'table:mbs_showtimes';
+            $rows = $wpdb->get_results($wpdb->prepare(
+              "SELECT cinema_id, show_date, show_time FROM $st_table WHERE movie_id = %d ORDER BY show_date, show_time",
+              $current_movie_id
+            ));
+            if ($rows) {
+              foreach ($rows as $r) {
+                $cid = intval($r->cinema_id);
+                $date = esc_html($r->show_date);
+                $time = esc_html($r->show_time);
+                $showtimes_by_cinema[$cid][$date][] = $time;
+                $debug['items'][] = array('cid'=>$cid,'date'=>$date,'time'=>$time);
+              }
+            }
+          } elseif ( post_type_exists('mbs_showtime') ) {
+            $debug['source'] = 'cpt:mbs_showtime';
+            $st = new WP_Query(array(
+              'post_type'  => 'mbs_showtime',
+              'post_status'=> 'publish',
+              'posts_per_page' => -1,
+              'meta_query' => array(
+                array('key'=>'_mbs_movie_id','value'=>$current_movie_id,'compare'=>'=')
+              )
+            ));
+            if ($st->have_posts()){
+              while($st->have_posts()){ $st->the_post();
+                $cid  = intval(get_post_meta(get_the_ID(),'_mbs_cinema_id',true));
+                $dt   = sanitize_text_field(get_post_meta(get_the_ID(),'_mbs_showtime',true));
+                // Chuẩn hoá date/time từ datetime-local
+                $ts = strtotime($dt); // nếu null => sai format
+                $date = $ts ? date('Y-m-d',$ts) : '';
+                $time = $ts ? date('H:i',$ts) : '';
+                if($cid && $date && $time){
+                  $showtimes_by_cinema[$cid][$date][] = $time;
+                  $debug['items'][] = array('cid'=>$cid,'raw'=>$dt,'date'=>$date,'time'=>$time);
+                } else {
+                  $debug['items'][] = array('cid'=>$cid,'raw'=>$dt,'parse_error'=>true);
+                }
+              }
+              wp_reset_postdata();
+            }
+          }
+          $debug['count'] = count($debug['items']);
 
-        <!-- Rạp 2 -->
-        <div class="cinema-item" onclick="toggleCinema(this)">
-          <div class="cinema-header">
-            <span>Cinestar Satra Quận 6 (TP.HCM)</span>
-            <span class="arrow">▶</span>
-          </div>
-          <div class="cinema-detail">
-            <p>📍 TTTM Satra, Đường 3/2, Quận 6, TP.HCM</p>
-            <p><strong>Standard:</strong></p>
-            <div class="showtimes">
-              <span>11:00</span>
-              <span>17:30</span>
-              <span>20:00</span>
-            </div>
-          </div>
-        </div>
+          // Tự tìm post type rạp
+          $cinema_pts = array('mbs_cinema','rap_phim','rap-phim','cinema','theater','rap','rapfilm','rap_phim_cpt');
+          $cinema_pt = null;
+          foreach($cinema_pts as $pt){ if ( post_type_exists($pt) ){ $cinema_pt = $pt; break; } }
+          if($cinema_pt){
+            $cinemas = new WP_Query(array(
+              'post_type'=>$cinema_pt,
+              'post_status'=>'publish',
+              'posts_per_page'=>-1,
+              'orderby'=>'title','order'=>'ASC'
+            ));
+            if($cinemas->have_posts()):
+              echo '<div class="cinema-list">';
+              while($cinemas->have_posts()): $cinemas->the_post();
+                $cid = get_the_ID();
+                $date_times = $showtimes_by_cinema[$cid] ?? array();
+                if (empty($date_times)) { echo '<div class="cinema-item"><div class="cinema-header"><span>'. esc_html(get_the_title()) .'</span><span class="arrow">▶</span></div><div class="cinema-detail"><p>Chưa có suất chiếu.</p></div></div>'; continue; }
+                echo '<div class="cinema-item" onclick="toggleCinema(this)">';
+                echo '<div class="cinema-header"><span>'. esc_html(get_the_title()) .'</span><span class="arrow">▶</span></div>';
+                echo '<div class="cinema-detail">';
+                foreach ($date_times as $date => $times_arr){
+                  echo '<p><strong>'. esc_html( date('d/m/Y', strtotime($date)) ) .'</strong></p>';
+                  echo '<div class="showtimes">';
+                  foreach ($times_arr as $t){
+                    $link = add_query_arg(array(
+                      'movie'=> $current_movie_id,
+                      'cinema'=> $cid,
+                      'date'=> $date,
+                      'time'=> $t
+                    ), $book_link_base );
+                    echo '<a href="'. esc_url($link) .'" class="time-chip">'. esc_html($t) .'</a>';
+                  }
+                  echo '</div>';
+                }
+                echo '</div></div>';
+              endwhile; wp_reset_postdata();
+              echo '</div>';
+            else:
+              echo '<p>Chưa có rạp.</p>';
+            endif;
+          } else {
+            echo '<p>Chưa cấu hình post type rạp.</p>';
+          }
 
-        <!-- Rạp 3 -->
-        <div class="cinema-item" onclick="toggleCinema(this)">
-          <div class="cinema-header">
-            <span>Cinestar Hai Bà Trưng (TP.HCM)</span>
-            <span class="arrow">▶</span>
-          </div>
-          <div class="cinema-detail">
-            <p>📍 135 Hai Bà Trưng, Quận 1, TP.HCM</p>
-            <p><strong>VIP:</strong></p>
-            <div class="showtimes">
-              <span>12:00</span>
-              <span>18:45</span>
-              <span>21:30</span>
-            </div>
-          </div>
-        </div>
+          // DEBUG: In dữ liệu đọc được dưới dạng HTML comment
+          echo "\n<!-- SHOWTIME_DEBUG\n" . print_r($debug,true) . "\n-->\n";
+        ?>
       </div>
-    </div>
 </div>
 
 <?php get_footer(); ?>
