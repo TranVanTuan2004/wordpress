@@ -2,7 +2,7 @@
 function mytheme_enqueue_styles() {
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
 }
-add_action('wp_enqueue_scripts', 'movie_theme_enqueue_assets');
+add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
 
 //thêm navbar phim
 function create_movie_post_type() {

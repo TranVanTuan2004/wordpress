@@ -109,3 +109,192 @@
     <!-- <script src="script.js"></script> -->
   </body>
 </html>
+
+<style>
+  
+/* footer */
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+/* footer */
+.cinestar-footer {
+  background: linear-gradient(to right, #8e2de2, #4a00e0, #00c6ff);
+  color: white;
+  padding: 40px 0;
+  /* full-bleed */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  position: relative;
+}
+.cinestar-footer .container{max-width:1200px;margin:0 auto;padding:0 20px}
+
+
+.brand {
+  flex: 1 1 250px;
+}
+
+.brand .book-brand{
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+#zalo{
+  transform: translateY(5px);
+}
+/*  */
+.brand .book-brand .btn-ticker {
+  position: relative;
+  width: 140px;
+  padding: 10px 10px;
+  color: #000;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease;
+  background-color: yellow;
+}
+.brand .book-brand .btn-ticker::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(51, 138, 238),rgb(14, 35, 155));
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+.brand .book-brand .btn-ticker:hover::before {
+  left: 0;
+}
+
+.brand .book-brand .btn-ticker:hover {
+  color: #fff;
+}
+
+/*  */
+
+.brand .book-brand .btn-corn {
+  position: relative;
+  width: 140px;
+  padding: 10px 10px;
+  color: yellow;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease;
+  background-color: transparent;
+  border: 1px solid yellow;
+}
+.brand .book-brand .btn-corn::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(230, 157, 89),rgb(202, 116, 18));
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+.brand .book-brand .btn-corn:hover::before {
+  left: 0;
+}
+
+.brand .book-brand .btn-corn:hover {
+  color: #fff;
+}
+
+.brand h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.brand p {
+  margin-bottom: 10px;
+}
+
+.brand ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.brand ul li {
+  margin-bottom: 5px;
+}
+
+.brand ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+.social-icons a {
+  margin-right: 10px;
+}
+
+.social-icons img {
+  width: 24px;
+  height: 24px;
+}
+
+.language {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.language img{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 5px;
+  transform: translateY(5px);
+}
+
+.footer-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  flex: 3;
+}
+
+.column {
+  flex: 1 1 180px;
+}
+
+.column h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.column ul li {
+  margin-bottom: 6px;
+}
+
+.column ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.column ul li a:hover {
+  text-decoration: underline;
+}
+
+</style>
