@@ -31,7 +31,7 @@
             alt="header-logo"
           />
         </a>
-        <div class="actions">
+        <div class="actions" id="actions">
           <!--  -->
           <div class="book">
             <a href="#" class="action-ticker">ĐẶT VÉ NGAY</a>
@@ -45,12 +45,12 @@
               id="search"
               placeholder="Tìm phim, rạp"
             />
-            <button type="submit">
+            <!-- <button type="submit">
               <img
                 src="https://cdn-icons-png.flaticon.com/512/149/149852.png"
                 alt="search"
               />
-            </button>
+            </button> -->
           </div>
           <!--  -->
           <div class="action-user">
@@ -90,6 +90,8 @@
             <!-- ▼ -->
           </a>
         </div>
+        <!-- nút toggle menu cho mobile -->
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
       </div>
 
             <!-- navbar -->
@@ -159,7 +161,7 @@
         </ul>
       </nav>
 
-
+<!-- 
 <style>
   /* container */
 
@@ -450,4 +452,4 @@ input[type="search"]::-webkit-search-cancel-button {
       });
     }
   })();
-</script>
+</script> -->
