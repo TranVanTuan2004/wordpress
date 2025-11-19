@@ -57,14 +57,14 @@ document.addEventListener("DOMContentLoaded", function () {
         // Ẩn sau 12s
         setTimeout(() => {
             bar.style.transform = "translateY(-100%)";
-        }, 12000);
+        }, 3000);
     }
 
     // Hiển thị lần đầu sau 1.5s
     setTimeout(showNotice, 1500);
 
     // Lặp lại mỗi 17s (12s hiện + 5s tạm nghỉ)
-    setInterval(showNotice, 17000);
+    setInterval(showNotice, 8000);
 });
 </script>
   <?php endif; ?>
