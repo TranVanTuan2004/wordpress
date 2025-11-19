@@ -927,4 +927,32 @@ form button:hover {
   text-decoration: underline;
 }
 
+.new-movies {
+    margin: 40px 0;
+}
+.new-movies h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #e53935;
+}
+.new-movies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.movie-item {
+    width: 200px;
+    text-align: center;
+}
+.movie-item img {
+    width: 100%;
+    border-radius: 8px;
+}
+.movie-item h3 {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+
 
