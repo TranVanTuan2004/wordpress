@@ -1,4 +1,9 @@
 <?php get_header(); ?>
+<?php
+//  echo get_post_type(); 
+// echo "HEADER LOADED"; 
+ ?>
+<!--  -->
 <?php 
   // Lấy các custom fields của phim hiện tại
   $duration     = get_post_meta(get_the_ID(), '_mbs_duration', true);

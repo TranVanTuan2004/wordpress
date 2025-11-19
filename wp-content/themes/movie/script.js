@@ -130,3 +130,10 @@ startPromotionAuto();
 showPromotionSlide(currentPromotionIndex);
 startPromotionAuto();
 
+
+// responsive
+
+// navbar header
+  function toggleMenu() {
+    document.getElementById("actions").classList.toggle("show");
+  }
