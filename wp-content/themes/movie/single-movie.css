@@ -208,3 +208,220 @@ ul, li, a{
   background-color: #ccc;
   color: #666;
 }
+
+
+
+/* responsive */
+/*  */
+.menu-toggle {
+  font-size: 24px;
+  cursor: pointer;
+  display: none; /* chỉ hiện trên mobile */
+  color: white;
+}
+@media (max-width: 1350px) {
+    .container{
+    margin: 0 50px;
+    max-width: 1200px;
+    /* background-color: red; */
+  }
+
+  .btn span{ 
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1150px) {
+    .container{
+    margin: 0 50px;
+    /* max-width: 1200px; */
+  }
+  .header{ 
+    justify-content: space-between;
+  }
+
+  .header .action-search.active input {
+    width: 250px;
+    padding: 8px 30px 8px 10px;
+    border: none;
+    visibility: visible;
+  }
+
+  /* dat ve, dat bap nuoc */
+  .header .actions .action-ticker,
+.header .actions .action-popcorn{
+  display: none;
+}
+
+.header .actions{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+/* dropdownnew */
+.navbar .menu .dropdown{
+    display: none;
+    gap: 40px;
+    width: 800px;
+    z-index: 99;
+    padding: 20px 20px;
+}
+
+.navbar .menu .dropdown .dropdown-column a{
+    display: block;
+    padding: 10px 0px;
+    font-size: 16px;
+}
+
+.movie-poster img{
+  max-width: 300px;
+}
+
+.movie-info h1{
+  font-size: 26px;
+}
+
+.movie-meta li{
+  font-size: 14px;
+}
+
+}
+
+@media (max-width: 900px) {
+  
+    .container{
+      margin: 0 30px;
+    }
+
+    .header .action-search.active input {
+    width: 45px;
+    padding: 8px 30px 8px 10px;
+  }
+
+  .header .logo-header img{
+    /* margin-left: 50px; */
+}
+
+.menu-toggle {
+    display: block; /* hiện nút ☰ */
+    /* margin-right: 50px; */
+  }
+
+  .header .actions {
+    display: none;              /* ẩn mặc định */
+    flex-direction: column;     /* khi hiện thì xếp dọc */
+    align-items: center;
+    gap: 20px;
+    background: #c43755;
+    padding: 10px;
+    width: 100%;
+    position: absolute;
+    top: 90px;
+    left: 0;
+    z-index: 9;
+    padding: 0 50px 50px 0;
+  }
+
+  .header .actions.show {
+    display: flex;              /* hiện lại bằng flex để giữ layout */
+  }
+
+  /* navbar */
+  .navbar .menu .menu-item a{
+    font-size: 14px;
+  }
+
+  .navbar .menu{
+    display: block;
+}
+    .navbar .menu .menu-left{
+      display: flex;
+      width: 100%;
+      margin: 0 50%;
+      transform: translateX(-50%);
+}
+
+  /* dropdown */
+  
+.navbar .menu .menu-left .menu-item:first-child:hover > .dropdown{
+    display: flex;
+    flex-direction: row;
+}
+
+/* làm dropdown */
+.navbar .menu .dropdown{
+    display: none;
+    gap: 40px;
+    width: 350px;
+    z-index: 99;
+    padding: 20px 20px;
+}
+
+.navbar .menu .dropdown .dropdown-column a{
+    display: block;
+    padding: 10px 0px;
+    font-size: 10px;
+}
+
+.movie-poster img{
+  max-width: 250px;
+}
+
+.movie-info h1{
+  font-size: 22px;
+}
+
+.movie-meta li{
+  font-size: 10px;
+}
+
+.movie-description h2{
+  font-size: 22px;
+}
+
+.trailer-button {
+  padding: 5px 15px;
+  font-size: 12px;
+}
+
+.section-title{
+  font-size: 20px;
+}
+}
+
+@media (max-width: 600px) {
+    .navbar .menu .menu-item a{
+    font-size: 10px;
+  }
+
+  .navbar .menu .menu-right{
+    flex-wrap: wrap;
+  }
+
+  .movie-poster img{
+  max-width: 150px;
+}
+
+.movie-info h1{
+  font-size: 16px;
+}
+
+.movie-meta li{
+  font-size: 10px;
+}
+
+.movie-description h2{
+  font-size: 16px;
+}
+
+.trailer-button {
+  padding: 5px 10px;
+  font-size: 8px;
+}
+}
+
+@media (max-width: 400px){
+
+}

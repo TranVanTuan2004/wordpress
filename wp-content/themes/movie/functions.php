@@ -191,8 +191,8 @@ function mytheme_single_movie_scripts() {
         wp_enqueue_script(
             'mytheme-single-movie-script',
             get_stylesheet_directory_uri() . '/script-movie.js',
-            array('jquery'), // phụ thuộc jquery nếu cần
-            '1.0',
+            array(), // phụ thuộc jquery nếu cần
+            filemtime(get_stylesheet_directory() . '/script-movie.js'),
             true // load ở footer
         );
     }

@@ -132,12 +132,6 @@ startPromotionAuto();
 
 
 // responsive
-const searchBox = document.querySelector('.action-search');
-const toggleBtn = document.querySelector('.search-toggle');
-
-toggleBtn.addEventListener('click', () => {
-  searchBox.classList.toggle('active');
-});
 
 // navbar header
   function toggleMenu() {

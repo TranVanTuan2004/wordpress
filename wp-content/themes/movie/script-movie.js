@@ -12,3 +12,11 @@ function toggleCinema(element) {
     element.classList.add('active');
   }
 }
+
+// responsive
+
+
+// navbar header
+  function toggleMenu() {
+    document.getElementById("actions").classList.toggle("show");
+  }
