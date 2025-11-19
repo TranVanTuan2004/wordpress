@@ -31,6 +31,30 @@ wp_reset_postdata();
 ?>
 
 
+<div class="blog-archive-container">
+    <h1>Danh sách Blogs</h1>
+
+    <?php if ( have_posts() ) : ?>
+        <ul>
+            <?php while ( have_posts() ) : the_post(); ?>
+                <li>
+                    <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                    <p><?php the_excerpt(); ?></p>
+                </li>
+            <?php endwhile; ?>
+        </ul>
+
+        <?php the_posts_pagination(array(
+            'prev_text' => '« Trước',
+            'next_text' => 'Sau »',
+        )); ?>
+
+    <?php else : ?>
+        <p>Chưa có bài viết nào.</p>
+    <?php endif; ?>
+</div>
+
+
 <style>
     * {
         margin: 0;

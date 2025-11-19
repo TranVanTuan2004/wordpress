@@ -129,7 +129,7 @@ function mytheme_global_styles() {
         'header-style',
         get_stylesheet_directory_uri() . '/header.css',
         array(),
-        '1.0',
+        '1.0'
         
     );
 
@@ -523,11 +523,44 @@ add_action('wp_enqueue_scripts', function () {
     ));
 });
 
+
+
+// register_create blog page
+function create_blog_post_type() {
+    register_post_type('blog',
+        array(
+            'labels' => array(
+                'name' => __('Blogs'),
+                'singular_name' => __('Blog')
+            ),
+            'public' => true,
+            'publicly_queryable' => true,
+            'has_archive' => true,
+            'rewrite' => array('slug' => 'blog'),
+            'menu_position' => 5,
+            'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
+        )
+    );
+}
+add_action('init', 'create_blog_post_type');
+
+function mytheme_blog_archive_styles() {
+    if (is_post_type_archive('blog')) {
+        wp_enqueue_style(
+            'blog-archive-style',
+            get_stylesheet_directory_uri() . '/blog-archive.css',
+            array(),
+            filemtime(get_stylesheet_directory() . '/blog-archive.css')
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'mytheme_blog_archive_styles');
+
 ?>
 
 
 
 
 
-
+ 
 
