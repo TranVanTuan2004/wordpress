@@ -22,6 +22,56 @@
     />
   </head>
   <body>
+    <!-- may lam -->
+       <?php if (is_front_page()) : ?>
+  <?php
+  $args = array(
+      'post_type' => 'mbs_movie',
+      'posts_per_page' => 3,
+      'orderby' => 'date',
+      'order' => 'DESC',
+  );
+  $movie_query = new WP_Query($args);
+  if ($movie_query->have_posts()) :
+      $movie_links = array();
+      while ($movie_query->have_posts()) : $movie_query->the_post();
+          $movie_links[] = '<a href="' . get_permalink() . '" class="movie-notice-link">' . get_the_title() . '</a>';
+      endwhile;
+      wp_reset_postdata();
+  ?>
+  <div id="movie-notice-bar">
+      🎬 <strong>Phim mới: &bull;  </strong> <?php echo implode('&nbsp;&bull;&nbsp; ', $movie_links); ?>
+      <!-- <a href="<?php echo get_post_type_archive_link('mbs_movie'); ?>" class="movie-notice-link">
+        Xem tất cả 🔥
+      </a> -->
+  </div>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const bar = document.getElementById("movie-notice-bar");
+
+    function showNotice() {
+        // Trượt xuống
+        bar.style.transform = "translateY(0)";
+
+        // Ẩn sau 12s
+        setTimeout(() => {
+            bar.style.transform = "translateY(-100%)";
+        }, 12000);
+    }
+
+    // Hiển thị lần đầu sau 1.5s
+    setTimeout(showNotice, 1500);
+
+    // Lặp lại mỗi 17s (12s hiện + 5s tạm nghỉ)
+    setInterval(showNotice, 17000);
+});
+</script>
+  <?php endif; ?>
+<?php endif; ?>
+<!--  -->
+
+
     <div class="container">
       <!-- header -->
       <div class="header">
