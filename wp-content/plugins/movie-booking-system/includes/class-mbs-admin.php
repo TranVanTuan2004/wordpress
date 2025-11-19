@@ -367,5 +367,72 @@ class MBS_Admin {
         </table>
         <?php
     }
+
+    /**
+     * Check-in page (Mục 28)
+     */
+    public function checkin_page() {
+        global $wpdb;
+        $table_bookings = $wpdb->prefix . 'mbs_bookings';
+        
+        // --- XỬ LÝ FORM CHECK-IN ---
+        if (isset($_POST['mbs_checkin_submit']) && isset($_POST['ticket_code'])) {
+            check_admin_referer('mbs_checkin_nonce');
+            
+            $ticket_code = sanitize_text_field($_POST['ticket_code']);
+            
+            // 1. Tìm vé dựa trên mã code
+            $booking = $wpdb->get_row($wpdb->prepare(
+                "SELECT id, payment_status, is_checked_in FROM $table_bookings WHERE booking_code = %s",
+                $ticket_code
+            ));
+            
+            if ($booking) {
+                if ($booking->payment_status !== 'completed') {
+                    echo '<div class="notice notice-error"><p>LỖI: Mã vé chưa được thanh toán hoặc đã bị hủy.</p></div>';
+                } elseif ($booking->is_checked_in == 1) {
+                    echo '<div class="notice notice-warning"><p>CẢNH BÁO: Mã vé đã được check-in trước đó!</p></div>';
+                } else {
+                    // 2. Cập nhật trạng thái check-in
+                    $wpdb->update(
+                        $table_bookings,
+                        array('is_checked_in' => 1, 'checkin_time' => current_time('mysql')),
+                        array('id' => $booking->id),
+                        array('%d', '%s'),
+                        array('%d')
+                    );
+                    echo '<div class="notice notice-success"><p>✅ CHECK-IN THÀNH CÔNG! Chúc quý khách xem phim vui vẻ.</p></div>';
+                }
+            } else {
+                echo '<div class="notice notice-error"><p>LỖI: Không tìm thấy mã vé này trong hệ thống.</p></div>';
+            }
+        }
+        
+        // --- GIAO DIỆN FORM ---
+        ?>
+        <div class="wrap">
+            <h1>Check-in Vé (Mục 28)</h1>
+            <p>Vui lòng nhập mã vé hoặc quét mã QR.</p>
+            
+            <form method="post" action="">
+                <?php wp_nonce_field('mbs_checkin_nonce'); ?>
+                
+                <table class="form-table">
+                    <tr>
+                        <th><label for="ticket_code">Mã Vé</label></th>
+                        <td>
+                            <input type="text" id="ticket_code" name="ticket_code" class="regular-text" required autofocus>
+                            <p class="description">Nhập Mã Đặt Vé để xác nhận.</p>
+                        </td>
+                    </tr>
+                </table>
+                
+                <p class="submit">
+                    <input type="submit" name="mbs_checkin_submit" class="button button-primary" value="Xác Nhận Check-in">
+                </p>
+            </form>
+        </div>
+        <?php
+    }
 }
 
