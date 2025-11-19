@@ -129,7 +129,7 @@ function mytheme_global_styles() {
         'header-style',
         get_stylesheet_directory_uri() . '/header.css',
         array(),
-        '1.0',
+        '1.0'
         
     );
 
