@@ -4,6 +4,8 @@ function mytheme_enqueue_styles() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
 
+
+
 //thêm navbar phim
 function create_movie_post_type() {
     $labels = array(
@@ -29,6 +31,8 @@ function create_movie_post_type() {
     register_post_type('mbs_movie', $args);
 }
 add_action('init', 'create_movie_post_type');
+
+
 
 //css header, footer in all page
 function mytheme_global_styles() {
@@ -294,4 +298,6 @@ function movie_theme_profile_shortcode()
 }
 add_shortcode('cns_profile', 'movie_theme_profile_shortcode');
 ?>
+
+
 

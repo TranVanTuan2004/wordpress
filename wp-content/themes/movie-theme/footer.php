@@ -105,6 +105,7 @@
         </div>
       </div>
     </footer>
+    
     <?php wp_footer(); ?>
     <!-- <script src="script.js"></script> -->
   </body>
