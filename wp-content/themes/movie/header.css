@@ -436,7 +436,7 @@ input[type="search"]::-webkit-search-cancel-button {
     margin: 40px auto;
     padding: 20px;
     font-family: 'Segoe UI', sans-serif;
-    background: #be2929;
+    background: linear-gradient(to bottom, #8e2de2, #4a00e0, #00c6ff);
     border: 1px solid #ddd;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
