@@ -20,3 +20,6 @@ function toggleCinema(element) {
   function toggleMenu() {
     document.getElementById("actions").classList.toggle("show");
   }
+
+
+  

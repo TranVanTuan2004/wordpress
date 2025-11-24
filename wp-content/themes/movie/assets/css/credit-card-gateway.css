@@ -1,0 +1,94 @@
+/* Credit Card Payment Gateway Styles - Matching booking theme */
+.wc-credit-card-form {
+    padding: 20px;
+    background: #0b1221;
+    border: 1px solid rgba(148,163,184,.25);
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.wc-credit-card-form .form-row {
+    margin-bottom: 15px;
+}
+
+.wc-credit-card-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.wc-credit-card-form input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(148,163,184,.25);
+    border-radius: 8px;
+    background: rgba(15,23,42,.9);
+    color: #e5e7eb;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.wc-credit-card-form input[type="text"]:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: rgba(15,23,42,1);
+}
+
+.wc-credit-card-form .form-row-first,
+.wc-credit-card-form .form-row-last {
+    width: 48%;
+    float: left;
+}
+
+.wc-credit-card-form .form-row-first {
+    margin-right: 4%;
+}
+
+.wc-credit-card-form .form-row-wide {
+    clear: both;
+}
+
+.wc-credit-card-form .clear {
+    clear: both;
+}
+
+/* Card number formatting */
+.wc-credit-card-form-card-number {
+    letter-spacing: 2px;
+    font-family: 'Courier New', monospace;
+    color: #e5e7eb;
+}
+
+/* Expiry date formatting */
+.wc-credit-card-form-card-expiry {
+    text-align: center;
+    color: #e5e7eb;
+}
+
+/* CVV formatting */
+.wc-credit-card-form-card-cvc {
+    text-align: center;
+    width: 80px;
+    color: #e5e7eb;
+}
+
+/* Test mode notice - Match với gradient background */
+.checkout-page-wrapper .woocommerce-info {
+    background: rgba(142, 45, 226, 0.2) !important;
+    border: 2px solid rgba(142, 45, 226, 0.4) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(142, 45, 226, 0.2) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wc-credit-card-form .form-row-first,
+    .wc-credit-card-form .form-row-last {
+        width: 100%;
+        float: none;
+        margin-right: 0;
+    }
+}
+

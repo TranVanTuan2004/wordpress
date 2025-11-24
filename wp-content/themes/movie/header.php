@@ -88,20 +88,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <a href="#" class="action-popcorn">ĐẶT BẮP NƯỚC</a>
           </div>
           <!--  -->
-          <div class="action-search">
+          <form class="action-search form-search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
             <input
               type="search"
-              name="search"
+              name="s"
               id="search"
               placeholder="Tìm phim, rạp"
+              value="<?php echo get_search_query(); ?>"
             />
-            <!-- <button type="submit">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/149/149852.png"
-                alt="search"
-              />
-            </button> -->
-          </div>
+            <input type="hidden" name="post_type" value="mbs_movie,mbs_cinema" />
+          </form>
           <!--  -->
           <div class="action-user">
             <?php if ( is_user_logged_in() ) : ?>
@@ -119,8 +115,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span class="arrow-down">&#9662;</span>
               </button>
               <div class="user-dropdown" role="menu">
-                <a class="user-dropdown__item" href="<?php echo esc_url( $profile_url ); ?>">Hồ sơ cá nhân</a>
-                <a class="user-dropdown__item" href="<?php echo esc_url( $logout_url ); ?>">Đăng xuất</a>
+                <a class="user-dropdown__item" href="<?php echo esc_url( $profile_url ); ?>">
+                  <i class="bx bx-user"></i>
+                  <span>Hồ sơ cá nhân</span>
+                </a>
+                <a class="user-dropdown__item" href="<?php echo esc_url( home_url('/favorites') ); ?>">
+                  <i class="bx bx-heart"></i>
+                  <span>Phim yêu thích</span>
+                </a>
+                <a class="user-dropdown__item" href="<?php echo esc_url( home_url('/profile?tab=history') ); ?>">
+                  <i class="bx bx-history"></i>
+                  <span>Lịch sử mua hàng</span>
+                </a>
+                <div class="user-dropdown__divider"></div>
+                <a class="user-dropdown__item" href="<?php echo esc_url( $logout_url ); ?>">
+                  <i class="bx bx-log-out"></i>
+                  <span>Đăng xuất</span>
+                </a>
               </div>
             <?php else : ?>
               <a href="<?php echo esc_url( home_url( '/dangnhap/' ) ); ?>">
@@ -203,304 +214,25 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <!-- menu-right -->
           <div class="menu-right">
-            <li class="menu-item"><a href="#">Khuyến mãi</a></li>
-            <li class="menu-item"><a href="#">Tổ chức sự kiện</a></li>
+            <li class="menu-item"><a href="<?php echo esc_url(home_url('/khuyenmai')); ?>">Khuyến mãi</a></li>
+            <li class="menu-item"><a href="<?php echo esc_url(home_url('/tochucsukien')); ?>">Tổ chức sự kiện</a></li>
             <li class="menu-item"><a href="<?php echo get_post_type_archive_link('blog'); ?>">Xem tất cả bài viết</a>
 </li>
-            <li class="menu-item"><a href="#">Giới thiệu</a></li>
+            <li class="menu-item"><a href="<?php echo esc_url(home_url('/gioithieu')); ?>">Giới thiệu</a></li>
           </div>
         </ul>
       </nav>
 
-<!-- 
-<style>
-  /* container */
-
-body {
-    min-height: 100vh;
-    background: linear-gradient(to bottom, #8e2de2, #4a00e0, #00c6ff);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-  }
-  ul, li, a{
-    text-decoration: none;
-    list-style: none;
-    color: #fff;
-}
-  .container {
-    width: 1200px;
-    margin: 0 auto;
-  }
-  
-.header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 20px 0px;
-    border-bottom: 1px solid rgba(211, 211, 211, .4);
-}
-/* logo */
-.header .logo-header img{
-    width: 120px;
-}
-
-/* actions */
-.header .actions{
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    gap: 40px;
-}
 
 
 
-.header .actions .action-ticker,
-.header .actions .action-popcorn{
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 5px;
-    background-size: 200% 100%; /* để gradient di chuyển */
-    background-repeat: no-repeat;
-    transition: color 0.6s;
-    font-size: 18px;
-}
 
 
-/* action-ticker: gradient vàng -> tím */
-.header .actions .action-ticker {
-    background-image: linear-gradient(270deg, yellow, orange, #fff);
-    color: black;
-    animation: move-bg 4s linear infinite alternate;
-    transition: color 1s, background-image 1s;
-}
 
-.header .actions .action-ticker:hover {
-    background-image: linear-gradient(270deg, purple, blue, purple);
-    color: #fff;
-    animation: move-bg 1s linear infinite alternate;
-    transition: color .6s, background-image 1s;
-}
 
-/* action-popcorn: gradient tím -> cam */
-.header .actions .action-popcorn {
-    background-image: linear-gradient(270deg, purple, blue, #fff);
-    animation: move-bg 4s linear infinite alternate;
-    transition: color 1s, background-image 1s;
-}
 
-.header .actions .action-popcorn:hover {
-    background-image: linear-gradient(270deg, purple, orange, #fff);
-    animation: move-bg 1s linear infinite alternate;
-    transition: background-image 1s;
-}
 
-/* animation di chuyển gradient */
-@keyframes move-bg {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 100% 0%;
-    }
-}
 
-/* search */
-.header .action-search {
-  position: relative;
-  display: inline-block;
-}
 
-.header .action-search input {
-  width: 250px;
-  font-size: 14px;
-  padding: 8px 30px 8px 10px;
-  border: none;
-  border-radius: 12px;
-  background-color: #fff;
-  color: #000;
-}
 
-.header .action-search button {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
 
-.header .action-search button img {
-  width: 18px;
-  height: 18px;
-  background-color: #fff;
-}
-
-/* Ẩn nút xóa mặc định trên Chrome, Edge, Safari */
-input[type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-/* login */
-.header .action-login a{
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header .action-login a img{
-    width: 30px;
-}
-
-.header .action-login a p{
-    font-size: 16px;
-}
-.header .action-login a p:hover{
-    color: yellow;
-}
-
-/* ensure same style when not logged in but using .action-user wrapper */
-.header .action-user a{
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.header .action-user a img{
-    width: 30px;
-}
-.header .action-user a p{
-    font-size: 16px;
-}
-.header .action-user a p:hover{
-    color: yellow;
-}
-
-/* language */
-.header .action-language{
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.header .action-language img{
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.header .action-language p{
-    font-size: 16px;
-}
-
-/* user dropdown - scoped trong header */
-.action-user{position:relative}
-.action-user .user-btn{display:flex;align-items:center;gap:8px;background:transparent;border:none;color:#fff;cursor:pointer;font-size:16px}
-.action-user .user-dropdown{position:absolute;right:0;top:calc(100% + 10px);min-width:190px;background:#071e3d;border:1px solid rgba(255,255,255,.15);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.35);padding:8px 0;display:none;z-index:100}
-.action-user .user-dropdown__item{display:block;padding:10px 14px;color:#fff;text-decoration:none}
-.action-user .user-dropdown__item:hover{background:rgba(255,255,255,.06)}
-.action-user.is-open .user-dropdown{display:block}
-/* navbar */
-.navbar{
-    padding: 10px 0px;
-}
-
-.navbar .menu{
-    display: flex;
-    justify-content: space-between;
-}
-
-.navbar .menu .menu-item{
-    padding: 10px 0px;
-}
-
-.navbar .menu .menu-item a{
-    font-size: 16px;
-}
-
-.navbar .menu .menu-left{
-    display: flex;
-    gap: 20px;
-}
-.navbar .menu .menu-left a:hover{
-    color: yellow;
-}
-
-.navbar .menu .menu-left a .location-icon{
-    color: white;
-    font-size: 18px;
-    padding: 0px 4px;
-}
-.navbar .menu .menu-left a:hover .location-icon{
-    color: yellow;
-}
-
-.navbar .menu .menu-right{
-    display: flex;
-    gap: 20px;
-}
-.navbar .menu .menu-right a:hover{
-    color: yellow;
-    border-bottom: 1px solid yellow;
-}
-
-.navbar .menu .menu-left .menu-item:first-child:hover > .dropdown{
-    display: flex;
-}
-
-/* làm dropdown */
-.navbar .menu .menu-left {
-    position: relative;
-}
-
-.navbar .menu .menu-left .menu-item{
-    position: relative;
-}
-
-.navbar .menu .dropdown{
-    display: none;
-    position: absolute;
-    top: calc(100% + 0px);
-    left: 0;
-    justify-content: space-around;
-    gap: 80px;
-    width: 1200px;
-    border: 1px solid gray;
-    z-index: 99;
-    padding: 20px 0px;
-    border-radius: 12px;
-    background-color: #071e3d;
-}
-
-.navbar .menu .dropdown .dropdown-column a{
-    display: block;
-    padding: 10px 0px;
-    font-size: 16px;
-}
-</style>
-<script>
-  (function(){
-    var root = document.querySelector('.action-user');
-    if(!root) return;
-    var btn = root.querySelector('.user-btn');
-    if(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        var isOpen = root.classList.toggle('is-open');
-        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      });
-      document.addEventListener('click', function(){
-        root.classList.remove('is-open');
-        if(btn) btn.setAttribute('aria-expanded', 'false');
-      });
-    }
-  })();
-</script> -->

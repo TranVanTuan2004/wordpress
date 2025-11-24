@@ -90,7 +90,11 @@ define( 'WP_DEBUG', false );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
-
+// Cấu hình SMTP Gmail để gửi email
+define('MOVIE_SMTP_ENABLED', true);
+define('MOVIE_SMTP_HOST', 'smtp.gmail.com');
+define('MOVIE_SMTP_USER', 'tuantran280504@gmail.com'); // Thay bằng email Gmail của bạn
+define('MOVIE_SMTP_PASS', 'wxpyjnqkxoizxfma'); // Thay bằng App Password từ Gmail (16 ký tự)
 
 /* That's all, stop editing! Happy publishing. */
 

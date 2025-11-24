@@ -60,6 +60,9 @@ wp_enqueue_script('booking-js');
           <label for="bk-method" class="bk-label">Phương thức thanh toán</label>
           <select id="bk-method">
             <option value="pay_later">Thanh toán tại rạp</option>
+            <?php if (class_exists('WooCommerce')): ?>
+            <option value="credit_card">Thẻ tín dụng/Ghi nợ</option>
+            <?php endif; ?>
             <option value="cod">COD (tại quầy)</option>
           </select>
         </div>
@@ -109,6 +112,7 @@ wp_enqueue_script('booking-js');
     url: '<?php echo admin_url('admin-ajax.php'); ?>',
     nonce: '<?php echo wp_create_nonce('ticket_order_nonce'); ?>'
   };
+  window.isUserLoggedIn = <?php echo is_user_logged_in() ? 'true' : 'false'; ?>;
 
   function bkFmt(n){ return n.toLocaleString('vi-VN') + 'đ'; }
 
@@ -169,6 +173,16 @@ wp_enqueue_script('booking-js');
   // Submit
   function bkHandleSubmit(){
     var resultEl = document.getElementById('bk-result');
+    
+    // Kiểm tra đăng nhập
+    if(!window.isUserLoggedIn){
+      if(resultEl) {
+        resultEl.textContent = 'Bạn cần vui lòng đăng nhập để đặt vé.';
+        resultEl.style.color = '#fca5a5';
+      }
+      return;
+    }
+    
     if(!window.bookingSeats.length){
       if(resultEl) resultEl.textContent = 'Vui lòng chọn ghế.';
       return;

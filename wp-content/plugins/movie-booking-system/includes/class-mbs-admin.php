@@ -166,8 +166,21 @@ class MBS_Admin
 
         // Get bookings
         $bookings = $wpdb->get_results("SELECT * FROM $table_bookings ORDER BY booking_date DESC LIMIT 50");
-
-    ?>
+        
+        // Kiểm tra và đảm bảo bảng mbs_seats có cột seat_code
+        $table_seats = $wpdb->prefix . 'mbs_seats';
+        $seat_columns = $wpdb->get_col("SHOW COLUMNS FROM $table_seats");
+        $has_seat_code = in_array('seat_code', $seat_columns);
+        $has_seat_number = in_array('seat_number', $seat_columns);
+        
+        // Nếu không có cột seat_code nhưng có seat_number, thêm cột seat_code và copy dữ liệu
+        if (!$has_seat_code && $has_seat_number) {
+            $wpdb->query("ALTER TABLE $table_seats ADD COLUMN seat_code VARCHAR(10) AFTER booking_id");
+            $wpdb->query("UPDATE $table_seats SET seat_code = seat_number WHERE seat_code IS NULL OR seat_code = ''");
+            $has_seat_code = true;
+        }
+        
+        ?>
         <div class="wrap">
             <h1>Danh Sách Đặt Vé</h1>
 
@@ -179,6 +192,7 @@ class MBS_Admin
                         <th>Email</th>
                         <th>Điện Thoại</th>
                         <th>Số Ghế</th>
+                        <th>Ghế Đặt</th>
                         <th>Tổng Tiền</th>
                         <th>Trạng Thái</th>
                         <th>Ngày Đặt</th>
@@ -186,32 +200,60 @@ class MBS_Admin
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($bookings as $booking): ?>
-                        <tr>
-                            <td><strong><?php echo esc_html($booking->booking_code); ?></strong></td>
-                            <td><?php echo esc_html($booking->customer_name); ?></td>
-                            <td><?php echo esc_html($booking->customer_email); ?></td>
-                            <td><?php echo esc_html($booking->customer_phone); ?></td>
-                            <td><?php echo $booking->total_seats; ?></td>
-                            <td><?php echo number_format($booking->total_price, 0, ',', '.'); ?> VNĐ</td>
-                            <td>
-                                <?php
-                                $status_labels = array(
-                                    'pending' => '<span class="mbs-status-pending">Chờ thanh toán</span>',
-                                    'completed' => '<span class="mbs-status-completed">Đã thanh toán</span>',
-                                    'cancelled' => '<span class="mbs-status-cancelled">Đã hủy</span>'
-                                );
-                                echo $status_labels[$booking->payment_status] ?? $booking->payment_status;
-                                ?>
-                            </td>
-                            <td><?php echo date('d/m/Y H:i', strtotime($booking->booking_date)); ?></td>
-                            <td>
-                                <?php if ($booking->payment_status == 'pending'): ?>
-                                    <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=mbs-bookings&action=complete&booking_id=' . $booking->id), 'mbs_complete_booking_' . $booking->id); ?>" class="button button-small">Hoàn thành</a>
-                                    <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=mbs-bookings&action=cancel&booking_id=' . $booking->id), 'mbs_cancel_booking_' . $booking->id); ?>" class="button button-small" onclick="return confirm('Bạn có chắc muốn hủy đặt vé này?')">Hủy</a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
+                    <?php foreach ($bookings as $booking): 
+                        // Lấy danh sách ghế từ bảng mbs_seats
+                        $seat_list = array();
+                        if ($has_seat_code || $has_seat_number) {
+                            // Xác định cột nào cần query
+                            $seat_column = $has_seat_code ? 'seat_code' : 'seat_number';
+                            // Query tất cả các cột để đảm bảo lấy đúng
+                            $seats = $wpdb->get_results($wpdb->prepare(
+                                "SELECT * FROM $table_seats WHERE booking_id = %d",
+                                $booking->id
+                            ));
+                            if ($seats && is_array($seats)) {
+                                foreach ($seats as $seat) {
+                                    // Kiểm tra cả 2 cột
+                                    $seat_value = '';
+                                    if ($has_seat_code && isset($seat->seat_code) && !empty($seat->seat_code)) {
+                                        $seat_value = $seat->seat_code;
+                                    } elseif ($has_seat_number && isset($seat->seat_number) && !empty($seat->seat_number)) {
+                                        $seat_value = $seat->seat_number;
+                                    }
+                                    if (!empty($seat_value)) {
+                                        $seat_list[] = $seat_value;
+                                    }
+                                }
+                            }
+                        }
+                        $seat_display = !empty($seat_list) ? implode(', ', $seat_list) : '-';
+                    ?>
+                    <tr>
+                        <td><strong><?php echo esc_html($booking->booking_code); ?></strong></td>
+                        <td><?php echo esc_html($booking->customer_name); ?></td>
+                        <td><?php echo esc_html($booking->customer_email); ?></td>
+                        <td><?php echo esc_html($booking->customer_phone); ?></td>
+                        <td><?php echo $booking->total_seats; ?></td>
+                        <td><strong style="color: #ffe44d;"><?php echo esc_html($seat_display); ?></strong></td>
+                        <td><?php echo number_format($booking->total_price, 0, ',', '.'); ?> VNĐ</td>
+                        <td>
+                            <?php
+                            $status_labels = array(
+                                'pending' => '<span class="mbs-status-pending">Chờ thanh toán</span>',
+                                'completed' => '<span class="mbs-status-completed">Đã thanh toán</span>',
+                                'cancelled' => '<span class="mbs-status-cancelled">Đã hủy</span>'
+                            );
+                            echo $status_labels[$booking->payment_status] ?? $booking->payment_status;
+                            ?>
+                        </td>
+                        <td><?php echo date('d/m/Y H:i', strtotime($booking->booking_date)); ?></td>
+                        <td>
+                            <?php if ($booking->payment_status == 'pending'): ?>
+                                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=mbs-bookings&action=complete&booking_id=' . $booking->id), 'mbs_complete_booking_' . $booking->id); ?>" class="button button-small">Hoàn thành</a>
+                                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=mbs-bookings&action=cancel&booking_id=' . $booking->id), 'mbs_cancel_booking_' . $booking->id); ?>" class="button button-small" onclick="return confirm('Bạn có chắc muốn hủy đặt vé này?')">Hủy</a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -697,9 +739,15 @@ class MBS_Admin
     {
         global $wpdb;
         $table_bookings = $wpdb->prefix . 'mbs_bookings';
-
+        $table_seats = $wpdb->prefix . 'mbs_seats';
+        
         $bookings = $wpdb->get_results("SELECT * FROM $table_bookings ORDER BY booking_date DESC LIMIT 10");
-
+        
+        // Kiểm tra cấu trúc bảng mbs_seats để biết cột nào tồn tại
+        $seat_columns = $wpdb->get_col("SHOW COLUMNS FROM $table_seats");
+        $has_seat_code = in_array('seat_code', $seat_columns);
+        $has_seat_number = in_array('seat_number', $seat_columns);
+        
         if (empty($bookings)) {
             echo '<p>Chưa có đặt vé nào.</p>';
             return;
@@ -712,30 +760,57 @@ class MBS_Admin
                     <th>Mã Đặt Vé</th>
                     <th>Khách Hàng</th>
                     <th>Số Ghế</th>
+                    <th>Ghế Đặt</th>
                     <th>Tổng Tiền</th>
                     <th>Trạng Thái</th>
                     <th>Ngày Đặt</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($bookings as $booking): ?>
-                    <tr>
-                        <td><strong><?php echo esc_html($booking->booking_code); ?></strong></td>
-                        <td><?php echo esc_html($booking->customer_name); ?></td>
-                        <td><?php echo $booking->total_seats; ?></td>
-                        <td><?php echo number_format($booking->total_price, 0, ',', '.'); ?> VNĐ</td>
-                        <td>
-                            <?php
-                            $status_labels = array(
-                                'pending' => 'Chờ thanh toán',
-                                'completed' => 'Đã thanh toán',
-                                'cancelled' => 'Đã hủy'
-                            );
-                            echo $status_labels[$booking->payment_status] ?? $booking->payment_status;
-                            ?>
-                        </td>
-                        <td><?php echo date('d/m/Y H:i', strtotime($booking->booking_date)); ?></td>
-                    </tr>
+                <?php foreach ($bookings as $booking): 
+                    // Lấy danh sách ghế từ bảng mbs_seats
+                    $seat_list = array();
+                    if ($has_seat_code || $has_seat_number) {
+                        // Query tất cả các cột để đảm bảo lấy đúng
+                        $seats = $wpdb->get_results($wpdb->prepare(
+                            "SELECT * FROM $table_seats WHERE booking_id = %d",
+                            $booking->id
+                        ));
+                        if ($seats && is_array($seats)) {
+                            foreach ($seats as $seat) {
+                                // Kiểm tra cả 2 cột
+                                $seat_value = '';
+                                if ($has_seat_code && isset($seat->seat_code) && !empty($seat->seat_code)) {
+                                    $seat_value = $seat->seat_code;
+                                } elseif ($has_seat_number && isset($seat->seat_number) && !empty($seat->seat_number)) {
+                                    $seat_value = $seat->seat_number;
+                                }
+                                if (!empty($seat_value)) {
+                                    $seat_list[] = $seat_value;
+                                }
+                            }
+                        }
+                    }
+                    $seat_display = !empty($seat_list) ? implode(', ', $seat_list) : '-';
+                ?>
+                <tr>
+                    <td><strong><?php echo esc_html($booking->booking_code); ?></strong></td>
+                    <td><?php echo esc_html($booking->customer_name); ?></td>
+                    <td><?php echo $booking->total_seats; ?></td>
+                    <td><strong style="color: #ffe44d;"><?php echo esc_html($seat_display); ?></strong></td>
+                    <td><?php echo number_format($booking->total_price, 0, ',', '.'); ?> VNĐ</td>
+                    <td>
+                        <?php
+                        $status_labels = array(
+                            'pending' => 'Chờ thanh toán',
+                            'completed' => 'Đã thanh toán',
+                            'cancelled' => 'Đã hủy'
+                        );
+                        echo $status_labels[$booking->payment_status] ?? $booking->payment_status;
+                        ?>
+                    </td>
+                    <td><?php echo date('d/m/Y H:i', strtotime($booking->booking_date)); ?></td>
+                </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>

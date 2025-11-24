@@ -19,6 +19,28 @@ if (isset($_GET['cnsle'])) {
         $active_tab = 'login';
     }
 }
+
+$cns_register_error = '';
+if (isset($_GET['cnsre'])) {
+    $key = sanitize_text_field(wp_unslash($_GET['cnsre']));
+    $msg = get_transient('cns_register_err_' . $key);
+    if ($msg) {
+        $cns_register_error = $msg;
+        delete_transient('cns_register_err_' . $key);
+        $active_tab = 'register';
+    }
+}
+
+$cns_register_success = '';
+if (isset($_GET['cnsro'])) {
+    $key = sanitize_text_field(wp_unslash($_GET['cnsro']));
+    $msg = get_transient('cns_register_ok_' . $key);
+    if ($msg) {
+        $cns_register_success = $msg;
+        delete_transient('cns_register_ok_' . $key);
+        $active_tab = 'register';
+    }
+}
 $cns_login_page_url = get_permalink();
 if (! $cns_login_page_url) {
     $cns_login_page_url = home_url( '/' );
@@ -68,8 +90,19 @@ if (! $cns_login_page_url) {
           <button class="cns-btn cns-btn--primary" type="submit">ĐĂNG NHẬP</button>
         </form>
 
-        <form class="cns-form cns-form--register <?php echo $active_tab==='register'?'is-visible':''; ?>" role="form" aria-labelledby="register-title" method="post" action="#">
+        <form class="cns-form cns-form--register <?php echo $active_tab==='register'?'is-visible':''; ?>" role="form" aria-labelledby="register-title" method="post" action="">
           <h2 id="register-title" class="cns-form__title">Đăng ký</h2>
+          <input type="hidden" name="cns_action" value="register" />
+          <?php wp_nonce_field('cns_auth_register', 'cns_register_nonce'); ?>
+          
+          <?php if (! empty($cns_register_error)) : ?>
+            <div class="cns-alert cns-alert--error" role="alert"><?php echo wp_kses_post($cns_register_error); ?></div>
+          <?php endif; ?>
+          
+          <?php if (! empty($cns_register_success)) : ?>
+            <div class="cns-alert cns-alert--success" role="alert"><?php echo esc_html($cns_register_success); ?></div>
+          <?php endif; ?>
+          
           <label class="cns-field">
             <span class="cns-field__label">Họ và tên <span class="req">*</span></span>
             <input class="cns-input" type="text" name="full_name" required placeholder="Họ và tên">
@@ -160,6 +193,7 @@ if (! $cns_login_page_url) {
 
     .cns-alert{padding:12px 14px;border-radius:10px;margin-bottom:12px;font-weight:700}
     .cns-alert--error{background:#ffe6ea;color:#8a1130;border:1px solid #ffb7c6}
+    .cns-alert--success{background:#eaffea;color:#0f5f12;border:1px solid #a8e0aa}
 
     @media (max-width:480px){
       .cns-auth{--auth-x:16px}
@@ -198,6 +232,36 @@ if (! $cns_login_page_url) {
           input.type = input.type==='password' ? 'text' : 'password';
         });
       });
+      
+      // Validate registration form
+      var registerForm = container.querySelector('.cns-form--register');
+      if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+          var userPass = registerForm.querySelector('input[name="user_pass"]').value;
+          var userPassConfirm = registerForm.querySelector('input[name="user_pass_confirm"]').value;
+          
+          if (userPass !== userPassConfirm) {
+            e.preventDefault();
+            alert('Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại.');
+            return false;
+          }
+          
+          if (userPass.length < 6) {
+            e.preventDefault();
+            alert('Mật khẩu phải có ít nhất 6 ký tự.');
+            return false;
+          }
+          
+          // Validate phone number (Vietnamese format)
+          var phone = registerForm.querySelector('input[name="phone"]').value;
+          var phoneRegex = /^(\+84|0)[0-9]{9,10}$/;
+          if (phone && !phoneRegex.test(phone.replace(/\s+/g, ''))) {
+            e.preventDefault();
+            alert('Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10-11 số).');
+            return false;
+          }
+        });
+      }
     })();
   </script>
 </main>
