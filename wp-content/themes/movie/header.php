@@ -214,11 +214,11 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <!-- menu-right -->
           <div class="menu-right">
-            <li class="menu-item"><a href="#">Khuyến mãi</a></li>
-            <li class="menu-item"><a href="#">Tổ chức sự kiện</a></li>
+            <li class="menu-item"><a href="<?php echo esc_url(home_url('/khuyenmai')); ?>">Khuyến mãi</a></li>
+            <li class="menu-item"><a href="<?php echo esc_url(home_url('/tochucsukien')); ?>">Tổ chức sự kiện</a></li>
             <li class="menu-item"><a href="<?php echo get_post_type_archive_link('blog'); ?>">Xem tất cả bài viết</a>
 </li>
-            <li class="menu-item"><a href="#">Giới thiệu</a></li>
+            <li class="menu-item"><a href="<?php echo esc_url(home_url('/gioithieu')); ?>">Giới thiệu</a></li>
           </div>
         </ul>
       </nav>

@@ -137,6 +137,27 @@ function movie_theme_ensure_core_pages() {
             'content'  => '',
             'template' => 'page-favorites.php',
         ),
+        // Trang khuyến mãi
+        array(
+            'title'    => 'Khuyến mãi',
+            'slug'     => 'khuyenmai',
+            'content'  => '',
+            'template' => 'page-khuyenmai.php',
+        ),
+        // Trang tổ chức sự kiện
+        array(
+            'title'    => 'Tổ chức sự kiện',
+            'slug'     => 'tochucsukien',
+            'content'  => '',
+            'template' => 'page-tochucsukien.php',
+        ),
+        // Trang giới thiệu
+        array(
+            'title'    => 'Giới thiệu',
+            'slug'     => 'gioithieu',
+            'content'  => '',
+            'template' => 'page-gioithieu.php',
+        ),
     );
 
     foreach ($pages as $cfg) {
@@ -286,6 +307,81 @@ function mytheme_front_page_styles() {
     }
 }
 add_action( 'wp_enqueue_scripts', 'mytheme_front_page_styles' );
+
+// CSS cho trang khuyến mãi
+function mytheme_promotions_styles() {
+    global $post;
+    $page_slug = is_page() ? get_post_field('post_name', get_the_ID()) : '';
+    $is_promotions_page = is_page('khuyenmai') || 
+                          is_page_template('page-khuyenmai.php') || 
+                          $page_slug === 'khuyenmai' ||
+                          (isset($post) && $post->post_name === 'khuyenmai');
+    
+    if ( $is_promotions_page ) {
+        wp_enqueue_style(
+            'mytheme-promotions-style',
+            get_stylesheet_directory_uri() . '/promotions.css',
+            array('header-style', 'footer-style'),
+            '1.2'
+        );
+        // Add body class
+        add_filter('body_class', function($classes) {
+            $classes[] = 'promotions-page';
+            return $classes;
+        });
+    }
+}
+add_action( 'wp_enqueue_scripts', 'mytheme_promotions_styles', 20 );
+
+// CSS cho trang tổ chức sự kiện
+function mytheme_events_styles() {
+    global $post;
+    $page_slug = is_page() ? get_post_field('post_name', get_the_ID()) : '';
+    $is_events_page = is_page('tochucsukien') || 
+                      is_page_template('page-tochucsukien.php') || 
+                      $page_slug === 'tochucsukien' ||
+                      (isset($post) && $post->post_name === 'tochucsukien');
+    
+    if ( $is_events_page ) {
+        wp_enqueue_style(
+            'mytheme-events-style',
+            get_stylesheet_directory_uri() . '/events.css',
+            array('header-style', 'footer-style'),
+            '1.0'
+        );
+        // Add body class
+        add_filter('body_class', function($classes) {
+            $classes[] = 'events-page';
+            return $classes;
+        });
+    }
+}
+add_action( 'wp_enqueue_scripts', 'mytheme_events_styles', 20 );
+
+// CSS cho trang giới thiệu
+function mytheme_about_styles() {
+    global $post;
+    $page_slug = is_page() ? get_post_field('post_name', get_the_ID()) : '';
+    $is_about_page = is_page('gioithieu') || 
+                     is_page_template('page-gioithieu.php') || 
+                     $page_slug === 'gioithieu' ||
+                     (isset($post) && $post->post_name === 'gioithieu');
+    
+    if ( $is_about_page ) {
+        wp_enqueue_style(
+            'mytheme-about-style',
+            get_stylesheet_directory_uri() . '/about.css',
+            array('header-style', 'footer-style'),
+            '1.0'
+        );
+        // Add body class
+        add_filter('body_class', function($classes) {
+            $classes[] = 'about-page';
+            return $classes;
+        });
+    }
+}
+add_action( 'wp_enqueue_scripts', 'mytheme_about_styles', 20 );
 
 function mytheme_enqueue_header_scripts() {
     $script_file = get_stylesheet_directory() . '/script.js';
