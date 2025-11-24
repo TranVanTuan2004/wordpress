@@ -43,7 +43,8 @@ if (isset($_GET['cnspre'])) {
       <div class="cns-profile__menu">
         <a class="is-active" href="<?php echo esc_url( home_url('/profile') ); ?>">Thông tin khách hàng</a>
         <a href="#">Thành viên Cinestar</a>
-        <a href="#">Lịch sử mua hàng</a>
+        <a href="<?php echo esc_url( home_url('/profile?tab=history') ); ?>">Lịch sử mua hàng</a>
+        <a href="<?php echo esc_url( home_url('/favorites') ); ?>">Phim yêu thích</a>
         <a href="<?php echo esc_url( wp_logout_url( home_url('/') ) ); ?>">Đăng xuất</a>
       </div>
     </aside>
@@ -135,9 +136,11 @@ if (isset($_GET['cnspre'])) {
     .cns-field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
     .cns-field__label{font-weight:700}
     .req{color:#ff2a5c}
-    .cns-input{width:100%;max-width:100%;border:1px solid #d6dcea;border-radius:10px;padding:12px 12px;background:#fff;box-sizing:border-box}
-    .cns-input:focus{outline:none;border-color:#9fb3d8;box-shadow:0 0 0 3px rgba(159,179,216,.25)}
-    input[type="date"].cns-input{padding-right:44px}
+    .cns-input{width:100%;max-width:100%;border:1px solid #d6dcea;border-radius:10px;padding:12px 12px;background:#fff;box-sizing:border-box;color:#000;font-size:15px}
+    .cns-input:focus{outline:none;border-color:#9fb3d8;box-shadow:0 0 0 3px rgba(159,179,216,.25);color:#000}
+    .cns-input::placeholder{color:#999;opacity:1}
+    input[type="date"].cns-input{padding-right:44px;color:#000}
+    input[type="date"].cns-input::-webkit-calendar-picker-indicator{opacity:1;cursor:pointer}
 
     .cns-btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
     .cns-btn--primary{background:#ffe44d;color:#0e1220;box-shadow:0 10px 24px rgba(255,228,77,.35)}

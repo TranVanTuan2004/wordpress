@@ -25,12 +25,32 @@
         </div>
 
         <div class="movie-info">
-          <h1><?php the_title(); ?></h1>
+          <div class="movie-title-row">
+            <h1><?php the_title(); ?></h1>
+            <?php
+              // Kiểm tra trạng thái yêu thích
+              $current_movie_id = get_the_ID();
+              $is_favorite = false;
+              if (is_user_logged_in()) {
+                $user_id = get_current_user_id();
+                $favorites = get_user_meta($user_id, 'favorite_movies', true);
+                $favorites = is_array($favorites) ? $favorites : array();
+                $is_favorite = in_array($current_movie_id, $favorites);
+              }
+            ?>
+            <button 
+              class="favorite-btn <?php echo $is_favorite ? 'is-favorite' : ''; ?>" 
+              data-movie-id="<?php echo esc_attr($current_movie_id); ?>"
+              <?php echo !is_user_logged_in() ? 'disabled title="Vui lòng đăng nhập để thêm yêu thích"' : ''; ?>
+            >
+              <i class="bx <?php echo $is_favorite ? 'bxs-heart' : 'bx-heart'; ?>"></i>
+              <span class="favorite-text"><?php echo $is_favorite ? 'Đã yêu thích' : 'Yêu thích'; ?></span>
+            </button>
+          </div>
           <?php
             // Link tới trang đặt vé
             $book_page = get_page_by_path('datve');
             $book_link_base = $book_page ? get_permalink($book_page) : home_url('/datve/');
-            $current_movie_id = get_the_ID();
           ?>
           <ul class="movie-meta">
             <li><strong>Thể loại:</strong> Kinh Dị</li>
@@ -161,6 +181,23 @@
 
           // DEBUG: In dữ liệu đọc được dưới dạng HTML comment
           echo "\n<!-- SHOWTIME_DEBUG\n" . print_r($debug,true) . "\n-->\n";
+        ?>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="movie-comments-wrapper">
+        <?php
+        // Force enable comments for movies
+        global $post;
+        if ($post && $post->post_type === 'mbs_movie') {
+            // Đảm bảo comments được bật
+            if ($post->comment_status !== 'open') {
+                $post->comment_status = 'open';
+            }
+        }
+        
+        // Luôn hiển thị phần bình luận
+        comments_template('/comments-movie.php');
         ?>
       </div>
 </div>

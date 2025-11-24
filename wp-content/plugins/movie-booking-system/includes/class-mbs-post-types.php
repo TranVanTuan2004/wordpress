@@ -35,7 +35,7 @@ class MBS_Post_Types {
             'public' => true,
             'has_archive' => true,
             'menu_icon' => 'dashicons-video-alt2',
-            'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
+            'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'comments'),
             // Đổi slug để tránh xung đột với Page có cùng slug "phim"
             // Ví dụ URL mới: /mbs-movie/{ten-phim}
             'rewrite' => array('slug' => 'mbs-movie'),

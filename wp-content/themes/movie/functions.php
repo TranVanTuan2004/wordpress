@@ -1,6 +1,11 @@
 <?php 
 function mytheme_enqueue_styles() {
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
+    
+    // Enqueue single movie CSS
+    if (is_singular('mbs_movie')) {
+        wp_enqueue_style('single-movie-style', get_template_directory_uri() . '/single-movie.css', array(), filemtime(get_template_directory() . '/single-movie.css'));
+    }
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
 
@@ -20,7 +25,7 @@ function create_movie_post_type() {
         'labels' => $labels,
         'public' => true,
         'has_archive' => true,
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'comments'),
         'menu_position' => 5,
         'menu_icon' => 'dashicons-video-alt2',
         'show_in_rest' => true, // để Gutenberg editor hoạt động
@@ -29,6 +34,58 @@ function create_movie_post_type() {
     register_post_type('mbs_movie', $args);
 }
 add_action('init', 'create_movie_post_type');
+
+// Đảm bảo comments luôn được bật cho mbs_movie
+function movie_theme_enable_comments_for_movies($open, $post_id) {
+    $post = get_post($post_id);
+    if ($post && $post->post_type === 'mbs_movie') {
+        return true; // Luôn bật comments cho phim
+    }
+    return $open;
+}
+add_filter('comments_open', 'movie_theme_enable_comments_for_movies', 10, 2);
+
+// Đảm bảo comments được bật mặc định khi tạo phim mới
+function movie_theme_default_comments_open($post_id) {
+    $post = get_post($post_id);
+    if ($post && $post->post_type === 'mbs_movie') {
+        if ($post->comment_status !== 'open') {
+            wp_update_post(array(
+                'ID' => $post_id,
+                'comment_status' => 'open'
+            ));
+        }
+    }
+}
+add_action('save_post_mbs_movie', 'movie_theme_default_comments_open');
+
+// Bật comments cho tất cả các phim hiện có (chạy 1 lần)
+function movie_theme_enable_comments_for_existing_movies() {
+    // Chỉ chạy 1 lần
+    if (get_option('movie_comments_enabled_for_all') === 'yes') {
+        return;
+    }
+    
+    $movies = get_posts(array(
+        'post_type' => 'mbs_movie',
+        'posts_per_page' => -1,
+        'post_status' => 'any'
+    ));
+    
+    foreach ($movies as $movie) {
+        if ($movie->comment_status !== 'open') {
+            wp_update_post(array(
+                'ID' => $movie->ID,
+                'comment_status' => 'open'
+            ));
+        }
+    }
+    
+    // Đánh dấu đã chạy
+    update_option('movie_comments_enabled_for_all', 'yes');
+}
+// Chạy khi admin init
+add_action('admin_init', 'movie_theme_enable_comments_for_existing_movies');
 
 // Tự tạo các trang cần thiết nếu chưa có
 function movie_theme_ensure_core_pages() {
@@ -66,6 +123,20 @@ function movie_theme_ensure_core_pages() {
             'content'  => '',
             'template' => 'page-templates/book-tickets.php',
         ),
+        // Trang checkout cho WooCommerce
+        array(
+            'title'    => 'Thanh toán',
+            'slug'     => 'checkout',
+            'content'  => '[woocommerce_checkout]',
+            'template' => 'page-checkout.php',
+        ),
+        // Trang phim yêu thích
+        array(
+            'title'    => 'Phim Yêu Thích',
+            'slug'     => 'favorites',
+            'content'  => '',
+            'template' => 'page-favorites.php',
+        ),
     );
 
     foreach ($pages as $cfg) {
@@ -82,19 +153,28 @@ function movie_theme_ensure_core_pages() {
                 if (! empty($cfg['template'])) {
                     update_post_meta($page_id, '_wp_page_template', $cfg['template']);
                 }
+                // Đặc biệt cho trang checkout: set WooCommerce option
+                if ($cfg['slug'] === 'checkout' && class_exists('WooCommerce')) {
+                    update_option('woocommerce_checkout_page_id', $page_id);
+                }
             }
         } else {
-            // Đảm bảo template đúng nếu trang đã tồn tại
-            if (! empty($cfg['template'])) {
+            // Force update template cho page favorites để đảm bảo nó được sử dụng
+            if ($cfg['slug'] === 'favorites' && !empty($cfg['template'])) {
+                update_post_meta($page->ID, '_wp_page_template', $cfg['template']);
+            } elseif (! empty($cfg['template'])) {
                 $current_tpl = get_page_template_slug($page->ID);
                 if ($current_tpl !== $cfg['template']) {
                     update_post_meta($page->ID, '_wp_page_template', $cfg['template']);
                 }
             }
+            // Đặc biệt cho trang checkout: set WooCommerce option
+            if ($cfg['slug'] === 'checkout' && class_exists('WooCommerce')) {
+                update_option('woocommerce_checkout_page_id', $page->ID);
+            }
         }
     }
 
-    // Không tạo trang "rap-phim" nếu site đang có CPT rạp dùng slug này để tránh xung đột
     $cinema_pts = array('mbs_cinema','rap_phim','rap-phim','cinema','theater','rap','rapfilm','rap_phim_cpt');
     $has_cinema_cpt = false;
     foreach ($cinema_pts as $pt) { if (post_type_exists($pt)) { $has_cinema_cpt = true; break; } }
@@ -110,17 +190,66 @@ function movie_theme_ensure_core_pages() {
         }
     }
 
-    // Cập nhật lại permalink khi lần đầu tạo trang
     if (function_exists('flush_rewrite_rules')) {
         flush_rewrite_rules(false);
     }
 }
 add_action('after_switch_theme', 'movie_theme_ensure_core_pages');
+// Đảm bảo các trang được tạo khi theme được load
+add_action('init', 'movie_theme_ensure_core_pages', 20);
 add_action('init', function(){
-    // Fallback: nếu ai đó xoá trang, mỗi lần init kiểm tra và khôi phục
-    $required = array('datve','order-success','dangnhap','profile','dat-ve');
+    $required = array('datve','order-success','dangnhap','profile','dat-ve','checkout','favorites');
     foreach ($required as $slug){ if (! get_page_by_path($slug)) { movie_theme_ensure_core_pages(); break; } }
-});
+    
+    // Đảm bảo trang checkout được tạo và cấu hình cho WooCommerce
+    $checkout_page = get_page_by_path('checkout');
+    if (!$checkout_page) {
+        // Tạo trang checkout nếu chưa có
+        $page_id = wp_insert_post(array(
+            'post_title'   => 'Thanh toán',
+            'post_name'    => 'checkout',
+            'post_content' => '[woocommerce_checkout]',
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+        ));
+        if ($page_id && !is_wp_error($page_id)) {
+            $checkout_page = get_post($page_id);
+            // Flush rewrite rules để URL hoạt động ngay
+            flush_rewrite_rules(false);
+        }
+    }
+    
+    // Set làm checkout page của WooCommerce
+    if ($checkout_page && class_exists('WooCommerce')) {
+        $current_checkout_id = get_option('woocommerce_checkout_page_id');
+        if ($current_checkout_id != $checkout_page->ID) {
+            update_option('woocommerce_checkout_page_id', $checkout_page->ID);
+        }
+    }
+}, 20); // Priority 20 để chạy sau các hook khác
+
+// Tạo trang checkout ngay khi template_redirect (nếu chưa có)
+add_action('template_redirect', function() {
+    if (is_page('checkout') || (isset($_GET['payment_method']) && $_GET['payment_method'] === 'credit_card')) {
+        $checkout_page = get_page_by_path('checkout');
+        if (!$checkout_page) {
+            $page_id = wp_insert_post(array(
+                'post_title'   => 'Thanh toán',
+                'post_name'    => 'checkout',
+                'post_content' => '[woocommerce_checkout]',
+                'post_type'    => 'page',
+                'post_status'  => 'publish',
+            ));
+            if ($page_id && !is_wp_error($page_id) && class_exists('WooCommerce')) {
+                update_option('woocommerce_checkout_page_id', $page_id);
+                flush_rewrite_rules(false);
+                // Redirect lại để load trang mới tạo
+                wp_safe_redirect(get_permalink($page_id));
+                exit;
+            }
+        }
+    }
+}, 1);
 
 //css header, footer in all page
 function mytheme_global_styles() {
@@ -158,19 +287,20 @@ function mytheme_front_page_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'mytheme_front_page_styles' );
 
-// script in file front-page.php
-function mytheme_front_page_scripts() {
-    if ( is_front_page() ) {
+function mytheme_enqueue_header_scripts() {
+    $script_file = get_stylesheet_directory() . '/script.js';
+    if (file_exists($script_file)) {
+        // Enqueue với jquery dependency để đảm bảo hoạt động trên cả front page và các trang khác
         wp_enqueue_script(
-            'mytheme-front-script',
+            'mytheme-header-script',
             get_stylesheet_directory_uri() . '/script.js',
-            array('jquery'), // phụ thuộc jquery nếu cần
-            '1.0',
+            array('jquery'), // phụ thuộc jquery
+            filemtime($script_file),
             true // load ở footer
         );
     }
 }
-add_action('wp_enqueue_scripts', 'mytheme_front_page_scripts');
+add_action('wp_enqueue_scripts', 'mytheme_enqueue_header_scripts');
 
 // css in file single-mbs_movie.php
 function mytheme_single_movie_styles() {
@@ -204,41 +334,161 @@ add_action('wp_enqueue_scripts', 'mytheme_single_movie_scripts');
 
 function movie_theme_handle_auth_post()
 {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cns_action']) && $_POST['cns_action'] === 'login') {
-        $error_message = '';
-        if (! isset($_POST['cns_auth_nonce']) || ! wp_verify_nonce($_POST['cns_auth_nonce'], 'cns_auth_login')) {
-            $error_message = __('Phiên không hợp lệ, vui lòng thử lại.', 'movie-theme');
-        } else {
-            $username = isset($_POST['log']) ? sanitize_text_field(wp_unslash($_POST['log'])) : '';
-            $password = isset($_POST['pwd']) ? (string) $_POST['pwd'] : '';
-            $remember = ! empty($_POST['rememberme']);
-            if ($username === '' || $password === '') {
-                $error_message = __('Vui lòng nhập đầy đủ tài khoản và mật khẩu.', 'movie-theme');
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cns_action'])) {
+        // Handle Login
+        if ($_POST['cns_action'] === 'login') {
+            $error_message = '';
+            if (! isset($_POST['cns_auth_nonce']) || ! wp_verify_nonce($_POST['cns_auth_nonce'], 'cns_auth_login')) {
+                $error_message = __('Phiên không hợp lệ, vui lòng thử lại.', 'movie-theme');
             } else {
-                $signon = wp_signon(array(
-                    'user_login'    => $username,
-                    'user_password' => $password,
-                    'remember'      => $remember,
-                ), is_ssl());
-                if (is_wp_error($signon)) {
-                    $error_message = __('Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng kiểm tra lại.', 'movie-theme');
+                $username = isset($_POST['log']) ? sanitize_text_field(wp_unslash($_POST['log'])) : '';
+                $password = isset($_POST['pwd']) ? (string) $_POST['pwd'] : '';
+                $remember = ! empty($_POST['rememberme']);
+                if ($username === '' || $password === '') {
+                    $error_message = __('Vui lòng nhập đầy đủ tài khoản và mật khẩu.', 'movie-theme');
                 } else {
-                    $redirect_to = isset($_POST['redirect_to']) ? esc_url_raw(wp_unslash($_POST['redirect_to'])) : home_url('/');
-                    wp_safe_redirect($redirect_to);
-                    exit;
+                    $signon = wp_signon(array(
+                        'user_login'    => $username,
+                        'user_password' => $password,
+                        'remember'      => $remember,
+                    ), is_ssl());
+                    if (is_wp_error($signon)) {
+                        $error_message = __('Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng kiểm tra lại.', 'movie-theme');
+                    } else {
+                        $redirect_to = isset($_POST['redirect_to']) ? esc_url_raw(wp_unslash($_POST['redirect_to'])) : home_url('/');
+                        wp_safe_redirect($redirect_to);
+                        exit;
+                    }
                 }
             }
+            // Redirect back to the page with a transient error key
+            $referer = isset($_POST['form_url']) ? esc_url_raw(wp_unslash($_POST['form_url'])) : wp_get_referer();
+            if (! $referer) {
+                $referer = home_url('/');
+            }
+            $key = wp_generate_password(12, false);
+            set_transient('cns_login_err_' . $key, $error_message, 60);
+            $url = add_query_arg(array('tab' => 'login', 'cnsle' => $key), $referer);
+            wp_safe_redirect($url);
+            exit;
         }
-        // Redirect back to the page with a transient error key
-        $referer = isset($_POST['form_url']) ? esc_url_raw(wp_unslash($_POST['form_url'])) : wp_get_referer();
-        if (! $referer) {
-            $referer = home_url('/');
+        
+        // Handle Registration
+        if ($_POST['cns_action'] === 'register') {
+            $error_message = '';
+            $success_message = '';
+            
+            // Validate nonce
+            if (! isset($_POST['cns_register_nonce']) || ! wp_verify_nonce($_POST['cns_register_nonce'], 'cns_auth_register')) {
+                $error_message = __('Phiên không hợp lệ, vui lòng thử lại.', 'movie-theme');
+            } else {
+                // Get form data
+                $full_name = isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '';
+                $birthday = isset($_POST['birthday']) ? sanitize_text_field(wp_unslash($_POST['birthday'])) : '';
+                $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
+                $user_login = isset($_POST['user_login']) ? sanitize_user(wp_unslash($_POST['user_login'])) : '';
+                $national_id = isset($_POST['national_id']) ? sanitize_text_field(wp_unslash($_POST['national_id'])) : '';
+                $user_email = isset($_POST['user_email']) ? sanitize_email(wp_unslash($_POST['user_email'])) : '';
+                $user_pass = isset($_POST['user_pass']) ? (string) $_POST['user_pass'] : '';
+                $user_pass_confirm = isset($_POST['user_pass_confirm']) ? (string) $_POST['user_pass_confirm'] : '';
+                $agree = isset($_POST['agree']);
+                
+                // Validation
+                if (empty($full_name)) {
+                    $error_message = __('Vui lòng nhập họ và tên.', 'movie-theme');
+                } elseif (empty($birthday)) {
+                    $error_message = __('Vui lòng chọn ngày sinh.', 'movie-theme');
+                } elseif ($birthday) {
+                    $birthday_timestamp = strtotime($birthday);
+                    $today_timestamp = time();
+                    if ($birthday_timestamp === false || $birthday_timestamp > $today_timestamp) {
+                        $error_message = __('Ngày sinh không hợp lệ.', 'movie-theme');
+                    } else {
+                        $age = floor(($today_timestamp - $birthday_timestamp) / (365.25 * 24 * 60 * 60));
+                        if ($age < 6) {
+                            $error_message = __('Bạn phải từ 6 tuổi trở lên để đăng ký tài khoản.', 'movie-theme');
+                        } elseif ($age > 120) {
+                            $error_message = __('Ngày sinh không hợp lệ.', 'movie-theme');
+                        }
+                    }
+                }
+                
+                if (empty($error_message) && empty($phone)) {
+                    $error_message = __('Vui lòng nhập số điện thoại.', 'movie-theme');
+                } elseif (empty($error_message) && !preg_match('/^(\+84|0)[0-9]{9,10}$/', preg_replace('/\s+/', '', $phone))) {
+                    $error_message = __('Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10-11 số).', 'movie-theme');
+                } elseif (empty($error_message) && empty($user_login)) {
+                    $error_message = __('Vui lòng nhập tên đăng nhập.', 'movie-theme');
+                } elseif (empty($error_message) && strlen($user_login) < 4) {
+                    $error_message = __('Tên đăng nhập phải có ít nhất 4 ký tự.', 'movie-theme');
+                } elseif (empty($error_message) && ! validate_username($user_login)) {
+                    $error_message = __('Tên đăng nhập không hợp lệ. Chỉ được dùng chữ cái, số và dấu gạch dưới.', 'movie-theme');
+                } elseif (empty($error_message) && username_exists($user_login)) {
+                    $error_message = __('Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.', 'movie-theme');
+                } elseif (empty($error_message) && empty($user_email)) {
+                    $error_message = __('Vui lòng nhập email.', 'movie-theme');
+                } elseif (empty($error_message) && ! is_email($user_email)) {
+                    $error_message = __('Email không hợp lệ.', 'movie-theme');
+                } elseif (empty($error_message) && email_exists($user_email)) {
+                    $error_message = __('Email đã được sử dụng. Vui lòng sử dụng email khác hoặc đăng nhập.', 'movie-theme');
+                } elseif (empty($error_message) && empty($user_pass)) {
+                    $error_message = __('Vui lòng nhập mật khẩu.', 'movie-theme');
+                } elseif (empty($error_message) && strlen($user_pass) < 6) {
+                    $error_message = __('Mật khẩu phải có ít nhất 6 ký tự.', 'movie-theme');
+                } elseif (empty($error_message) && $user_pass !== $user_pass_confirm) {
+                    $error_message = __('Mật khẩu xác nhận không khớp.', 'movie-theme');
+                } elseif (empty($error_message) && ! $agree) {
+                    $error_message = __('Vui lòng đồng ý với các điều khoản và điều kiện.', 'movie-theme');
+                } elseif (empty($error_message)) {
+                    // Create user
+                    $user_id = wp_create_user($user_login, $user_pass, $user_email);
+                    
+                    if (is_wp_error($user_id)) {
+                        $error_message = $user_id->get_error_message();
+                    } else {
+                        // Update user meta
+                        wp_update_user(array(
+                            'ID' => $user_id,
+                            'display_name' => $full_name
+                        ));
+                        
+                        update_user_meta($user_id, 'phone', $phone);
+                        update_user_meta($user_id, 'birthday', $birthday);
+                        if (!empty($national_id)) {
+                            update_user_meta($user_id, 'national_id', $national_id);
+                        }
+                        
+                        // Auto login
+                        wp_set_current_user($user_id);
+                        wp_set_auth_cookie($user_id);
+                        
+                        // Redirect to profile or home
+                        $redirect_to = home_url('/profile');
+                        wp_safe_redirect($redirect_to);
+                        exit;
+                    }
+                }
+            }
+            
+            // Redirect back with error/success message
+            $referer = wp_get_referer();
+            if (! $referer) {
+                $referer = home_url('/dangnhap');
+            }
+            
+            if ($error_message) {
+                $key = wp_generate_password(12, false);
+                set_transient('cns_register_err_' . $key, $error_message, 60);
+                $url = add_query_arg(array('tab' => 'register', 'cnsre' => $key), $referer);
+            } else {
+                $key = wp_generate_password(12, false);
+                set_transient('cns_register_ok_' . $key, $success_message ?: __('Đăng ký thành công!', 'movie-theme'), 60);
+                $url = add_query_arg(array('tab' => 'register', 'cnsro' => $key), $referer);
+            }
+            
+            wp_safe_redirect($url);
+            exit;
         }
-        $key = wp_generate_password(12, false);
-        set_transient('cns_login_err_' . $key, $error_message, 60);
-        $url = add_query_arg(array('tab' => 'login', 'cnsle' => $key), $referer);
-        wp_safe_redirect($url);
-        exit;
     }
 }
 add_action('template_redirect', 'movie_theme_handle_auth_post');
@@ -351,22 +601,144 @@ add_action('init', function () {
     ));
 });
 
-function movie_render_order_summary($order_id){
+function movie_render_order_summary($order_id, $is_email = false){
     $movie_id  = intval(get_post_meta($order_id,'movie_id',true));
     $cinema_id = intval(get_post_meta($order_id,'cinema_id',true));
     $date      = esc_html(get_post_meta($order_id,'show_date',true));
     $time      = esc_html(get_post_meta($order_id,'show_time',true));
     $seats     = (array) get_post_meta($order_id,'seats',true);
     $total     = floatval(get_post_meta($order_id,'total',true));
-    $html  = '<h2>Thông tin đơn vé #' . $order_id . '</h2>';
-    $html .= '<p><strong>Phim:</strong> '. esc_html(get_the_title($movie_id)) .'</p>';
-    $html .= '<p><strong>Rạp:</strong> '. esc_html(get_the_title($cinema_id)) .'</p>';
-    $html .= '<p><strong>Ngày/giờ:</strong> '. $date .' '. $time .'</p>';
-    $html .= '<p><strong>Ghế:</strong> '. esc_html(implode(', ',$seats)) .'</p>';
-    $html .= '<p><strong>Tổng tiền:</strong> '. number_format($total,0,',','.') .'đ</p>';
-    $qr_data = home_url('/?order='.$order_id);
-    $qr_url  = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . urlencode($qr_data);
-    $html .= '<p><img alt="QR" src="'.$qr_url.'" style="max-width:200px"></p>';
+    $user_id   = intval(get_post_meta($order_id,'user_id',true));
+    
+    // Lấy thông tin user
+    $user_name = '';
+    $user_email = '';
+    if ($user_id) {
+        $user = get_userdata($user_id);
+        if ($user) {
+            $user_name = $user->display_name ?: $user->user_login;
+            $user_email = $user->user_email;
+        }
+    }
+    
+    // Lấy poster phim
+    $movie_poster = get_the_post_thumbnail_url($movie_id, 'medium');
+    
+    if ($is_email) {
+        // Template email đẹp hơn
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+                .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+                .email-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center; }
+                .email-header h1 { color: #ffffff; margin: 0; font-size: 28px; }
+                .email-body { padding: 30px 20px; }
+                .success-badge { background-color: #10b981; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-weight: bold; margin-bottom: 20px; }
+                .order-info { background-color: #f9fafb; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 4px; }
+                .info-row { margin: 12px 0; display: flex; }
+                .info-label { font-weight: bold; color: #4b5563; min-width: 120px; }
+                .info-value { color: #111827; }
+                .seats-list { background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
+                .seat-badge { display: inline-block; background-color: #3b82f6; color: white; padding: 6px 12px; margin: 4px; border-radius: 6px; font-weight: bold; }
+                .total-price { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0; }
+                .total-price .label { font-size: 14px; opacity: 0.9; }
+                .total-price .amount { font-size: 32px; font-weight: bold; margin-top: 5px; }
+                .qr-code { text-align: center; margin: 30px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px; }
+                .qr-code img { max-width: 200px; border: 3px solid #e5e7eb; border-radius: 8px; }
+                .movie-poster { text-align: center; margin: 20px 0; }
+                .movie-poster img { max-width: 200px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                .email-footer { background-color: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; border-top: 1px solid #e5e7eb; }
+                .email-footer a { color: #667eea; text-decoration: none; }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <h1>🎬 Đặt Vé Thành Công!</h1>
+                </div>
+                <div class="email-body">
+                    <div class="success-badge">✓ Đơn hàng đã được xác nhận</div>
+                    
+                    <p>Xin chào <strong>' . esc_html($user_name) . '</strong>,</p>
+                    <p>Cảm ơn bạn đã đặt vé tại hệ thống của chúng tôi. Đơn hàng của bạn đã được xác nhận thành công!</p>
+                    
+                    <div class="order-info">
+                        <h2 style="margin-top: 0; color: #667eea;">Thông tin đơn vé #' . $order_id . '</h2>';
+        
+        if ($movie_poster) {
+            $html .= '<div class="movie-poster"><img src="' . esc_url($movie_poster) . '" alt="' . esc_attr(get_the_title($movie_id)) . '"></div>';
+        }
+        
+        $html .= '
+                        <div class="info-row">
+                            <span class="info-label">Phim:</span>
+                            <span class="info-value">' . esc_html(get_the_title($movie_id)) . '</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Rạp chiếu:</span>
+                            <span class="info-value">' . esc_html(get_the_title($cinema_id)) . '</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Ngày chiếu:</span>
+                            <span class="info-value">' . $date . '</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Giờ chiếu:</span>
+                            <span class="info-value">' . $time . '</span>
+                        </div>
+                    </div>
+                    
+                    <div class="seats-list">
+                        <strong style="display: block; margin-bottom: 10px; color: #1e40af;">Ghế đã đặt:</strong>';
+        
+        foreach ($seats as $seat) {
+            $html .= '<span class="seat-badge">' . esc_html($seat) . '</span>';
+        }
+        
+        $html .= '
+                    </div>
+                    
+                    <div class="total-price">
+                        <div class="label">Tổng thanh toán</div>
+                        <div class="amount">' . number_format($total, 0, ',', '.') . ' đ</div>
+                    </div>
+                    
+                    <div class="qr-code">
+                        <p style="margin-bottom: 10px; font-weight: bold; color: #4b5563;">Mã QR đơn hàng:</p>
+                        <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . urlencode(home_url('/?order='.$order_id)) . '" alt="QR Code">
+                        <p style="margin-top: 10px; font-size: 12px; color: #6b7280;">Vui lòng xuất trình mã QR này khi đến rạp</p>
+                    </div>
+                    
+                    <p style="margin-top: 30px; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                        <strong>📌 Lưu ý:</strong> Vui lòng đến rạp trước giờ chiếu ít nhất 15 phút để làm thủ tục. Mang theo mã QR hoặc số đơn hàng #' . $order_id . ' để nhận vé.
+                    </p>
+                </div>
+                <div class="email-footer">
+                    <p>Nếu có thắc mắc, vui lòng liên hệ với chúng tôi.</p>
+                    <p><a href="' . esc_url(home_url()) . '">Xem trang web</a> | <a href="' . esc_url(home_url('/profile?tab=booking-history')) . '">Xem lịch sử đặt vé</a></p>
+                    <p style="margin-top: 15px;">© ' . date('Y') . ' - Hệ thống đặt vé xem phim</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+    } else {
+        // Template hiển thị trên web (giữ nguyên format cũ)
+        $html  = '<h2>Thông tin đơn vé #' . $order_id . '</h2>';
+        $html .= '<p><strong>Phim:</strong> '. esc_html(get_the_title($movie_id)) .'</p>';
+        $html .= '<p><strong>Rạp:</strong> '. esc_html(get_the_title($cinema_id)) .'</p>';
+        $html .= '<p><strong>Ngày/giờ:</strong> '. $date .' '. $time .'</p>';
+        $html .= '<p><strong>Ghế:</strong> '. esc_html(implode(', ',$seats)) .'</p>';
+        $html .= '<p><strong>Tổng tiền:</strong> '. number_format($total,0,',','.') .'đ</p>';
+        $qr_data = home_url('/?order='.$order_id);
+        $qr_url  = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . urlencode($qr_data);
+        $html .= '<p><img alt="QR" src="'.$qr_url.'" style="max-width:200px"></p>';
+    }
+    
     return $html;
 }
 
@@ -374,6 +746,11 @@ add_action('wp_ajax_create_ticket_order', 'movie_create_ticket_order');
 add_action('wp_ajax_nopriv_create_ticket_order', 'movie_create_ticket_order');
 function movie_create_ticket_order() {
     check_ajax_referer('ticket_order_nonce', 'nonce');
+
+    // Kiểm tra đăng nhập
+    if (!is_user_logged_in()) {
+        wp_send_json_error(array('message' => 'Bạn cần vui lòng đăng nhập để đặt vé.'));
+    }
 
     $movie_id  = isset($_POST['movie_id'])  ? intval($_POST['movie_id'])  : 0;
     $cinema_id = isset($_POST['cinema_id']) ? intval($_POST['cinema_id']) : 0;
@@ -387,6 +764,119 @@ function movie_create_ticket_order() {
         wp_send_json_error(array('message' => 'Thiếu dữ liệu.'));
     }
 
+    // Kiểm tra WooCommerce có active không
+    if (class_exists('WooCommerce')) {
+        // Tạo hoặc lấy sản phẩm vé phim (sử dụng SKU để tìm sản phẩm có sẵn)
+        $product_sku = 'ticket-movie-' . $movie_id;
+        $product_id = wc_get_product_id_by_sku($product_sku);
+        
+        if (!$product_id) {
+            // Tạo sản phẩm mới nếu chưa có
+            $product = new WC_Product_Simple();
+            $product->set_name('Vé xem phim');
+            $product->set_sku($product_sku);
+            $product->set_price($total);
+            $product->set_regular_price($total);
+            $product->set_virtual(true);
+            $product->set_downloadable(false);
+            $product->set_manage_stock(false);
+            $product_id = $product->save();
+        }
+
+        // Xóa giỏ hàng cũ (nếu có)
+        WC()->cart->empty_cart();
+
+        // Lưu thông tin đặt vé vào session để dùng sau
+        WC()->session->set('ticket_booking_data', array(
+            'movie_id'  => $movie_id,
+            'cinema_id' => $cinema_id,
+            'date'      => $date,
+            'time'      => $time,
+            'seats'     => $seats,
+            'total'     => $total,
+        ));
+
+        // Lưu payment method được chọn vào session
+        if ($method === 'credit_card') {
+            WC()->session->set('chosen_payment_method', 'credit_card');
+        }
+
+        // Thêm sản phẩm vào giỏ hàng với giá động
+        $cart_item_key = WC()->cart->add_to_cart($product_id, 1, 0, array(), array(
+            'ticket_data' => array(
+                'movie_id'  => $movie_id,
+                'cinema_id' => $cinema_id,
+                'date'      => $date,
+                'time'      => $time,
+                'seats'     => $seats,
+            )
+        ));
+
+        if (!$cart_item_key) {
+            wp_send_json_error(array('message' => 'Không thể thêm vào giỏ hàng.'));
+        }
+
+        // Cập nhật giá cho item trong giỏ hàng
+        foreach (WC()->cart->get_cart() as $cart_key => $cart_item) {
+            if ($cart_key === $cart_item_key) {
+                $cart_item['data']->set_price($total);
+                break;
+            }
+        }
+        WC()->cart->calculate_totals();
+
+        // Redirect đến checkout
+        // Đảm bảo trang checkout tồn tại
+        $checkout_page = get_page_by_path('checkout');
+        if (!$checkout_page) {
+            // Tạo trang checkout ngay lập tức
+            $page_id = wp_insert_post(array(
+                'post_title'   => 'Thanh toán',
+                'post_name'    => 'checkout',
+                'post_content' => '[woocommerce_checkout]',
+                'post_type'    => 'page',
+                'post_status'  => 'publish',
+            ));
+            if ($page_id && !is_wp_error($page_id)) {
+                // Set template nếu có
+                $template_file = get_stylesheet_directory() . '/page-checkout.php';
+                if (file_exists($template_file)) {
+                    update_post_meta($page_id, '_wp_page_template', 'page-checkout.php');
+                }
+                update_option('woocommerce_checkout_page_id', $page_id);
+                $checkout_page = get_post($page_id);
+                flush_rewrite_rules(false);
+                
+                // Log để debug
+                error_log('Movie Theme: Created checkout page with ID: ' . $page_id);
+            }
+        } else {
+            // Đảm bảo WooCommerce biết trang này
+            update_option('woocommerce_checkout_page_id', $checkout_page->ID);
+        }
+        
+        // Lấy URL checkout
+        if ($checkout_page) {
+            $checkout_url = get_permalink($checkout_page->ID);
+        } else {
+            // Fallback: dùng wc_get_checkout_url() hoặc tạo URL thủ công
+            $checkout_url = wc_get_checkout_url();
+            if (!$checkout_url || $checkout_url === home_url('/')) {
+                $checkout_url = home_url('/checkout/');
+            }
+        }
+        
+        // Nếu chọn thẻ tín dụng, thêm parameter để highlight
+        if ($method === 'credit_card') {
+            $checkout_url = add_query_arg('payment_method', 'credit_card', $checkout_url);
+        }
+
+        wp_send_json_success(array(
+            'message'  => 'Đang chuyển đến trang thanh toán...',
+            'redirect' => $checkout_url,
+        ));
+    } else {
+        // Fallback: Tạo order cũ nếu không có WooCommerce
     $order_title = sprintf('Vé %s - %s %s', get_the_title($movie_id), $date, $time);
     $order_id = wp_insert_post(array(
         'post_type'   => 'ticket_order',
@@ -406,16 +896,29 @@ function movie_create_ticket_order() {
     update_post_meta($order_id, 'total',     $total);
     update_post_meta($order_id, 'user_id',   get_current_user_id());
     update_post_meta($order_id, 'method',    $method);
-    update_post_meta($order_id, 'status',    'completed'); // hoàn tất ngay theo yêu cầu
+        update_post_meta($order_id, 'status',    'completed');
 
-    // Đồng bộ sang plugin Movie Booking System (bảng mbs_bookings/mbs_seats)
+        // Đồng bộ sang plugin Movie Booking System
     global $wpdb; 
     $booking_table = $wpdb->prefix . 'mbs_bookings';
     $seats_table   = $wpdb->prefix . 'mbs_seats';
 
-    // Lấy thông tin người dùng
     $user   = wp_get_current_user();
-    $u_name = $user ? $user->display_name : '';
+    // Lấy tên khách hàng: ưu tiên display_name, nếu không có thì dùng user_login
+    $u_name = '';
+    if ($user) {
+        $u_name = $user->display_name ?: $user->user_login;
+        // Nếu có full name trong user meta, dùng nó
+        $full_name = get_user_meta($user->ID, 'full_name', true);
+        if (!empty($full_name)) {
+            $u_name = $full_name;
+        }
+    }
+    // Nếu vẫn không có, dùng giá trị mặc định
+    if (empty($u_name)) {
+        $u_name = 'Khách hàng';
+    }
+    
     $u_mail = $user ? $user->user_email : '';
     $u_phone= $user ? get_user_meta($user->ID,'phone',true) : '';
 
@@ -432,20 +935,53 @@ function movie_create_ticket_order() {
     $mbs_booking_id = $wpdb->insert_id;
 
     if ( $mbs_booking_id ) {
+        // Đảm bảo cột seat_code tồn tại trước khi insert
+        movie_theme_ensure_seat_code_column();
+        
+        // Debug: log số lượng ghế
+        error_log('Movie Booking: Inserting ' . count($seats) . ' seats for booking ID: ' . $mbs_booking_id);
+        
         foreach ( $seats as $s ) {
-            $wpdb->insert($seats_table, array(
+            $result = $wpdb->insert($seats_table, array(
                 'booking_id' => $mbs_booking_id,
                 'seat_code'  => sanitize_text_field($s)
             ), array('%d','%s'));
+            
+            if ($result === false) {
+                error_log('Movie Booking: Failed to insert seat ' . $s . ' - ' . $wpdb->last_error);
+            } else {
+                error_log('Movie Booking: Successfully inserted seat ' . $s);
+            }
         }
     }
 
-    // Gửi email xác nhận (nếu có email)
+        // Gửi email xác nhận
     if ($user && $user->user_email) {
-        $subject = 'Xác nhận đặt vé #' . $order_id;
+        $subject = '🎬 Xác nhận đặt vé thành công - Đơn hàng #' . $order_id;
         $headers = array('Content-Type: text/html; charset=UTF-8');
-        $body    = movie_render_order_summary($order_id);
-        @wp_mail($user->user_email, $subject, $body, $headers);
+        $body    = movie_render_order_summary($order_id, true); // true = is_email
+        
+        // Log để debug
+        error_log('Movie Booking: Attempting to send email to ' . $user->user_email . ' for order #' . $order_id);
+        
+        $mail_result = wp_mail($user->user_email, $subject, $body, $headers);
+        
+        if ($mail_result) {
+            error_log('Movie Booking: Email sent successfully to ' . $user->user_email);
+            update_post_meta($order_id, '_email_sent', 'yes');
+        } else {
+            error_log('Movie Booking: Failed to send email to ' . $user->user_email);
+            // Lưu email vào log file để có thể gửi lại sau
+            $email_log = get_option('movie_booking_email_queue', array());
+            $email_log[] = array(
+                'order_id' => $order_id,
+                'email' => $user->user_email,
+                'subject' => $subject,
+                'body' => $body,
+                'time' => current_time('mysql')
+            );
+            update_option('movie_booking_email_queue', $email_log);
+        }
     }
 
     $success_page = get_page_by_path('order-success');
@@ -457,6 +993,7 @@ function movie_create_ticket_order() {
         'order_id' => $order_id,
         'redirect' => $success_url,
     ));
+    }
 }
 
 add_action('wp_ajax_get_reserved_seats', 'movie_get_reserved_seats');
@@ -523,7 +1060,788 @@ add_action('wp_enqueue_scripts', function () {
     ));
 });
 
+// Load custom payment gateway
+add_action('plugins_loaded', 'movie_init_credit_card_gateway', 5);
+add_action('init', 'movie_init_credit_card_gateway', 5);
+add_action('woocommerce_init', 'movie_init_credit_card_gateway', 5);
+function movie_init_credit_card_gateway() {
+    if (!class_exists('WC_Payment_Gateway')) {
+        return;
+    }
 
+    $gateway_file = get_stylesheet_directory() . '/includes/class-wc-gateway-credit-card.php';
+    if (file_exists($gateway_file) && !class_exists('WC_Gateway_Credit_Card')) {
+        require_once $gateway_file;
+    }
+}
+
+// Register custom payment gateway
+add_filter('woocommerce_payment_gateways', 'movie_add_credit_card_gateway', 10, 1);
+function movie_add_credit_card_gateway($gateways) {
+    if (!class_exists('WC_Gateway_Credit_Card')) {
+        movie_init_credit_card_gateway();
+    }
+    
+    if (class_exists('WC_Gateway_Credit_Card')) {
+        // Kiểm tra xem đã có trong danh sách chưa
+        $found = false;
+        foreach ($gateways as $gateway) {
+            if (is_string($gateway) && $gateway === 'WC_Gateway_Credit_Card') {
+                $found = true;
+                break;
+            } elseif (is_object($gateway) && $gateway instanceof WC_Gateway_Credit_Card) {
+                $found = true;
+                break;
+            }
+        }
+        
+        if (!$found) {
+            $gateways[] = 'WC_Gateway_Credit_Card';
+        }
+    }
+    
+    return $gateways;
+}
+
+// Tự động enable payment gateway credit_card khi theme được kích hoạt
+add_action('after_switch_theme', 'movie_auto_enable_credit_card_gateway');
+add_action('init', 'movie_auto_enable_credit_card_gateway', 20);
+add_action('wp_loaded', 'movie_auto_enable_credit_card_gateway', 20);
+add_action('woocommerce_init', 'movie_auto_enable_credit_card_gateway', 20);
+add_action('woocommerce_settings_saved', 'movie_auto_enable_credit_card_gateway');
+function movie_auto_enable_credit_card_gateway() {
+    if (!class_exists('WooCommerce')) {
+        return;
+    }
+    
+    // Đảm bảo gateway class được load
+    if (!class_exists('WC_Gateway_Credit_Card')) {
+        movie_init_credit_card_gateway();
+    }
+    
+    $settings = get_option('woocommerce_credit_card_settings', array());
+    
+    // Kiểm tra và set default settings
+    $needs_update = false;
+    
+    if (empty($settings)) {
+        $settings = array();
+        $needs_update = true;
+    }
+    
+    // Set các giá trị mặc định nếu chưa có
+    if (!isset($settings['enabled']) || $settings['enabled'] !== 'yes') {
+        $settings['enabled'] = 'yes';
+        $needs_update = true;
+    }
+    
+    if (!isset($settings['title']) || empty($settings['title'])) {
+        $settings['title'] = 'Thẻ tín dụng/Ghi nợ';
+        $needs_update = true;
+    }
+    
+    if (!isset($settings['description']) || empty($settings['description'])) {
+        $settings['description'] = 'Thanh toán bằng thẻ Visa, Mastercard, JCB, hoặc thẻ ghi nợ';
+        $needs_update = true;
+    }
+    
+    if (!isset($settings['testmode'])) {
+        $settings['testmode'] = 'yes';
+        $needs_update = true;
+    }
+    
+    if ($needs_update) {
+        update_option('woocommerce_credit_card_settings', $settings);
+        // Clear WooCommerce cache
+        delete_transient('woocommerce_payment_gateways');
+        if (function_exists('wc_delete_product_transients')) {
+            wc_delete_product_transients();
+        }
+    }
+    
+    // Force enable gateway instance nếu có
+    if (class_exists('WC_Gateway_Credit_Card') && WC()->payment_gateways) {
+        $gateways = WC()->payment_gateways->payment_gateways();
+        if (isset($gateways['credit_card'])) {
+            $gateways['credit_card']->enabled = 'yes';
+            $gateways['credit_card']->update_option('enabled', 'yes');
+        }
+    }
+}
+
+// Đảm bảo payment gateway được hiển thị trên checkout
+add_filter('woocommerce_available_payment_gateways', 'movie_ensure_credit_card_gateway_available', 999, 1);
+function movie_ensure_credit_card_gateway_available($available_gateways) {
+    if (!class_exists('WooCommerce')) {
+        return $available_gateways;
+    }
+    
+    // Kiểm tra xem credit_card gateway có trong danh sách không
+    if (!isset($available_gateways['credit_card'])) {
+        // Thử load lại gateway
+        $gateways = WC()->payment_gateways->payment_gateways();
+        if (isset($gateways['credit_card'])) {
+            $gateway = $gateways['credit_card'];
+            // Force enable và available
+            $gateway->enabled = 'yes';
+            // Đảm bảo gateway được enable
+            if ($gateway->enabled === 'yes') {
+                // Force add vào available gateways
+                $available_gateways['credit_card'] = $gateway;
+            }
+        } else {
+            // Nếu gateway chưa được register, thử register lại
+            if (class_exists('WC_Gateway_Credit_Card')) {
+                $gateway = new WC_Gateway_Credit_Card();
+                $gateway->enabled = 'yes';
+                $available_gateways['credit_card'] = $gateway;
+            }
+        }
+    } else {
+        // Đảm bảo gateway vẫn enabled
+        $available_gateways['credit_card']->enabled = 'yes';
+    }
+    
+    // Đảm bảo luôn có ít nhất 1 payment method
+    if (empty($available_gateways)) {
+        // Nếu không có payment method nào, force add credit_card
+        if (class_exists('WC_Gateway_Credit_Card')) {
+            $gateway = new WC_Gateway_Credit_Card();
+            $gateway->enabled = 'yes';
+            $available_gateways['credit_card'] = $gateway;
+        }
+    }
+    
+    return $available_gateways;
+}
+
+// Validate payment method khi checkout được process
+add_action('woocommerce_checkout_process', 'movie_validate_payment_method');
+function movie_validate_payment_method() {
+    if (!class_exists('WooCommerce') || !WC()->session) {
+        return;
+    }
+    
+    $chosen_method = WC()->session->get('chosen_payment_method');
+    if ($chosen_method === 'credit_card') {
+        // Đảm bảo payment gateway credit_card có sẵn
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        if (!isset($available_gateways['credit_card'])) {
+            // Nếu gateway không available, xóa session và thêm notice
+            WC()->session->__unset('chosen_payment_method');
+            wc_add_notice(__('Phương thức thanh toán không khả dụng. Vui lòng chọn phương thức khác.', 'movie-theme'), 'error');
+        }
+    }
+}
+
+// Enqueue styles and scripts for credit card gateway
+add_action('wp_enqueue_scripts', 'movie_credit_card_gateway_scripts');
+function movie_credit_card_gateway_scripts() {
+    if (is_checkout()) {
+        wp_enqueue_style(
+            'movie-credit-card-gateway',
+            get_stylesheet_directory_uri() . '/assets/css/credit-card-gateway.css',
+            array(),
+            '1.0'
+        );
+        wp_enqueue_script(
+            'movie-credit-card-gateway',
+            get_stylesheet_directory_uri() . '/assets/js/credit-card-gateway.js',
+            array('jquery'),
+            '1.0',
+            true
+        );
+    }
+}
+
+// Hook: Lưu thông tin đặt vé vào WooCommerce order khi checkout
+add_action('woocommerce_checkout_create_order_line_item', 'movie_save_ticket_data_to_order_item', 10, 4);
+function movie_save_ticket_data_to_order_item($item, $cart_item_key, $values, $order) {
+    if (isset($values['ticket_data'])) {
+        $ticket_data = $values['ticket_data'];
+        $item->add_meta_data('_ticket_movie_id', $ticket_data['movie_id']);
+        $item->add_meta_data('_ticket_cinema_id', $ticket_data['cinema_id']);
+        $item->add_meta_data('_ticket_date', $ticket_data['date']);
+        $item->add_meta_data('_ticket_time', $ticket_data['time']);
+        $item->add_meta_data('_ticket_seats', $ticket_data['seats']);
+        $order->update_meta_data('_is_ticket_order', 'yes');
+    }
+}
+
+// Redirect về trang order-success sau khi thanh toán thành công
+add_filter('woocommerce_payment_successful_result', 'movie_redirect_to_success_page', 10, 2);
+function movie_redirect_to_success_page($result, $order_id) {
+    if (isset($result['result']) && $result['result'] === 'success') {
+        // Đảm bảo ticket_order được tạo trước khi redirect
+        // Hook này chạy sau khi payment complete, nên ticket_order đã được tạo
+        $wc_order = wc_get_order($order_id);
+        if ($wc_order) {
+            $ticket_order_id = $wc_order->get_meta('_ticket_order_id');
+            
+            $success_page = get_page_by_path('order-success');
+            $success_url = $success_page ? get_permalink($success_page->ID) : home_url('/order-success/');
+            
+            // Ưu tiên dùng ticket_order_id nếu có
+            if ($ticket_order_id) {
+                $success_url = add_query_arg('order_id', $ticket_order_id, $success_url);
+            }
+            // Luôn thêm wc_order_id để trang success có thể lấy thông tin
+            $success_url = add_query_arg('wc_order_id', $order_id, $success_url);
+            
+            $result['redirect'] = $success_url;
+        }
+    }
+    return $result;
+}
+
+// Hook: Tạo ticket_order sau khi WooCommerce order thanh toán thành công
+// Priority cao để đảm bảo chạy trước redirect
+add_action('woocommerce_payment_complete', 'movie_create_ticket_from_wc_order', 5, 1);
+add_action('woocommerce_thankyou', 'movie_create_ticket_from_wc_order', 10, 1);
+function movie_create_ticket_from_wc_order($order_id) {
+    if (!class_exists('WooCommerce')) {
+        return;
+    }
+
+    $order = wc_get_order($order_id);
+    if (!$order) {
+        return;
+    }
+
+    // Kiểm tra xem có phải là order đặt vé không
+    $is_ticket_order = $order->get_meta('_is_ticket_order');
+    if ($is_ticket_order !== 'yes') {
+        return;
+    }
+
+    // Kiểm tra xem đã tạo ticket_order chưa
+    $existing_ticket_id = $order->get_meta('_ticket_order_id');
+    if ($existing_ticket_id) {
+        return; // Đã tạo rồi
+    }
+
+    // Lấy thông tin từ order items
+    $movie_id = 0;
+    $cinema_id = 0;
+    $date = '';
+    $time = '';
+    $seats = array();
+    
+    foreach ($order->get_items() as $item) {
+        $movie_id  = intval($item->get_meta('_ticket_movie_id'));
+        $cinema_id = intval($item->get_meta('_ticket_cinema_id'));
+        $date      = $item->get_meta('_ticket_date');
+        $time      = $item->get_meta('_ticket_time');
+        $seats     = (array) $item->get_meta('_ticket_seats');
+        break; // Lấy từ item đầu tiên
+    }
+    
+    $total = floatval($order->get_total());
+
+    if (!$movie_id || !$cinema_id || empty($date) || empty($time) || empty($seats)) {
+        return;
+    }
+
+    // Tạo ticket_order
+    $order_title = sprintf('Vé %s - %s %s', get_the_title($movie_id), $date, $time);
+    $ticket_order_id = wp_insert_post(array(
+        'post_type'   => 'ticket_order',
+        'post_status' => 'publish',
+        'post_title'  => $order_title,
+    ));
+
+    if (is_wp_error($ticket_order_id) || !$ticket_order_id) {
+        return;
+    }
+
+    // Lưu thông tin
+    update_post_meta($ticket_order_id, 'movie_id',  $movie_id);
+    update_post_meta($ticket_order_id, 'cinema_id', $cinema_id);
+    update_post_meta($ticket_order_id, 'show_date', $date);
+    update_post_meta($ticket_order_id, 'show_time', $time);
+    update_post_meta($ticket_order_id, 'seats',     array_map('sanitize_text_field', $seats));
+    update_post_meta($ticket_order_id, 'total',     $total);
+    update_post_meta($ticket_order_id, 'user_id',   $order->get_user_id());
+    update_post_meta($ticket_order_id, 'wc_order_id', $order_id);
+    update_post_meta($ticket_order_id, 'status',    'completed');
+
+    // Lưu ticket_order_id vào WooCommerce order
+    $order->update_meta_data('_ticket_order_id', $ticket_order_id);
+    $order->save();
+
+    // Đồng bộ sang plugin Movie Booking System
+    global $wpdb; 
+    $booking_table = $wpdb->prefix . 'mbs_bookings';
+    $seats_table   = $wpdb->prefix . 'mbs_seats';
+
+    // Lấy tên khách hàng: ưu tiên billing info, nếu không có thì lấy từ user
+    $u_name = $order->get_billing_first_name() ?: $order->get_billing_company();
+    if (empty($u_name)) {
+        $user_id = $order->get_user_id();
+        if ($user_id) {
+            $user = get_userdata($user_id);
+            if ($user) {
+                $u_name = $user->display_name ?: $user->user_login;
+            }
+        }
+    }
+    // Nếu vẫn không có, dùng billing full name
+    if (empty($u_name)) {
+        $u_name = trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name());
+    }
+    // Cuối cùng, nếu vẫn không có, dùng email
+    if (empty($u_name)) {
+        $u_name = $order->get_billing_email() ?: 'Khách hàng';
+    }
+    
+    $u_mail = $order->get_billing_email();
+    $u_phone= $order->get_billing_phone();
+
+    $wpdb->insert($booking_table, array(
+        'booking_code'   => 'MBS' . time(),
+        'customer_name'  => $u_name,
+        'customer_email' => $u_mail,
+        'customer_phone' => $u_phone,
+        'total_seats'    => count($seats),
+        'total_price'    => $total,
+        'payment_status' => 'completed',
+        'booking_date'   => current_time('mysql'),
+    ), array('%s','%s','%s','%s','%d','%f','%s','%s'));
+    $mbs_booking_id = $wpdb->insert_id;
+
+    if ( $mbs_booking_id ) {
+        // Đảm bảo cột seat_code tồn tại trước khi insert
+        movie_theme_ensure_seat_code_column();
+        
+        // Debug: log số lượng ghế
+        error_log('Movie Booking (WC): Inserting ' . count($seats) . ' seats for booking ID: ' . $mbs_booking_id);
+        
+        foreach ( $seats as $s ) {
+            $result = $wpdb->insert($seats_table, array(
+                'booking_id' => $mbs_booking_id,
+                'seat_code'  => sanitize_text_field($s)
+            ), array('%d','%s'));
+            
+            if ($result === false) {
+                error_log('Movie Booking (WC): Failed to insert seat ' . $s . ' - ' . $wpdb->last_error);
+            } else {
+                error_log('Movie Booking (WC): Successfully inserted seat ' . $s);
+            }
+        }
+    }
+
+    // Gửi email xác nhận
+    if ($u_mail) {
+        // Kiểm tra xem đã gửi email chưa
+        $email_sent = get_post_meta($ticket_order_id, '_email_sent', true);
+        if ($email_sent === 'yes') {
+            return; // Đã gửi rồi
+        }
+        
+        $subject = '🎬 Xác nhận đặt vé thành công - Đơn hàng #' . $ticket_order_id;
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+        $body    = movie_render_order_summary($ticket_order_id, true); // true = is_email
+        
+        // Log để debug
+        error_log('Movie Booking: Attempting to send email to ' . $u_mail . ' for ticket order #' . $ticket_order_id);
+        
+        $mail_result = wp_mail($u_mail, $subject, $body, $headers);
+        
+        if ($mail_result) {
+            error_log('Movie Booking: Email sent successfully to ' . $u_mail);
+            update_post_meta($ticket_order_id, '_email_sent', 'yes');
+        } else {
+            error_log('Movie Booking: Failed to send email to ' . $u_mail);
+            // Lưu email vào log file để có thể gửi lại sau
+            $email_log = get_option('movie_booking_email_queue', array());
+            $email_log[] = array(
+                'order_id' => $ticket_order_id,
+                'email' => $u_mail,
+                'subject' => $subject,
+                'body' => $body,
+                'time' => current_time('mysql')
+            );
+            update_option('movie_booking_email_queue', $email_log);
+        }
+    }
+}
+
+// Hook: Gửi email khi WooCommerce order status thay đổi thành "completed"
+add_action('woocommerce_order_status_completed', 'movie_send_ticket_email_on_order_complete', 10, 1);
+function movie_send_ticket_email_on_order_complete($order_id) {
+    if (!class_exists('WooCommerce')) {
+        return;
+    }
+    
+    $order = wc_get_order($order_id);
+    if (!$order) {
+        return;
+    }
+    
+    // Kiểm tra xem có phải là order đặt vé không
+    $is_ticket_order = $order->get_meta('_is_ticket_order');
+    if ($is_ticket_order !== 'yes') {
+        return;
+    }
+    
+    // Lấy ticket_order_id
+    $ticket_order_id = $order->get_meta('_ticket_order_id');
+    if (!$ticket_order_id) {
+        // Nếu chưa có ticket_order, thử tạo lại
+        movie_create_ticket_from_wc_order($order_id);
+        $ticket_order_id = $order->get_meta('_ticket_order_id');
+    }
+    
+    if (!$ticket_order_id) {
+        return;
+    }
+    
+    // Kiểm tra xem đã gửi email chưa
+    $email_sent = get_post_meta($ticket_order_id, '_email_sent', true);
+    if ($email_sent === 'yes') {
+        return; // Đã gửi rồi
+    }
+    
+    // Lấy email từ order
+    $user_email = $order->get_billing_email();
+    if (!$user_email) {
+        $user_id = $order->get_user_id();
+        if ($user_id) {
+            $user = get_userdata($user_id);
+            if ($user) {
+                $user_email = $user->user_email;
+            }
+        }
+    }
+    
+    if ($user_email) {
+        // Kiểm tra xem đã gửi email chưa
+        $email_sent = get_post_meta($ticket_order_id, '_email_sent', true);
+        if ($email_sent === 'yes') {
+            return; // Đã gửi rồi
+        }
+        
+        $subject = '🎬 Xác nhận đặt vé thành công - Đơn hàng #' . $ticket_order_id;
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+        $body    = movie_render_order_summary($ticket_order_id, true); // true = is_email
+        
+        // Log để debug
+        error_log('Movie Booking: Attempting to send email to ' . $user_email . ' for ticket order #' . $ticket_order_id);
+        
+        $mail_result = wp_mail($user_email, $subject, $body, $headers);
+        
+        if ($mail_result) {
+            error_log('Movie Booking: Email sent successfully to ' . $user_email);
+            update_post_meta($ticket_order_id, '_email_sent', 'yes');
+        } else {
+            error_log('Movie Booking: Failed to send email to ' . $user_email);
+            // Lưu email vào log file để có thể gửi lại sau
+            $email_log = get_option('movie_booking_email_queue', array());
+            $email_log[] = array(
+                'order_id' => $ticket_order_id,
+                'email' => $user_email,
+                'subject' => $subject,
+                'body' => $body,
+                'time' => current_time('mysql')
+            );
+            update_option('movie_booking_email_queue', $email_log);
+        }
+    }
+}
+
+// Function để test gửi email (có thể gọi từ admin hoặc AJAX)
+function movie_test_send_email() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => 'Không có quyền'));
+        return;
+    }
+    
+    $test_email = isset($_POST['email']) ? sanitize_email($_POST['email']) : get_option('admin_email');
+    
+    $subject = '🎬 Test Email - Đặt Vé Xem Phim';
+    $headers = array('Content-Type: text/html; charset=UTF-8');
+    $body = '<h1>Test Email</h1><p>Đây là email test từ hệ thống đặt vé.</p><p>Nếu bạn nhận được email này, hệ thống email đang hoạt động tốt.</p>';
+    
+    $result = wp_mail($test_email, $subject, $body, $headers);
+    
+    if ($result) {
+        wp_send_json_success(array('message' => 'Email đã được gửi thành công đến ' . $test_email));
+    } else {
+        wp_send_json_error(array('message' => 'Không thể gửi email. Vui lòng kiểm tra cấu hình SMTP.'));
+    }
+}
+add_action('wp_ajax_movie_test_email', 'movie_test_send_email');
+
+// ====== CẤU HÌNH SMTP ĐỂ GỬI EMAIL ======
+// Trên LOCALHOST: Email sẽ được lưu vào file log thay vì gửi thật
+// Trên SERVER THẬT: Cần setup SMTP để gửi email thật
+
+// Hook để log email trên localhost (sau khi wp_mail được gọi)
+add_action('wp_mail_failed', 'movie_log_email_error', 10, 1);
+add_filter('wp_mail', 'movie_log_email_on_localhost', 10, 1);
+
+function movie_log_email_on_localhost($args) {
+    // Chỉ log trên localhost
+    $is_localhost = (
+        strpos(home_url(), 'localhost') !== false || 
+        strpos(home_url(), '127.0.0.1') !== false ||
+        strpos(home_url(), '.local') !== false ||
+        strpos(home_url(), '.test') !== false ||
+        (defined('WP_DEBUG') && WP_DEBUG)
+    );
+    
+    if ($is_localhost) {
+        $to = is_array($args['to']) ? implode(', ', $args['to']) : $args['to'];
+        $subject = $args['subject'];
+        $message = $args['message'];
+        
+        $log_dir = WP_CONTENT_DIR . '/email-logs';
+        if (!file_exists($log_dir)) {
+            wp_mkdir_p($log_dir);
+        }
+        
+        $log_file = $log_dir . '/email-' . date('Y-m-d') . '.html';
+        $log_content = "\n\n" . str_repeat('=', 80) . "\n";
+        $log_content .= "THỜI GIAN: " . current_time('Y-m-d H:i:s') . "\n";
+        $log_content .= "ĐẾN: " . $to . "\n";
+        $log_content .= "TIÊU ĐỀ: " . $subject . "\n";
+        $log_content .= str_repeat('=', 80) . "\n\n";
+        $log_content .= $message;
+        $log_content .= "\n\n" . str_repeat('-', 80) . "\n";
+        
+        file_put_contents($log_file, $log_content, FILE_APPEND);
+        
+        // Lưu thông tin vào transient để hiển thị thông báo
+        set_transient('movie_last_email_log', array(
+            'to' => $to,
+            'subject' => $subject,
+            'file' => content_url('email-logs/email-' . date('Y-m-d') . '.html'),
+            'time' => current_time('mysql')
+        ), 300); // 5 phút
+    }
+    
+    return $args; // Vẫn cho phép gửi email thật nếu có SMTP
+}
+
+function movie_log_email_error($wp_error) {
+    error_log('Movie Booking Email Error: ' . $wp_error->get_error_message());
+}
+
+add_action('phpmailer_init', 'movie_configure_smtp', 10, 1);
+function movie_configure_smtp($phpmailer) {
+    // Chỉ cấu hình nếu chưa có plugin SMTP nào khác
+    if (defined('WPMS_ON') && constant('WPMS_ON')) {
+        return; // Đã có plugin SMTP (WP Mail SMTP)
+    }
+    
+    // Kiểm tra xem có plugin SMTP nào đang active không
+    if (function_exists('is_plugin_active')) {
+        if (is_plugin_active('wp-mail-smtp/wp_mail_smtp.php') || 
+            is_plugin_active('easy-wp-smtp/easy-wp-smtp.php') ||
+            is_plugin_active('post-smtp/postman-smtp.php')) {
+            return; // Đã có plugin SMTP
+        }
+    }
+    
+    // ====== CẤU HÌNH SMTP GMAIL ======
+    // Lấy thông tin từ WordPress options (có thể set trong admin hoặc wp-config.php)
+    $smtp_enabled = get_option('movie_smtp_enabled', false);
+    $smtp_host = get_option('movie_smtp_host', '');
+    $smtp_user = get_option('movie_smtp_user', '');
+    $smtp_pass = get_option('movie_smtp_pass', '');
+    
+    // Hoặc dùng constants từ wp-config.php (an toàn hơn)
+    if (defined('MOVIE_SMTP_ENABLED') && constant('MOVIE_SMTP_ENABLED')) {
+        $smtp_enabled = true;
+        $smtp_host = defined('MOVIE_SMTP_HOST') ? constant('MOVIE_SMTP_HOST') : 'smtp.gmail.com';
+        $smtp_user = defined('MOVIE_SMTP_USER') ? constant('MOVIE_SMTP_USER') : '';
+        $smtp_pass = defined('MOVIE_SMTP_PASS') ? constant('MOVIE_SMTP_PASS') : '';
+    }
+    
+    // Nếu có cấu hình SMTP, sử dụng nó
+    if ($smtp_enabled && $smtp_user && $smtp_pass) {
+        $phpmailer->isSMTP();
+        $phpmailer->Host = $smtp_host ?: 'smtp.gmail.com';
+        $phpmailer->SMTPAuth = true;
+        $phpmailer->Username = $smtp_user;
+        $phpmailer->Password = $smtp_pass;
+        $phpmailer->SMTPSecure = 'tls';
+        $phpmailer->Port = 587;
+        $phpmailer->setFrom($smtp_user, 'Hệ Thống Đặt Vé');
+        $phpmailer->CharSet = 'UTF-8';
+        
+        // Debug (chỉ bật khi test, comment lại sau khi test xong)
+        // $phpmailer->SMTPDebug = 2;
+        // $phpmailer->Debugoutput = function($str, $level) {
+        //     error_log("SMTP Debug: $str");
+        // };
+    }
+}
+
+// Cập nhật giá sản phẩm trong giỏ hàng dựa trên số lượng ghế
+add_action('woocommerce_before_calculate_totals', 'movie_update_cart_item_price', 10, 1);
+function movie_update_cart_item_price($cart) {
+    if (!class_exists('WooCommerce')) {
+        return;
+    }
+
+    $ticket_data = WC()->session->get('ticket_booking_data');
+    if (!$ticket_data || empty($ticket_data['total'])) {
+        return;
+    }
+
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        if (isset($cart_item['ticket_data'])) {
+            $cart_item['data']->set_price($ticket_data['total']);
+        }
+    }
+}
+
+// Hiển thị thông tin đặt vé trong checkout
+add_filter('woocommerce_cart_item_name', 'movie_display_ticket_info_in_cart', 10, 3);
+function movie_display_ticket_info_in_cart($name, $cart_item, $cart_item_key) {
+    if (isset($cart_item['ticket_data'])) {
+        $data = $cart_item['ticket_data'];
+        $movie_title = get_the_title($data['movie_id']);
+        $cinema_title = get_the_title($data['cinema_id']);
+        $name .= '<br><small>';
+        $name .= '<strong>Phim:</strong> ' . esc_html($movie_title) . '<br>';
+        $name .= '<strong>Rạp:</strong> ' . esc_html($cinema_title) . '<br>';
+        $name .= '<strong>Ngày:</strong> ' . esc_html($data['date']) . '<br>';
+        $name .= '<strong>Giờ:</strong> ' . esc_html($data['time']) . '<br>';
+        $name .= '<strong>Ghế:</strong> ' . esc_html(implode(', ', $data['seats']));
+        $name .= '</small>';
+    }
+    return $name;
+}
+
+// Tự động chọn payment method khi đến checkout từ đặt vé
+add_action('woocommerce_before_checkout_form', 'movie_auto_select_payment_method');
+add_action('woocommerce_checkout_init', 'movie_auto_select_payment_method');
+function movie_auto_select_payment_method() {
+    if (!class_exists('WooCommerce') || !WC()->session) {
+        return;
+    }
+
+    // Kiểm tra nếu có payment method trong URL parameter
+    if (isset($_GET['payment_method']) && $_GET['payment_method'] === 'credit_card') {
+        // Đảm bảo payment gateway credit_card có sẵn
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        if (isset($available_gateways['credit_card'])) {
+            WC()->session->set('chosen_payment_method', 'credit_card');
+        }
+    }
+    
+    // Kiểm tra nếu có payment method được chọn từ đặt vé (trong session)
+    $chosen_method = WC()->session->get('chosen_payment_method');
+    if ($chosen_method === 'credit_card') {
+        // Đảm bảo payment gateway credit_card có sẵn
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        if (isset($available_gateways['credit_card'])) {
+            WC()->session->set('chosen_payment_method', 'credit_card');
+        } else {
+            // Nếu gateway không available, xóa session để tránh lỗi
+            WC()->session->__unset('chosen_payment_method');
+        }
+    }
+}
+
+// Highlight payment method khi có parameter hoặc session
+add_action('wp_footer', 'movie_highlight_credit_card_payment');
+function movie_highlight_credit_card_payment() {
+    if (!is_checkout()) {
+        return;
+    }
+    
+    // Kiểm tra nếu có parameter hoặc session
+    $should_select = false;
+    if (isset($_GET['payment_method']) && $_GET['payment_method'] === 'credit_card') {
+        $should_select = true;
+    } elseif (class_exists('WooCommerce') && WC()->session) {
+        $chosen_method = WC()->session->get('chosen_payment_method');
+        if ($chosen_method === 'credit_card') {
+            $should_select = true;
+        }
+    }
+    
+    if (!$should_select) {
+        return;
+    }
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Hàm để force hiển thị payment box
+        function forceShowPaymentBox($paymentBox) {
+            if ($paymentBox.length) {
+                $paymentBox.css({
+                    'display': 'block',
+                    'visibility': 'visible',
+                    'opacity': '1',
+                    'height': 'auto',
+                    'overflow': 'visible'
+                }).show();
+            }
+        }
+        
+        // Hàm để chọn payment method
+        function selectCreditCardPayment() {
+            var creditCardRadio = $('input[value="credit_card"]');
+            if (creditCardRadio.length) {
+                if (!creditCardRadio.is(':checked')) {
+                    creditCardRadio.prop('checked', true).trigger('change').trigger('click');
+                }
+                
+                // Đảm bảo payment box được hiển thị
+                var paymentBox = creditCardRadio.closest('li.wc_payment_method').find('.payment_box');
+                forceShowPaymentBox(paymentBox);
+                
+                // Kiểm tra xem có form fields không
+                var formFields = paymentBox.find('.wc-credit-card-form');
+                if (formFields.length === 0) {
+                    console.log('Warning: Credit card form fields not found in payment box');
+                } else {
+                    console.log('Credit card form fields found:', formFields.length);
+                    formFields.css({
+                        'display': 'block',
+                        'visibility': 'visible'
+                    });
+                }
+                
+                // Scroll to payment section
+                setTimeout(function() {
+                    $('html, body').animate({
+                        scrollTop: creditCardRadio.closest('.wc_payment_methods').offset().top - 100
+                    }, 500);
+                }, 100);
+            } else {
+                console.log('Credit card payment method radio button not found');
+            }
+        }
+        
+        // Thử chọn ngay lập tức
+        selectCreditCardPayment();
+        
+        // Thử lại sau khi form được load hoàn toàn
+        setTimeout(selectCreditCardPayment, 500);
+        setTimeout(selectCreditCardPayment, 1000);
+        setTimeout(selectCreditCardPayment, 2000);
+        
+        // Lắng nghe sự kiện khi payment methods được load
+        $(document.body).on('updated_checkout', function() {
+            setTimeout(selectCreditCardPayment, 100);
+        });
+        
+        // Lắng nghe khi chọn payment method
+        $(document.body).on('change', 'input[name="payment_method"]', function() {
+            if ($(this).val() === 'credit_card') {
+                var paymentBox = $(this).closest('li.wc_payment_method').find('.payment_box');
+                forceShowPaymentBox(paymentBox);
+            }
+        });
+    });
+    </script>
+    <?php
+}
 
 // register_create blog page
 function create_blog_post_type() {
@@ -556,11 +1874,214 @@ function mytheme_blog_archive_styles() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_blog_archive_styles');
 
-?>
 
 
 
 
 
- 
+// Dịch text checkout sang tiếng Việt
+add_filter('woocommerce_checkout_fields', 'movie_remove_all_checkout_fields');
+function movie_remove_all_checkout_fields($fields) {
+    // Xóa tất cả billing fields
+    if (isset($fields['billing'])) {
+        unset($fields['billing']);
+    }
+    
+    // Xóa tất cả shipping fields
+    if (isset($fields['shipping'])) {
+        unset($fields['shipping']);
+    }
+    
+    // Xóa field ghi chú đơn hàng
+    if (isset($fields['order']['order_comments'])) {
+        unset($fields['order']['order_comments']);
+    }
+    
+    return $fields;
+}
+
+// Dịch các text khác trong checkout
+add_filter('gettext', 'movie_translate_checkout_texts', 20, 3);
+function movie_translate_checkout_texts($translated_text, $text, $domain) {
+    if ($domain === 'woocommerce') {
+        $translations = array(
+            'Billing details' => 'Thông tin thanh toán',
+            'Additional information' => 'Thông tin bổ sung',
+            'Order notes' => 'Ghi chú đơn hàng',
+            'Place order' => 'Đặt hàng',
+            'Your order' => 'Đơn hàng của bạn',
+            'Product' => 'Sản phẩm',
+            'Subtotal' => 'Tạm tính',
+            'Total' => 'Tổng cộng',
+            'Payment' => 'Thanh toán',
+            'Payment method' => 'Phương thức thanh toán',
+            'Credit Card / Debit Card' => 'Thẻ tín dụng / Thẻ ghi nợ',
+            'Have a coupon?' => 'Có mã giảm giá?',
+            'Click here to enter your code' => 'Nhấp vào đây để nhập mã của bạn',
+            'First name' => 'Tên',
+            'Last name' => 'Họ',
+            'Company name' => 'Tên công ty',
+            'Country / Region' => 'Quốc gia / Vùng',
+            'Street address' => 'Địa chỉ',
+            'Apartment, suite, etc. (optional)' => 'Căn hộ, tòa nhà, v.v. (tùy chọn)',
+            'Postcode / ZIP' => 'Mã bưu điện',
+            'Town / City' => 'Thành phố',
+            'State / County' => 'Tỉnh / Thành phố',
+            'Phone' => 'Số điện thoại',
+            'Email address' => 'Địa chỉ email',
+            'Order notes (optional)' => 'Ghi chú đơn hàng (tùy chọn)',
+        );
+        
+        if (isset($translations[$text])) {
+            return $translations[$text];
+        }
+    }
+    return $translated_text;
+}
+
+// Dịch privacy policy text trong checkout
+add_filter('woocommerce_get_privacy_policy_text', 'movie_translate_privacy_policy_text', 10, 2);
+function movie_translate_privacy_policy_text($text, $type) {
+   
+}
+
+// Thêm custom post types vào WordPress search
+function movie_theme_add_custom_post_types_to_search($query) {
+    if (!is_admin() && $query->is_main_query()) {
+        if ($query->is_search()) {
+            // Kiểm tra nếu có post_type trong URL parameter
+            if (isset($_GET['post_type'])) {
+                $post_types = sanitize_text_field($_GET['post_type']);
+                $post_types_array = explode(',', $post_types);
+                $query->set('post_type', $post_types_array);
+            } else {
+                // Mặc định tìm trong phim và rạp
+                $query->set('post_type', array('mbs_movie', 'mbs_cinema'));
+            }
+        }
+    }
+}
+add_action('pre_get_posts', 'movie_theme_add_custom_post_types_to_search');
+
+// AJAX handler cho chức năng yêu thích
+function movie_theme_toggle_favorite() {
+    // Kiểm tra nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'movie_favorite_nonce')) {
+        wp_send_json_error(array('message' => 'Phiên không hợp lệ'));
+    }
+    
+    // Kiểm tra đăng nhập
+    if (!is_user_logged_in()) {
+        wp_send_json_error(array('message' => 'Vui lòng đăng nhập để thêm yêu thích'));
+    }
+    
+    $user_id = get_current_user_id();
+    $movie_id = isset($_POST['movie_id']) ? intval($_POST['movie_id']) : 0;
+    
+    if (!$movie_id || !get_post($movie_id)) {
+        wp_send_json_error(array('message' => 'Phim không tồn tại'));
+    }
+    
+    // Lấy danh sách yêu thích hiện tại
+    $favorites = get_user_meta($user_id, 'favorite_movies', true);
+    $favorites = is_array($favorites) ? $favorites : array();
+    
+    // Toggle yêu thích
+    $is_favorite = in_array($movie_id, $favorites);
+    
+    if ($is_favorite) {
+        // Xóa khỏi yêu thích
+        $favorites = array_diff($favorites, array($movie_id));
+        $favorites = array_values($favorites); // Re-index array
+        $action = 'removed';
+        $message = 'Đã xóa khỏi yêu thích';
+    } else {
+        // Thêm vào yêu thích
+        $favorites[] = $movie_id;
+        $favorites = array_unique($favorites);
+        $favorites = array_values($favorites);
+        $action = 'added';
+        $message = 'Đã thêm vào yêu thích';
+    }
+    
+    // Lưu lại
+    update_user_meta($user_id, 'favorite_movies', $favorites);
+    
+    wp_send_json_success(array(
+        'action' => $action,
+        'is_favorite' => !$is_favorite,
+        'message' => $message,
+        'count' => count($favorites)
+    ));
+}
+add_action('wp_ajax_movie_toggle_favorite', 'movie_theme_toggle_favorite');
+add_action('wp_ajax_nopriv_movie_toggle_favorite', 'movie_theme_toggle_favorite');
+
+// Enqueue script cho yêu thích
+function movie_theme_favorite_scripts() {
+    if (is_singular('mbs_movie') || is_page('favorites') || is_page_template('page-favorites.php')) {
+        $js_file = get_template_directory() . '/js/movie-favorite.js';
+        if (file_exists($js_file)) {
+            wp_enqueue_script('movie-favorite', get_template_directory_uri() . '/js/movie-favorite.js', array('jquery'), filemtime($js_file), true);
+            wp_localize_script('movie-favorite', 'movieFavorite', array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('movie_favorite_nonce'),
+                'login_required' => 'Vui lòng đăng nhập để thêm yêu thích'
+            ));
+        }
+    }
+}
+add_action('wp_enqueue_scripts', 'movie_theme_favorite_scripts');
+
+// Đảm bảo cột seat_code tồn tại trong bảng mbs_seats
+function movie_theme_ensure_seat_code_column() {
+    global $wpdb;
+    $table_seats = $wpdb->prefix . 'mbs_seats';
+    
+    // Kiểm tra xem bảng có tồn tại không
+    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_seats'");
+    if (!$table_exists) {
+        return; // Bảng chưa tồn tại, không cần làm gì
+    }
+    
+    // Kiểm tra xem cột seat_code đã tồn tại chưa
+    $columns = $wpdb->get_col("SHOW COLUMNS FROM $table_seats");
+    $has_seat_code = in_array('seat_code', $columns);
+    
+    if (!$has_seat_code) {
+        // Thêm cột seat_code
+        $wpdb->query("ALTER TABLE $table_seats ADD COLUMN seat_code VARCHAR(10) NULL AFTER booking_id");
+        
+        // Nếu có cột seat_number, copy dữ liệu sang seat_code
+        if (in_array('seat_number', $columns)) {
+            $wpdb->query("UPDATE $table_seats SET seat_code = seat_number WHERE seat_code IS NULL OR seat_code = ''");
+        }
+    }
+    
+    // Đảm bảo showtime_id có thể NULL để tránh lỗi khi insert không có showtime_id
+    // Kiểm tra xem showtime_id có cho phép NULL không
+    $showtime_info = $wpdb->get_row("SHOW COLUMNS FROM $table_seats WHERE Field = 'showtime_id'");
+    if ($showtime_info && $showtime_info->Null === 'NO') {
+        // Làm cho showtime_id có thể NULL
+        $wpdb->query("ALTER TABLE $table_seats MODIFY COLUMN showtime_id bigint(20) NULL");
+    }
+    
+    // Xóa UNIQUE constraint nếu có để tránh conflict khi insert nhiều ghế cùng booking_id
+    // Kiểm tra xem có constraint unique_seat không
+    $constraints = $wpdb->get_results("SHOW INDEX FROM $table_seats WHERE Key_name = 'unique_seat'");
+    if (!empty($constraints)) {
+        // Xóa constraint để cho phép insert nhiều ghế
+        $wpdb->query("ALTER TABLE $table_seats DROP INDEX unique_seat");
+    }
+}
+// Chạy migration khi admin init (mỗi lần vào admin)
+add_action('admin_init', 'movie_theme_ensure_seat_code_column');
+// Cũng chạy khi init để đảm bảo (nhưng chỉ 1 lần)
+add_action('init', function() {
+    static $migrated = false;
+    if (!$migrated) {
+        movie_theme_ensure_seat_code_column();
+        $migrated = true;
+    }
+}, 999);
 

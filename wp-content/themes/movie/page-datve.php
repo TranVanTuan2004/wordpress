@@ -23,6 +23,7 @@ window.BOOKING_AJAX = window.BOOKING_AJAX || {
   url: '<?php echo admin_url('admin-ajax.php'); ?>',
   nonce: '<?php echo wp_create_nonce('ticket_order_nonce'); ?>'
 };
+window.isUserLoggedIn = <?php echo is_user_logged_in() ? 'true' : 'false'; ?>;
 
 // Hàm xử lý click ghế - ĐƠN GIẢN VÀ RÕ RÀNG
 window.handleSeatClick = function(btn) {
@@ -124,8 +125,18 @@ function loadReservedSeats() {
 
 // Xử lý submit
 function handleSubmit() {
+  var resultEl = document.getElementById('bk-result');
+  
+  // Kiểm tra đăng nhập
+  if (!window.isUserLoggedIn) {
+    if (resultEl) {
+      resultEl.textContent = 'Bạn cần vui lòng đăng nhập để đặt vé.';
+      resultEl.style.color = '#fca5a5';
+    }
+    return;
+  }
+  
   if (!window.bookingSeats || window.bookingSeats.length === 0) {
-    var resultEl = document.getElementById('bk-result');
     if (resultEl) resultEl.textContent = 'Vui lòng chọn ghế.';
     return;
   }
@@ -133,7 +144,6 @@ function handleSubmit() {
   var dateEl = document.getElementById('bk-sum-date');
   var timeEl = document.getElementById('bk-sum-time');
   var methodEl = document.getElementById('bk-method');
-  var resultEl = document.getElementById('bk-result');
   
   if (!dateEl || !timeEl) {
     console.error('Date or time element not found');
@@ -281,6 +291,9 @@ function handleSubmit() {
           <label for="bk-method" class="bk-label">Phương thức thanh toán</label>
           <select id="bk-method">
             <option value="pay_later">Thanh toán tại rạp</option>
+            <?php if (class_exists('WooCommerce')): ?>
+            <option value="credit_card">Thẻ tín dụng/Ghi nợ</option>
+            <?php endif; ?>
           </select>
         </div>
         <button type="button" id="bk-submit" class="bk-btn">Thanh toán</button>
