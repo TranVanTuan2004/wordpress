@@ -3,7 +3,12 @@
 $pt = get_post_type();
 $cinema_pts = array('rap_phim','rap-phim','cinema','theater','mbs_cinema','rap','rapfilm','rap_phim_cpt');
 if ( in_array($pt, $cinema_pts, true) ) {
-  require __DIR__ . '/single-rap_phim.php';
+  $cinema_template = locate_template(array('single-mbs_cinema.php','single-rap_phim.php'));
+  if ($cinema_template) {
+    require $cinema_template;
+    exit;
+  }
+  require __DIR__ . '/single-mbs_cinema.php';
   exit;
 }
 

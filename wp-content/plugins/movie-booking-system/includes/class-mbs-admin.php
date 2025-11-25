@@ -58,6 +58,15 @@ class MBS_Admin
             'mbs-settings',
             array($this, 'settings_page')
         );
+        
+        add_submenu_page(
+            'mbs-dashboard',
+            'Sample Data',
+            'Sample Data',
+            'manage_options',
+            'mbs-sample-data',
+            array($this, 'sample_data_page')
+        );
     }
 
     /**
@@ -883,5 +892,111 @@ class MBS_Admin
             </form>
         </div>
 <?php
+    }
+    
+    /**
+     * Sample Data page
+     */
+    public function sample_data_page() {
+        // Handle seed request
+        if (isset($_POST['mbs_seed_data']) && check_admin_referer('mbs_seed_data_nonce')) {
+            $result = MBS_Sample_Data::install_comprehensive();
+            if ($result['success']) {
+                echo '<div class="notice notice-success"><p><strong>✅ Seeding Complete!</strong></p>';
+                echo '<ul>';
+                echo '<li>🎬 Created ' . $result['movies'] . ' movies</li>';
+                echo '<li>🏢 Created ' . $result['cinemas'] . ' cinemas</li>';
+                echo '<li>🎫 Created 30+ showtimes</li>';
+                echo '</ul></div>';
+            }
+        }
+        
+        // Handle delete request
+        if (isset($_POST['mbs_delete_data']) && check_admin_referer('mbs_delete_data_nonce')) {
+            $result = MBS_Sample_Data::delete_all_data();
+            if ($result['success']) {
+                echo '<div class="notice notice-warning"><p><strong>🗑️ Deleted Data!</strong></p>';
+                echo '<ul>';
+                echo '<li>🎬 Deleted ' . $result['deleted']['movies'] . ' movies</li>';
+                echo '<li>🏢 Deleted ' . $result['deleted']['cinemas'] . ' cinemas</li>';
+                echo '<li>🎫 Deleted ' . $result['deleted']['showtimes'] . ' showtimes</li>';
+                echo '</ul></div>';
+            }
+        }
+        
+        // Get current data count
+        $data_count = MBS_Sample_Data::get_data_count();
+        $has_data = ($data_count['movies'] > 0 || $data_count['cinemas'] > 0);
+        
+        ?>
+        <div class="wrap">
+            <h1>🎬 Sample Data Manager</h1>
+            <p>Generate comprehensive sample data for testing the Movie Booking System.</p>
+            
+            <?php if ($has_data): ?>
+            <div class="notice notice-warning" style="padding: 15px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">⚠️ Existing Data Detected!</h3>
+                <p><strong>Current data:</strong></p>
+                <ul>
+                    <li>🎬 Movies: <?php echo $data_count['movies']; ?></li>
+                    <li>🏢 Cinemas: <?php echo $data_count['cinemas']; ?></li>
+                    <li>🎫 Showtimes: <?php echo $data_count['showtimes']; ?></li>
+                </ul>
+                <p><strong style="color: #d63638;">Warning:</strong> Running the seeder again will CREATE MORE data (duplicates). If you want to start fresh, please delete existing data first.</p>
+            </div>
+            <?php endif; ?>
+            
+            <div class="card" style="max-width: 800px; padding: 20px;">
+                <h2>What will be seeded:</h2>
+                <ul style="line-height: 2;">
+                    <li>✅ <strong>10 Movies</strong> - Popular movies with complete information (The Dark Knight, Inception, Interstellar, etc.)</li>
+                    <li>✅ <strong>8 Cinemas</strong> - RIOT Cinemas across Vietnam (Hà Nội, Sài Gòn, Đà Nẵng, etc.)</li>
+                    <li>✅ <strong>30+ Showtimes</strong> - Movie schedules for the next 7 days</li>
+                    <li>✅ <strong>9 Genres</strong> - Action, Sci-Fi, Drama, Thriller, Crime, etc.</li>
+                </ul>
+                
+                <form method="post" style="margin-top: 20px;">
+                    <?php wp_nonce_field('mbs_seed_data_nonce'); ?>
+                    <button type="submit" name="mbs_seed_data" class="button button-primary button-hero">
+                        🚀 Seed Sample Data Now
+                    </button>
+                </form>
+                
+                <?php if ($has_data): ?>
+                <form method="post" style="margin-top: 20px;" onsubmit="return confirm('⚠️ This will DELETE all Movies, Cinemas, and Showtimes! Are you sure?');">
+                    <?php wp_nonce_field('mbs_delete_data_nonce'); ?>
+                    <button type="submit" name="mbs_delete_data" class="button button-secondary button-hero" style="background: #d63638; border-color: #d63638; color: white;">
+                        🗑️ Delete All Sample Data
+                    </button>
+                    <p style="color: #666; font-size: 12px; margin-top: 10px;">This will delete all Movies, Cinemas, and Showtimes created by the seeder.</p>
+                </form>
+                <?php endif; ?>
+            </div>
+            
+            <div class="card" style="max-width: 800px; padding: 20px; margin-top: 20px;">
+                <h2>📋 Usage Instructions</h2>
+                <ol style="line-height: 2;">
+                    <li><strong>First Time:</strong> Click "Seed Sample Data Now" to create test data</li>
+                    <li><strong>View Data:</strong> Check Phim, Rạp Phim, and Suất Chiếu menus</li>
+                    <li><strong>Reset Data:</strong> Click "Delete All Sample Data" then seed again</li>
+                    <li><strong>Important:</strong> Don't click seed multiple times - it will create duplicates!</li>
+                </ol>
+            </div>
+        </div>
+        
+        <style>
+            .mbs-sample-data .card {
+                background: #fff;
+                border: 1px solid #ccd0d4;
+                border-radius: 4px;
+                box-shadow: 0 1px 1px rgba(0,0,0,.04);
+            }
+            .mbs-sample-data .button-hero {
+                padding: 12px 36px;
+                font-size: 14px;
+                height: auto;
+            }
+        </style>
+        <?php
     }
 }

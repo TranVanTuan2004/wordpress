@@ -20,7 +20,7 @@
         <div class="movie-poster">
           <img
             src="<?php echo $thumb_url ? $thumb_url : 'https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75'; ?>"
-            alt="Núi Tế Vong Poster"
+            alt="<?php the_title_attribute(); ?>"
           />
         </div>
 
@@ -53,12 +53,16 @@
             $book_link_base = $book_page ? get_permalink($book_page) : home_url('/datve/');
           ?>
           <ul class="movie-meta">
-            <li><strong>Thể loại:</strong> Kinh Dị</li>
+            <li><strong>Thể loại:</strong> 
+              <?php
+                $genres = wp_get_post_terms(get_the_ID(), 'mbs_genre');
+                echo !empty($genres) && !is_wp_error($genres) ? esc_html(implode(', ', wp_list_pluck($genres, 'name'))) : 'Chưa phân loại';
+              ?>
+            </li>
             <li><strong>Thời lượng:</strong> <?php echo esc_html($duration); ?></li>
             <li><strong>Định dạng:</strong> 2D, Phụ Đề</li>
             <li>
-              <strong>Phân loại:</strong> T16 - Phim dành cho khán giả từ đủ 16
-              tuổi trở lên
+              <strong>Phân loại:</strong> <?php echo esc_html($rating ? $rating : 'T16'); ?>
             </li>
             <li><strong>Khởi chiếu:</strong> <?php echo esc_html($release_date); ?></li>
             <li>
@@ -69,7 +73,7 @@
           <div class="movie-description">
             <h2>Nội dung phim</h2>
              <p><?php the_content(); ?></p>
-            <a href="<?php echo esc_url( add_query_arg('movie', get_the_ID(), $book_link_base) ); ?>" class="trailer-button" style="background:#ffe44d;color:#0e1220;font-weight:800">🎟 Đặt vé</a>
+            <a href="<?php echo esc_url(add_query_arg('movie', get_the_ID(), $book_link_base)); ?>" class="trailer-button" style="background:#ffe44d;color:#0e1220;font-weight:800">🎟 Đặt vé</a>
             <?php if (! empty($trailer_url)) : ?>
               <a href="<?php echo esc_url($trailer_url); ?>" class="trailer-button">🎬 Xem Trailer</a>
             <?php endif; ?>
@@ -78,7 +82,7 @@
       </div>
 
       <!-- showtime -->
-      <div class="showtime-section">
+      <div id="showtime-section" class="showtime-section">
         <h2 class="section-title">LỊCH CHIẾU</h2>
 
         <?php
@@ -151,29 +155,47 @@
               while($cinemas->have_posts()): $cinemas->the_post();
                 $cid = get_the_ID();
                 $date_times = $showtimes_by_cinema[$cid] ?? array();
-                if (empty($date_times)) { echo '<div class="cinema-item"><div class="cinema-header"><span>'. esc_html(get_the_title()) .'</span><span class="arrow">▶</span></div><div class="cinema-detail"><p>Chưa có suất chiếu.</p></div></div>'; continue; }
+                
+                // Universal Showtime Logic
+                if (empty($date_times)) { 
+                    // Generate default showtimes
+                    $default_times = array('09:00', '11:30', '14:00', '16:30', '19:00', '21:30');
+                    $default_dates = array(
+                        date('Y-m-d'), // Today
+                        date('Y-m-d', strtotime('+1 day')), // Tomorrow
+                        date('Y-m-d', strtotime('+2 days')) // Day after tomorrow
+                    );
+                    foreach ($default_dates as $d) {
+                        $date_times[$d] = $default_times;
+                    }
+                }
+
+                // Luôn hiển thị và cho phép click
                 echo '<div class="cinema-item" onclick="toggleCinema(this)">';
                 echo '<div class="cinema-header"><span>'. esc_html(get_the_title()) .'</span><span class="arrow">▶</span></div>';
                 echo '<div class="cinema-detail">';
-                foreach ($date_times as $date => $times_arr){
-                  echo '<p><strong>'. esc_html( date('d/m/Y', strtotime($date)) ) .'</strong></p>';
-                  echo '<div class="showtimes">';
-                  foreach ($times_arr as $t){
-                    $link = add_query_arg(array(
-                      'movie'=> $current_movie_id,
-                      'cinema'=> $cid,
-                      'date'=> $date,
-                      'time'=> $t
-                    ), $book_link_base );
-                    echo '<a href="'. esc_url($link) .'" class="time-chip">'. esc_html($t) .'</a>';
-                  }
-                  echo '</div>';
+                
+                if (!empty($date_times)) {
+                    foreach ($date_times as $date => $times_arr){
+                      echo '<p><strong>'. esc_html( date('d/m/Y', strtotime($date)) ) .'</strong></p>';
+                      echo '<div class="showtimes">';
+                      foreach ($times_arr as $t){
+                        $link = add_query_arg(array(
+                          'movie'=> $current_movie_id,
+                          'cinema'=> $cid,
+                          'date'=> $date,
+                          'time'=> $t
+                        ), $book_link_base );
+                        echo '<a href="'. esc_url($link) .'" class="time-chip">'. esc_html($t) .'</a>';
+                      }
+                      echo '</div>';
+                    }
                 }
                 echo '</div></div>';
               endwhile; wp_reset_postdata();
               echo '</div>';
             else:
-              echo '<p>Chưa có rạp.</p>';
+              echo '<p class="no-cinemas">Hiện chưa có rạp nào chiếu phim này.</p>';
             endif;
           } else {
             echo '<p>Chưa cấu hình post type rạp.</p>';

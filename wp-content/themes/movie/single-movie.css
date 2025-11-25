@@ -1,12 +1,14 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #fff;
-    font-family: 'Poppins', sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
 }
-html, body{
-    /* background-color: #071e3d; */
+
+html,
+body {
+  /* background-color: #071e3d; */
 }
 
 body {
@@ -19,10 +21,12 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
-ul, li, a{
-    text-decoration: none;
-    list-style: none;
-    color: #fff;
+ul,
+li,
+a {
+  text-decoration: none;
+  list-style: none;
+  color: #fff;
 }
 
 
@@ -109,10 +113,23 @@ ul, li, a{
 }
 
 @keyframes heartBeat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.3); }
-  50% { transform: scale(1.1); }
-  75% { transform: scale(1.2); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  25% {
+    transform: scale(1.3);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  75% {
+    transform: scale(1.2);
+  }
 }
 
 .movie-meta {
@@ -201,110 +218,34 @@ ul, li, a{
 }
 
 /* Màu chữ trong các option */
-.location-selector option {
-  color: #000;
-  background-color: #fff;
-}
-
-/* cinema-list */
-.cinema-list {
-  background-color: #1c1c3c;
-  color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-}
-
-.cinema-item {
-  background-color: #2e2e5e;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.cinema-item.active {
-  background-color: #4b3b7a;
-}
-
-.cinema-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 25px;
-  font-weight: bold;
-}
-
-.arrow {
-  transition: transform 0.3s;
-}
-
-.cinema-item.active .arrow {
-  transform: rotate(90deg);
-}
-
-.cinema-detail {
-  display: none;
-  padding: 0 15px 15px;
-  font-size: 14px;
-}
-
-.cinema-detail p{
-    font-size: 20px;
-}
-
-.cinema-item.active .cinema-detail {
-  display: block;
-}
-
-.showtimes {
-  display: flex;
-  gap: 10px;
-  margin-top: 5px;
-}
-
-.showtimes span {
-  background-color: #fff;
-  color: #000;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-.showtimes .disabled {
-  background-color: #ccc;
-  color: #666;
-}
-
-
-
-/* responsive */
 /*  */
 .menu-toggle {
   font-size: 24px;
   cursor: pointer;
-  display: none; /* chỉ hiện trên mobile */
+  display: none;
+  /* chỉ hiện trên mobile */
   color: white;
 }
+
 @media (max-width: 1350px) {
-    .container{
+  .container {
     margin: 0 50px;
     max-width: 1200px;
     /* background-color: red; */
   }
 
-  .btn span{ 
+  .btn span {
     font-size: 10px;
   }
 }
 
 @media (max-width: 1150px) {
-    .container{
+  .container {
     margin: 0 50px;
     /* max-width: 1200px; */
   }
-  .header{ 
+
+  .header {
     justify-content: space-between;
   }
 
@@ -317,69 +258,72 @@ ul, li, a{
 
   /* dat ve, dat bap nuoc */
   .header .actions .action-ticker,
-.header .actions .action-popcorn{
-  display: none;
-}
+  .header .actions .action-popcorn {
+    display: none;
+  }
 
-.header .actions{
+  .header .actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 40px;
-}
+  }
 
-/* dropdownnew */
-.navbar .menu .dropdown{
+  /* dropdownnew */
+  .navbar .menu .dropdown {
     display: none;
     gap: 40px;
     width: 800px;
     z-index: 99;
     padding: 20px 20px;
-}
+  }
 
-.navbar .menu .dropdown .dropdown-column a{
+  .navbar .menu .dropdown .dropdown-column a {
     display: block;
     padding: 10px 0px;
     font-size: 16px;
-}
+  }
 
-.movie-poster img{
-  max-width: 300px;
-}
+  .movie-poster img {
+    max-width: 300px;
+  }
 
-.movie-info h1{
-  font-size: 26px;
-}
+  .movie-info h1 {
+    font-size: 26px;
+  }
 
-.movie-meta li{
-  font-size: 14px;
-}
+  .movie-meta li {
+    font-size: 14px;
+  }
 
 }
 
 @media (max-width: 900px) {
-  
-    .container{
-      margin: 0 30px;
-    }
 
-    .header .action-search.active input {
+  .container {
+    margin: 0 30px;
+  }
+
+  .header .action-search.active input {
     width: 45px;
     padding: 8px 30px 8px 10px;
   }
 
-  .header .logo-header img{
+  .header .logo-header img {
     /* margin-left: 50px; */
-}
+  }
 
-.menu-toggle {
-    display: block; /* hiện nút ☰ */
+  .menu-toggle {
+    display: block;
+    /* hiện nút ☰ */
     /* margin-right: 50px; */
   }
 
   .header .actions {
-    display: none;              /* ẩn mặc định */
-    flex-direction: column;     /* khi hiện thì xếp dọc */
+    display: none;
+    /* ẩn mặc định */
+    flex-direction: column;
+    /* khi hiện thì xếp dọc */
     align-items: center;
     gap: 20px;
     background: #c43755;
@@ -393,106 +337,106 @@ ul, li, a{
   }
 
   .header .actions.show {
-    display: flex;              /* hiện lại bằng flex để giữ layout */
+    display: flex;
+    /* hiện lại bằng flex để giữ layout */
   }
 
   /* navbar */
-  .navbar .menu .menu-item a{
+  .navbar .menu .menu-item a {
     font-size: 14px;
   }
 
-  .navbar .menu{
+  .navbar .menu {
     display: block;
-}
-    .navbar .menu .menu-left{
-      display: flex;
-      width: 100%;
-      margin: 0 50%;
-      transform: translateX(-50%);
-}
+  }
+
+  .navbar .menu .menu-left {
+    display: flex;
+    width: 100%;
+    margin: 0 50%;
+    transform: translateX(-50%);
+  }
 
   /* dropdown */
-  
-.navbar .menu .menu-left .menu-item:first-child:hover > .dropdown{
+
+  .navbar .menu .menu-left .menu-item:first-child:hover>.dropdown {
     display: flex;
     flex-direction: row;
-}
+  }
 
-/* làm dropdown */
-.navbar .menu .dropdown{
+  /* làm dropdown */
+  .navbar .menu .dropdown {
     display: none;
     gap: 40px;
     width: 350px;
     z-index: 99;
     padding: 20px 20px;
-}
+  }
 
-.navbar .menu .dropdown .dropdown-column a{
+  .navbar .menu .dropdown .dropdown-column a {
     display: block;
     padding: 10px 0px;
     font-size: 10px;
-}
+  }
 
-.movie-poster img{
-  max-width: 250px;
-}
+  .movie-poster img {
+    max-width: 250px;
+  }
 
-.movie-info h1{
-  font-size: 22px;
-}
+  .movie-info h1 {
+    font-size: 22px;
+  }
 
-.movie-meta li{
-  font-size: 10px;
-}
-
-.movie-description h2{
-  font-size: 22px;
-}
-
-.trailer-button {
-  padding: 5px 15px;
-  font-size: 12px;
-}
-
-.section-title{
-  font-size: 20px;
-}
-}
-
-@media (max-width: 600px) {
-    .navbar .menu .menu-item a{
+  .movie-meta li {
     font-size: 10px;
   }
 
-  .navbar .menu .menu-right{
+  .movie-description h2 {
+    font-size: 22px;
+  }
+
+  .trailer-button {
+    padding: 5px 15px;
+    font-size: 12px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar .menu .menu-item a {
+    font-size: 10px;
+  }
+
+  .navbar .menu .menu-right {
     flex-wrap: wrap;
   }
 
-  .movie-poster img{
-  max-width: 150px;
+  .movie-poster img {
+    max-width: 150px;
+  }
+
+  .movie-info h1 {
+    font-size: 16px;
+  }
+
+  .movie-meta li {
+    font-size: 10px;
+  }
+
+  .movie-description h2 {
+    font-size: 16px;
+  }
+
+  .trailer-button {
+    padding: 5px 10px;
+    font-size: 8px;
+  }
 }
 
-.movie-info h1{
-  font-size: 16px;
-}
-
-.movie-meta li{
-  font-size: 10px;
-}
-
-.movie-description h2{
-  font-size: 16px;
-}
-
-.trailer-button {
-  padding: 5px 10px;
-  font-size: 8px;
-}
-}
-
-@media (max-width: 400px){
-
-}
+@media (max-width: 400px) {}
 
 /* Movie Comments Section */
 .movie-comments-wrapper {

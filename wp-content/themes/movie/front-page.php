@@ -1,10 +1,3 @@
-<?php
-  $args = array(
-    'post_type' => 'mbs_movie',
-    // 'posts_per_page' => 3
-  );
-  $query = new WP_Query($args);
-?>
 <?php get_header(); ?>
       <!-- slider -->
       <div class="slider">
@@ -14,7 +7,7 @@
               src="https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/chaching2.jpg"
               class="slide"
             />
-            <button class="book-ticker" onclick="window.location.href=''">
+            <button class="book-ticker" onclick="document.querySelector('.booking').scrollIntoView({behavior: 'smooth'})">
               ĐẶT VÉ NGAY
             </button>
           </a>
@@ -23,7 +16,7 @@
               src="https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/hoarac.jpg"
               class="slide"
             />
-            <button class="book-ticker" onclick="window.location.href=''">
+            <button class="book-ticker" onclick="document.querySelector('.booking').scrollIntoView({behavior: 'smooth'})">
               ĐẶT VÉ NGAY
             </button>
           </a>
@@ -32,7 +25,7 @@
               src="https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/banner-web.jpg"
               class="slide"
             />
-            <button class="book-ticker" onclick="window.location.href=''">
+            <button class="book-ticker" onclick="document.querySelector('.booking').scrollIntoView({behavior: 'smooth'})">
               ĐẶT VÉ NGAY
             </button>
           </a>
@@ -41,7 +34,7 @@
               src="https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/1215wx365h.jpg"
               class="slide"
             />
-            <button class="book-ticker" onclick="window.location.href=''">
+            <button class="book-ticker" onclick="document.querySelector('.booking').scrollIntoView({behavior: 'smooth'})">
               ĐẶT VÉ NGAY
             </button>
           </a>
@@ -50,7 +43,7 @@
               src="https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/2400wx720h_1_.jpg"
               class="slide"
             />
-            <button class="book-ticker" onclick="window.location.href=''">
+            <button class="book-ticker" onclick="document.querySelector('.booking').scrollIntoView({behavior: 'smooth'})">
               ĐẶT VÉ NGAY
             </button>
           </a>
@@ -64,58 +57,59 @@
         <h2 class="booking-title">ĐẶT VÉ NHANH</h2>
         <!-- from-group -->
         <div class="form-group">
-          <select id="cinema" class="form-select">
+          <select id="booking-cinema" class="form-select">
             <option value="">1. Chọn rạp</option>
-            <option value="qt">Cinestar Quốc Thanh</option>
-            <option value="hbt">Cinestar Hai Bà Trưng</option>
-            <option value="hue">Cinestar Huế</option>
+            <?php
+              // Query cinemas from database
+              $cinema_pts = array('mbs_cinema','rap_phim','rap-phim','cinema','theater','rap','rapfilm','rap_phim_cpt');
+              $cinema_pt = null;
+              foreach($cinema_pts as $pt){ 
+                if ( post_type_exists($pt) ){ 
+                  $cinema_pt = $pt; 
+                  break; 
+                } 
+              }
+              
+              if ($cinema_pt) {
+                $cinemas = new WP_Query(array(
+                  'post_type' => $cinema_pt,
+                  'post_status' => 'publish',
+                  'posts_per_page' => -1,
+                  'orderby' => 'title',
+                  'order' => 'ASC'
+                ));
+                
+                if ($cinemas->have_posts()) {
+                  while ($cinemas->have_posts()) {
+                    $cinemas->the_post();
+                    echo '<option value="' . esc_attr(get_the_ID()) . '">' . esc_html(get_the_title()) . '</option>';
+                  }
+                  wp_reset_postdata();
+                }
+              }
+            ?>
           </select>
         </div>
 
         <div class="form-group">
-          <select id="cinema" class="form-select">
+          <select id="booking-movie" class="form-select" disabled>
             <option value="">2. Chọn phim</option>
-            <option value="nui-te-vong">NÚI TẾ VONG (T16)</option>
-            <option value="long-dien-huong">
-              TRUY TÌM LONG DIÊN HƯƠNG (T16)
-            </option>
-            <option value="duyen-ma">TÌNH NGƯỜI DUYÊN MA 2025 (T13) LT</option>
-            <option value="lo-lem">LỌ LEM CHƠI NGẢI (T18)</option>
-            <option value="thai-chieu-tai">
-              QUỶ THA MA BẮT: THAI CHIÊU TÀI (T18)
-            </option>
-            <option value="godzilla">GODZILLA MINUS ONE (T13)</option>
-            <option value="trai-tim-que">TRÁI TIM QUÊ QUẶT (T18)</option>
-            <option value="quai-thu">
-              QUÁI THÚ VÔ HÌNH: VÙNG ĐẤT CHẾT CHÓC (T16)
-            </option>
           </select>
         </div>
 
         <div class="form-group">
-          <select id="cinema" class="form-select">
+          <select id="booking-date" class="form-select" disabled>
             <option value="">3. Chọn ngày</option>
-            <option value="qt">Thứ năm, 13/11</option>
-            <option value="hbt">Thứ sáu, 14/11</option>
-            <option value="hue">Thứ bảy, 15/11</option>
           </select>
         </div>
 
         <div class="form-group">
-          <select id="cinema" class="form-select">
-            <option value="">3. Chọn suất</option>
-            <option value="1340">13:40 - 2D Standard</option>
-            <option value="1550">15:50 - 2D Standard</option>
-            <option value="1800">18:00 - 2D Standard</option>
-            <option value="1900">19:00 - 2D Standard</option>
-            <option value="2005">20:05 - 2D Standard</option>
-            <option value="2040">20:40 - 2D Standard</option>
-            <option value="2110">21:10 - 2D Standard</option>
-            <option value="2210">22:10 - 2D Standard</option>
+          <select id="booking-showtime" class="form-select" disabled>
+            <option value="">4. Chọn suất</option>
           </select>
         </div>
 
-        <button class="btn-booking">ĐẶT NGAY</button>
+        <button class="btn-booking" id="btn-booking">ĐẶT NGAY</button>
       </div>
 
       <!-- movie is showing-->
@@ -128,32 +122,42 @@
           <div class="movie-carousel">
             <div class="movie-list" id="movieList1">
               <?php 
+                // Query phim đang chiếu
+                $args = array(
+                  'post_type' => 'mbs_movie',
+                  'posts_per_page' => 10,
+                  'post_status' => 'publish',
+                  'meta_query' => array(
+                    array(
+                      'key' => '_movie_status',
+                      'value' => 'dang-chieu',
+                      'compare' => '='
+                    )
+                  )
+                );
+                $query = new WP_Query($args);
+                
                 while($query->have_posts()){
                   $query->the_post();
-                  // Lấy nội dung của từng phim
                   $duration = get_post_meta(get_the_ID(), '_mbs_duration', true);
-                  $director = get_post_meta(get_the_ID(), '_mbs_director', true);
-                  $actors = get_post_meta(get_the_ID(), '_mbs_actors', true);
-                  $release_date = get_post_meta(get_the_ID(), '_mbs_release_date', true);
-                  $rating = get_post_meta(get_the_ID(), '_mbs_rating', true);
-                  $trailer_url = get_post_meta(get_the_ID(), '_mbs_trailer_url', true);
                   $language = get_post_meta(get_the_ID(), '_mbs_language', true);
-                  // ảnh
                   $thumb_url = get_the_post_thumbnail_url(get_the_ID(), 'medium');
               ?>
 
               <a href="<?php echo get_permalink(); ?>" class="movie-link">
                 <div class="movie-card">
                   <img
-                     src="<?php echo $thumb_url ? $thumb_url : 'https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fnui-te-vong.jpg&w=1920&q=75'; ?>"
-                    alt="NÚI TẾ VONG"
+                     src="<?php echo $thumb_url ? $thumb_url : 'https://via.placeholder.com/300x450'; ?>"
+                    alt="<?php the_title_attribute(); ?>"
                   />
                   <div class="movie-overlay">
                     <h3><?php the_title(); ?></h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> <?php echo esc_html($duration); ?> </p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> <?php echo esc_html($language); ?></p>
+                    <?php if ($duration): ?>
+                      <p><i class="bx bx-time"></i> <?php echo esc_html($duration); ?></p>
+                    <?php endif; ?>
+                    <?php if ($language): ?>
+                      <p><i class="bx bx-message-square-dots"></i> <?php echo esc_html($language); ?></p>
+                    <?php endif; ?>
                     <div class="movie-actions">
                       <button class="btn trailer">
                         <span>Xem trailer</span>
@@ -167,99 +171,17 @@
                 }
                 wp_reset_postdata(); 
               ?>
-
-              <!-- 4 -->
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book"><span>Đặt vé</span></button>
-                    </div>
-                  </div>
-                </div>
-              </a>
             </div>
           </div>
           <button class="nav-btn right" onclick="scrollMovies1(1)">
             &#10095;
           </button>
 
-          <button class="btn-viewmore">Xem thêm</button>
+          <?php
+            $page = get_page_by_path('phim-dang-chieu');
+            $movie_archive_url = $page ? get_permalink($page) : home_url('/phim-dang-chieu/');
+          ?>
+          <button class="btn-viewmore" onclick="window.location.href='<?php echo esc_url($movie_archive_url); ?>'">Xem thêm</button>
         </div>
       </div>
 
@@ -272,18 +194,46 @@
           </button>
           <div class="movie-carousel">
             <div class="movie-list" id="movieList2">
-              <a href="#" class="movie-link">
+              <?php 
+                // Query phim sắp chiếu
+                $args_coming = array(
+                  'post_type' => 'mbs_movie',
+                  'posts_per_page' => 10,
+                  'post_status' => 'publish',
+                  'meta_query' => array(
+                    array(
+                      'key' => '_movie_status',
+                      'value' => 'sap-chieu',
+                      'compare' => '='
+                    )
+                  )
+                );
+                $query_coming = new WP_Query($args_coming);
+                
+                while($query_coming->have_posts()){
+                  $query_coming->the_post();
+                  $duration = get_post_meta(get_the_ID(), '_mbs_duration', true);
+                  $release_date = get_post_meta(get_the_ID(), '_mbs_release_date', true);
+                  $language = get_post_meta(get_the_ID(), '_mbs_language', true);
+                  $thumb_url = get_the_post_thumbnail_url(get_the_ID(), 'medium');
+              ?>
+              <a href="<?php echo get_permalink(); ?>" class="movie-link">
                 <div class="movie-card">
                   <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftafiti.jpg&w=1920&q=75"
-                    alt="NÚI TẾ VONG"
+                    src="<?php echo $thumb_url ? $thumb_url : 'https://via.placeholder.com/300x450'; ?>"
+                    alt="<?php the_title_attribute(); ?>"
                   />
                   <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
+                    <h3><?php the_title(); ?></h3>
+                    <?php if ($release_date): ?>
+                      <p><i class="bx bx-calendar"></i> Khởi chiếu: <?php echo esc_html($release_date); ?></p>
+                    <?php endif; ?>
+                    <?php if ($duration): ?>
+                      <p><i class="bx bx-time"></i> <?php echo esc_html($duration); ?></p>
+                    <?php endif; ?>
+                    <?php if ($language): ?>
+                      <p><i class="bx bx-message-square-dots"></i> <?php echo esc_html($language); ?></p>
+                    <?php endif; ?>
                     <div class="movie-actions">
                       <button class="btn trailer">
                         <span>Xem trailer</span>
@@ -295,176 +245,20 @@
                   </div>
                 </div>
               </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fcuoi-vo-cho-cha-poster.png&w=1920&q=75"
-                    alt="TRUY TÌM LONG DIÊN HƯƠNG"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fanh-trai-say-xe.jpg&w=1920&q=75"
-                    alt="KHÔNG BÔNG TUYẾT NÀO TRONG SẠCH"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Fanh-trai-say-xe.jpg&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- 4 -->
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <a href="#" class="movie-link">
-                <div class="movie-card">
-                  <img
-                    src="https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F11-2025%2Ftinh-nguoi-duyen-ma-2025.png&w=1920&q=75"
-                    alt="TÌNH NGƯỜI DUYÊN MA 2025"
-                  />
-                  <div class="movie-overlay">
-                    <h3>NÚI TẾ VONG (T16)</h3>
-                    <p><i class="bx bx-purchase-tag-alt"></i> Kinh Dị</p>
-                    <p><i class="bx bx-time"></i> 89 phút</p>
-                    <p><i class="bx bx-world"></i> khác</p>
-                    <p><i class="bx bx-message-square-dots"></i> Phụ đề</p>
-                    <div class="movie-actions">
-                      <button class="btn trailer">
-                        <span>Xem trailer</span>
-                      </button>
-                      <button class="btn book">
-                        <span>Tìm hiểu thêm</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </a>
+                <?php
+                }
+                wp_reset_postdata(); 
+              ?>
             </div>
           </div>
           <button class="nav-btn right" onclick="scrollMovies2(1)">
             &#10095;
           </button>
 
-          <button class="btn-viewmore">Xem thêm</button>
+          <?php
+            $coming_soon_url = home_url('/phim-sap-chieu/');
+          ?>
+          <button class="btn-viewmore" onclick="window.location.href='<?php echo esc_url($coming_soon_url); ?>'">Xem thêm</button>
         </div>
       </div>
 
@@ -509,7 +303,11 @@
           </div>
           <button class="promotion-nav promotion-next">&#10095;</button>
         </div>
-        <button class="btn-viewmore">Tất cả khuyến mãi</button>
+        <?php
+          $promotions_page = get_page_by_path('khuyenmai');
+          $promotions_url = $promotions_page ? get_permalink($promotions_page) : home_url('/khuyenmai/');
+        ?>
+        <button class="btn-viewmore" onclick="window.location.href='<?php echo esc_url($promotions_url); ?>'">Tất cả khuyến mãi</button>
       </div>
     </div>
 
@@ -631,15 +429,68 @@
         <p>📞 <a href="tel:19000085">1900 0085</a></p>
         <p>📍 <a href="#">135 Hai Bà Trưng, phường Sài Gòn, TP.HCM</a></p>
 
-        <form>
-          <input type="text" placeholder="Họ và tên" required />
-          <input type="email" placeholder="Điền email" required />
-          <textarea
-            placeholder="Thông tin liên hệ hoặc phản ánh"
-            required
-          ></textarea>
-          <button type="submit">Gửi</button>
-        </form>
+        <?php echo do_shortcode('[contact-form-7 id="e1f3189" title="Liên hệ"]'); ?>
+        
+        <style>
+          /* CF7 Styling for Home Page */
+          .contact-right .wpcf7-form p {
+            margin-bottom: 0;
+          }
+          .contact-right .wpcf7-form-control-wrap {
+            display: block;
+            margin-bottom: 15px;
+          }
+          .contact-right input[type="text"],
+          .contact-right input[type="email"],
+          .contact-right input[type="tel"],
+          .contact-right textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1e293b;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 0;
+            box-sizing: border-box;
+          }
+          .contact-right input:focus,
+          .contact-right textarea:focus {
+            outline: none;
+            border-color: #ffe44d;
+            background: #0f172a;
+          }
+          .contact-right textarea {
+            min-height: 100px;
+            resize: vertical;
+          }
+          .contact-right input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #ffe44d;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+          }
+          .contact-right input[type="submit"]:hover {
+            background: #ffd700;
+            transform: translateY(-2px);
+          }
+          .contact-right .wpcf7-not-valid-tip {
+            font-size: 12px;
+            margin-top: 4px;
+          }
+          .contact-right .wpcf7-response-output {
+            font-size: 13px;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0 0;
+          }
+        </style>
       </div>
     </div>
-    <?php get_footer(); ?>
+<?php get_footer(); ?>
