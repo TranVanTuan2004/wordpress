@@ -1,15 +1,25 @@
 <?php 
+function movie_theme_get_movie_post_type() {
+    return 'mbs_movie';
+}
+
+function movie_theme_is_movie_singular() {
+    return is_singular(movie_theme_get_movie_post_type());
+}
+
 function mytheme_enqueue_styles() {
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
     
     // Enqueue single movie CSS
-    if (is_singular('mbs_movie')) {
+    if (movie_theme_is_movie_singular()) {
         wp_enqueue_style('single-movie-style', get_template_directory_uri() . '/single-movie.css', array(), filemtime(get_template_directory() . '/single-movie.css'));
     }
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
 
 //thêm navbar phim
+// DISABLED: Sử dụng CPT 'movie' từ plugin movies-cpt thay vì mbs_movie
+/*
 function create_movie_post_type() {
     $labels = array(
         'name' => 'Phim',
@@ -34,11 +44,12 @@ function create_movie_post_type() {
     register_post_type('mbs_movie', $args);
 }
 add_action('init', 'create_movie_post_type');
+*/
 
-// Đảm bảo comments luôn được bật cho mbs_movie
+// Đảm bảo comments luôn được bật cho movie (CPT từ plugin)
 function movie_theme_enable_comments_for_movies($open, $post_id) {
     $post = get_post($post_id);
-    if ($post && $post->post_type === 'mbs_movie') {
+    if ($post && $post->post_type === movie_theme_get_movie_post_type()) {
         return true; // Luôn bật comments cho phim
     }
     return $open;
@@ -48,7 +59,7 @@ add_filter('comments_open', 'movie_theme_enable_comments_for_movies', 10, 2);
 // Đảm bảo comments được bật mặc định khi tạo phim mới
 function movie_theme_default_comments_open($post_id) {
     $post = get_post($post_id);
-    if ($post && $post->post_type === 'mbs_movie') {
+    if ($post && $post->post_type === movie_theme_get_movie_post_type()) {
         if ($post->comment_status !== 'open') {
             wp_update_post(array(
                 'ID' => $post_id,
@@ -57,7 +68,7 @@ function movie_theme_default_comments_open($post_id) {
         }
     }
 }
-add_action('save_post_mbs_movie', 'movie_theme_default_comments_open');
+add_action('save_post_' . movie_theme_get_movie_post_type(), 'movie_theme_default_comments_open');
 
 // Bật comments cho tất cả các phim hiện có (chạy 1 lần)
 function movie_theme_enable_comments_for_existing_movies() {
@@ -93,8 +104,8 @@ function movie_theme_ensure_core_pages() {
         array(
             'title'    => 'Trang Đặt Vé',
             'slug'     => 'datve',
-            'content'  => '[booking_page]',
-            'template' => 'page-templates/book-tickets.php',
+            'content'  => '',
+            'template' => 'page-datve.php',
         ),
         array(
             'title'    => 'Order Success',
@@ -108,6 +119,13 @@ function movie_theme_ensure_core_pages() {
             'slug'     => 'dangnhap',
             'content'  => '',
             'template' => '', // page-{slug}.php sẽ tự match
+        ),
+        // Trang đăng ký
+        array(
+            'title'    => 'Đăng Ký',
+            'slug'     => 'dangky',
+            'content'  => '',
+            'template' => 'page-dangky.php',
         ),
         // Trang hồ sơ: có page-profile.php
         array(
@@ -158,6 +176,48 @@ function movie_theme_ensure_core_pages() {
             'content'  => '',
             'template' => 'page-gioithieu.php',
         ),
+        // Trang liên hệ
+        array(
+            'title'    => 'Liên Hệ',
+            'slug'     => 'lien-he',
+            'content'  => '',
+            'template' => 'page-lien-he.php',
+        ),
+        // Trang phim đang chiếu
+        array(
+            'title'    => 'Phim Đang Chiếu',
+            'slug'     => 'phim-dang-chieu',
+            'content'  => '',
+            'template' => 'page-phim-dang-chieu.php',
+        ),
+        // Trang phim sắp chiếu
+        array(
+            'title'    => 'Phim Sắp Chiếu',
+            'slug'     => 'phim-sap-chieu',
+            'content'  => '',
+            'template' => 'page-phim-sap-chieu.php',
+        ),
+        // Trang suất chiếu đặc biệt
+        array(
+            'title'    => 'Suất Chiếu Đặc Biệt',
+            'slug'     => 'suat-chieu-dac-biet',
+            'content'  => '',
+            'template' => 'page-suat-chieu-dac-biet.php',
+        ),
+        // Trang hệ thống rạp
+        array(
+            'title'    => 'Tất cả hệ thống rạp',
+            'slug'     => 'he-thong-rap',
+            'content'  => '',
+            'template' => 'page-he-thong-rap.php',
+        ),
+        // Trang tuyển dụng
+        array(
+            'title'    => 'Tuyển Dụng',
+            'slug'     => 'tuyen-dung',
+            'content'  => '',
+            'template' => 'page-tuyen-dung.php',
+        ),
     );
 
     foreach ($pages as $cfg) {
@@ -193,6 +253,23 @@ function movie_theme_ensure_core_pages() {
             if ($cfg['slug'] === 'checkout' && class_exists('WooCommerce')) {
                 update_option('woocommerce_checkout_page_id', $page->ID);
             }
+        }
+    }
+
+    // Force update templates for movie pages
+    $phim_dang_chieu = get_page_by_path('phim-dang-chieu');
+    if ($phim_dang_chieu) {
+        $current_template = get_post_meta($phim_dang_chieu->ID, '_wp_page_template', true);
+        if ($current_template !== 'page-phim-dang-chieu.php') {
+            update_post_meta($phim_dang_chieu->ID, '_wp_page_template', 'page-phim-dang-chieu.php');
+        }
+    }
+    
+    $phim_sap_chieu = get_page_by_path('phim-sap-chieu');
+    if ($phim_sap_chieu) {
+        $current_template = get_post_meta($phim_sap_chieu->ID, '_wp_page_template', true);
+        if ($current_template !== 'page-phim-sap-chieu.php') {
+            update_post_meta($phim_sap_chieu->ID, '_wp_page_template', 'page-phim-sap-chieu.php');
         }
     }
 
@@ -249,28 +326,213 @@ add_action('init', function(){
     }
 }, 20); // Priority 20 để chạy sau các hook khác
 
-// Tạo trang checkout ngay khi template_redirect (nếu chưa có)
-add_action('template_redirect', function() {
-    if (is_page('checkout') || (isset($_GET['payment_method']) && $_GET['payment_method'] === 'credit_card')) {
-        $checkout_page = get_page_by_path('checkout');
+// Robust fix for pages and permalinks
+add_action('init', function() {
+    // 1. Ensure Permalink Structure is %postname%
+    if (get_option('permalink_structure') !== '/%postname%/') {
+        global $wp_rewrite;
+        $wp_rewrite->set_permalink_structure('/%postname%/');
+        update_option('permalink_structure', '/%postname%/');
+        flush_rewrite_rules();
+    }
+
+    // 2. Ensure 'datve' page exists and is published
+    $page_slug = 'datve';
+    $page = get_page_by_path($page_slug);
+    
+    // If not found by path, try to find by ID or in Trash
+    if (!$page) {
+        $found = get_posts(array(
+            'name' => $page_slug,
+            'post_type' => 'page',
+            'post_status' => 'any',
+            'numberposts' => 1
+        ));
+        if ($found) {
+            $page = $found[0];
+        }
+    }
+
+    if ($page) {
+        // If page exists but is not publish, publish it
+        if ($page->post_status !== 'publish') {
+            wp_update_post(array(
+                'ID' => $page->ID,
+                'post_status' => 'publish'
+            ));
+        }
+        // Ensure template is correct
+        $current_tpl = get_post_meta($page->ID, '_wp_page_template', true);
+        if ($current_tpl !== 'page-datve.php') {
+            update_post_meta($page->ID, '_wp_page_template', 'page-datve.php');
+        }
+    } else {
+        // Create page if it doesn't exist
+        $page_id = wp_insert_post(array(
+            'post_title'   => 'Trang Đặt Vé',
+            'post_name'    => $page_slug,
+            'post_content' => '',
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+        ));
+        if ($page_id && !is_wp_error($page_id)) {
+            update_post_meta($page_id, '_wp_page_template', 'page-datve.php');
+        }
+    }
+
+    // 2.1 Ensure 'bapnuoc' page exists
+    $bn_slug = 'bapnuoc';
+    $bn_page = get_page_by_path($bn_slug);
+    if (!$bn_page) {
+        $found = get_posts(array('name' => $bn_slug, 'post_type' => 'page', 'post_status' => 'any', 'numberposts' => 1));
+        if ($found) $bn_page = $found[0];
+    }
+    if ($bn_page) {
+        if ($bn_page->post_status !== 'publish') {
+            wp_update_post(array('ID' => $bn_page->ID, 'post_status' => 'publish'));
+        }
+        $current_tpl = get_post_meta($bn_page->ID, '_wp_page_template', true);
+        if ($current_tpl !== 'page-bapnuoc.php') {
+            update_post_meta($bn_page->ID, '_wp_page_template', 'page-bapnuoc.php');
+        }
+    } else {
+        $page_id = wp_insert_post(array(
+            'post_title'   => 'Đặt Bắp Nước',
+            'post_name'    => $bn_slug,
+            'post_content' => '',
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+        ));
+        if ($page_id && !is_wp_error($page_id)) {
+            update_post_meta($page_id, '_wp_page_template', 'page-bapnuoc.php');
+        }
+    }
+
+    // 3. Ensure Checkout Page (WooCommerce)
+    if (class_exists('WooCommerce')) {
+        $checkout_slug = 'checkout';
+        $checkout_page = get_page_by_path($checkout_slug);
         if (!$checkout_page) {
-            $page_id = wp_insert_post(array(
+             $page_id = wp_insert_post(array(
                 'post_title'   => 'Thanh toán',
-                'post_name'    => 'checkout',
+                'post_name'    => $checkout_slug,
                 'post_content' => '[woocommerce_checkout]',
                 'post_type'    => 'page',
                 'post_status'  => 'publish',
             ));
-            if ($page_id && !is_wp_error($page_id) && class_exists('WooCommerce')) {
+            if ($page_id && !is_wp_error($page_id)) {
                 update_option('woocommerce_checkout_page_id', $page_id);
-                flush_rewrite_rules(false);
-                // Redirect lại để load trang mới tạo
-                wp_safe_redirect(get_permalink($page_id));
-                exit;
             }
         }
     }
-}, 1);
+
+    // 4. Debug CPT Page
+    $debug_slug = 'debug-cpt';
+    $debug_page = get_page_by_path($debug_slug);
+    if (!$debug_page) {
+        wp_insert_post(array(
+            'post_title'   => 'Debug CPT',
+            'post_name'    => $debug_slug,
+            'post_content' => '',
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'page_template'=> 'page-debug-cpt.php'
+        ));
+    } else {
+        $current_tpl = get_post_meta($debug_page->ID, '_wp_page_template', true);
+        if ($current_tpl !== 'page-debug-cpt.php') {
+            update_post_meta($debug_page->ID, '_wp_page_template', 'page-debug-cpt.php');
+        }
+    }
+
+    // 5. Debug Showtimes Page
+    $ds_slug = 'debug-showtimes';
+    $ds_page = get_page_by_path($ds_slug);
+    if (!$ds_page) {
+        wp_insert_post(array(
+            'post_title'   => 'Debug Showtimes',
+            'post_name'    => $ds_slug,
+            'post_content' => '',
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'page_template'=> 'page-debug-showtimes.php'
+        ));
+    } else {
+        $current_tpl = get_post_meta($ds_page->ID, '_wp_page_template', true);
+        if ($current_tpl !== 'page-debug-showtimes.php') {
+            update_post_meta($ds_page->ID, '_wp_page_template', 'page-debug-showtimes.php');
+        }
+    }
+
+    // 6. Showtime Schedule Page (Lịch Chiếu)
+    $lc_slug = 'lich-chieu';
+    $lc_page = get_page_by_path($lc_slug);
+    if (!$lc_page) {
+        wp_insert_post(array(
+            'post_title'   => 'Lịch Chiếu',
+            'post_name'    => $lc_slug,
+            'post_content' => '',
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'page_template'=> 'page-lich-chieu.php'
+        ));
+    } else {
+        $current_tpl = get_post_meta($lc_page->ID, '_wp_page_template', true);
+        if ($current_tpl !== 'page-lich-chieu.php') {
+            update_post_meta($lc_page->ID, '_wp_page_template', 'page-lich-chieu.php');
+        }
+    }
+}, 10);
+
+// Force cinema CPTs to be public and queryable using filter
+add_filter('register_post_type_args', function($args, $post_type) {
+    $targets = array('mbs_cinema', 'rap_phim', 'rap-phim');
+    if (in_array($post_type, $targets, true)) {
+        $args['public'] = true;
+        $args['publicly_queryable'] = true;
+        $args['show_ui'] = true;
+        $args['exclude_from_search'] = false;
+        $args['show_in_nav_menus'] = true;
+        $args['has_archive'] = true;
+        // Ensure slug is consistent
+        if (!isset($args['rewrite']) || !is_array($args['rewrite'])) {
+            $args['rewrite'] = array();
+        }
+        $args['rewrite']['slug'] = 'rap-phim';
+        $args['rewrite']['with_front'] = false;
+    }
+    return $args;
+}, 10, 2);
+
+// Flush rewrite rules on init if needed
+add_action('init', function() {
+    if (get_option('mbs_cinema_rewrite_flushed_v3') !== 'yes') {
+        flush_rewrite_rules();
+        update_option('mbs_cinema_rewrite_flushed_v3', 'yes');
+    }
+}, 999);
+
+// Force template for cinema CPT
+add_filter('template_include', function($template) {
+    if (is_singular()) {
+        $pt = get_post_type();
+        $cinema_pts = array('rap_phim','rap-phim','cinema','theater','mbs_cinema','rap','rapfilm','rap_phim_cpt');
+        if (in_array($pt, $cinema_pts, true)) {
+            $new_template = locate_template(array('single-mbs_cinema.php'));
+            if ($new_template) {
+                return $new_template;
+            }
+        }
+    }
+    return $template;
+});
+
+// Fix 404 for ?p=ID queries by expanding allowed post types
+add_action('pre_get_posts', function($query) {
+    if ( ! is_admin() && $query->is_main_query() && $query->get('p') ) {
+        $query->set('post_type', array('post', 'page', 'mbs_cinema', 'rap_phim', 'rap-phim', 'mbs_movie'));
+    }
+});
 
 //css header, footer in all page
 function mytheme_global_styles() {
@@ -307,6 +569,27 @@ function mytheme_front_page_styles() {
     }
 }
 add_action( 'wp_enqueue_scripts', 'mytheme_front_page_styles' );
+
+// Enqueue booking form JavaScript on front page
+function mytheme_booking_form_scripts() {
+    if ( is_front_page() ) {
+        wp_enqueue_script(
+            'booking-form',
+            get_template_directory_uri() . '/js/booking-form.js',
+            array('jquery'),
+            '1.0',
+            true
+        );
+        
+        // Localize script with AJAX URL and nonce
+        wp_localize_script('booking-form', 'bookingAjax', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('booking_nonce'),
+            'bookingPageUrl' => home_url('/datve/')
+        ));
+    }
+}
+add_action( 'wp_enqueue_scripts', 'mytheme_booking_form_scripts' );
 
 // CSS cho trang khuyến mãi
 function mytheme_promotions_styles() {
@@ -398,9 +681,9 @@ function mytheme_enqueue_header_scripts() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_header_scripts');
 
-// css in file single-mbs_movie.php
+// css in file single-movie.php
 function mytheme_single_movie_styles() {
-    if ( is_singular('mbs_movie') ) { // hoặc 'movie' nếu bạn đổi lại
+    if ( movie_theme_is_movie_singular() ) {
         wp_enqueue_style(
             'single-movie-style',
             get_stylesheet_directory_uri() . '/single-movie.css',
@@ -411,9 +694,9 @@ function mytheme_single_movie_styles() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_single_movie_styles');
 
-// Script riêng cho trang chi tiết phim (single-mbs_movie.php)
+// Script riêng cho trang chi tiết phim (single-movie.php)
 function mytheme_single_movie_scripts() {
-    if ( is_singular('mbs_movie') ) {
+    if ( movie_theme_is_movie_singular() ) {
         wp_enqueue_script(
             'mytheme-single-movie-script',
             get_stylesheet_directory_uri() . '/script-movie.js',
@@ -852,13 +1135,36 @@ function movie_create_ticket_order() {
     $cinema_id = isset($_POST['cinema_id']) ? intval($_POST['cinema_id']) : 0;
     $date      = isset($_POST['date'])      ? sanitize_text_field($_POST['date']) : '';
     $time      = isset($_POST['time'])      ? sanitize_text_field($_POST['time']) : '';
-    $seats     = isset($_POST['seats'])     ? (array) $_POST['seats'] : array();
-    $total     = isset($_POST['total'])     ? floatval($_POST['total']) : 0;
-    $method    = isset($_POST['method'])    ? sanitize_text_field($_POST['method']) : 'pay_later';
+    $food_items = isset($_POST['food_items']) ? (array) $_POST['food_items'] : array();
 
     if (!$movie_id || !$cinema_id || empty($date) || empty($time) || empty($seats)) {
         wp_send_json_error(array('message' => 'Thiếu dữ liệu.'));
     }
+
+    // Calculate total including food
+    $calculated_total = $total; // Start with ticket total
+    // Re-calculate ticket total to be safe
+    // $ticket_price = 95000; // Should fetch from DB/Settings
+    // $calculated_total = count($seats) * $ticket_price;
+    
+    // Add food cost
+    $food_cart_data = array();
+    if (!empty($food_items)) {
+        foreach ($food_items as $pid => $qty) {
+            $qty = intval($qty);
+            if ($qty > 0) {
+                $product = wc_get_product($pid);
+                if ($product) {
+                    $price = $product->get_price();
+                    $calculated_total += $qty * $price;
+                    $food_cart_data[$pid] = $qty;
+                }
+            }
+        }
+    }
+    
+    // Use calculated total
+    $total = $calculated_total;
 
     // Kiểm tra WooCommerce có active không
     if (class_exists('WooCommerce')) {
@@ -871,8 +1177,8 @@ function movie_create_ticket_order() {
             $product = new WC_Product_Simple();
             $product->set_name('Vé xem phim');
             $product->set_sku($product_sku);
-            $product->set_price($total);
-            $product->set_regular_price($total);
+            $product->set_price(95000); // Base price
+            $product->set_regular_price(95000);
             $product->set_virtual(true);
             $product->set_downloadable(false);
             $product->set_manage_stock(false);
@@ -889,6 +1195,7 @@ function movie_create_ticket_order() {
             'date'      => $date,
             'time'      => $time,
             'seats'     => $seats,
+            'food_items'=> $food_cart_data,
             'total'     => $total,
         ));
 
@@ -897,7 +1204,10 @@ function movie_create_ticket_order() {
             WC()->session->set('chosen_payment_method', 'credit_card');
         }
 
-        // Thêm sản phẩm vào giỏ hàng với giá động
+        // Thêm sản phẩm VÉ vào giỏ hàng với giá động
+        // Calculate ticket only total
+        $ticket_total = count($seats) * 95000; // Assuming fixed price for now
+        
         $cart_item_key = WC()->cart->add_to_cart($product_id, 1, 0, array(), array(
             'ticket_data' => array(
                 'movie_id'  => $movie_id,
@@ -912,13 +1222,21 @@ function movie_create_ticket_order() {
             wp_send_json_error(array('message' => 'Không thể thêm vào giỏ hàng.'));
         }
 
-        // Cập nhật giá cho item trong giỏ hàng
+        // Cập nhật giá cho item VÉ trong giỏ hàng
         foreach (WC()->cart->get_cart() as $cart_key => $cart_item) {
             if ($cart_key === $cart_item_key) {
-                $cart_item['data']->set_price($total);
+                $cart_item['data']->set_price($ticket_total);
                 break;
             }
         }
+        
+        // Thêm sản phẩm BẮP NƯỚC vào giỏ hàng
+        if (!empty($food_cart_data)) {
+            foreach ($food_cart_data as $pid => $qty) {
+                WC()->cart->add_to_cart($pid, $qty);
+            }
+        }
+        
         WC()->cart->calculate_totals();
 
         // Redirect đến checkout
@@ -1333,6 +1651,11 @@ function movie_validate_payment_method() {
 // Enqueue styles and scripts for credit card gateway
 add_action('wp_enqueue_scripts', 'movie_credit_card_gateway_scripts');
 function movie_credit_card_gateway_scripts() {
+    // Kiểm tra xem WooCommerce có được load và function is_checkout() có tồn tại không
+    if (!function_exists('is_checkout')) {
+        return;
+    }
+    
     if (is_checkout()) {
         wp_enqueue_style(
             'movie-credit-card-gateway',
@@ -2052,7 +2375,7 @@ function movie_theme_add_custom_post_types_to_search($query) {
                 $query->set('post_type', $post_types_array);
             } else {
                 // Mặc định tìm trong phim và rạp
-                $query->set('post_type', array('mbs_movie', 'mbs_cinema'));
+                $query->set('post_type', array(movie_theme_get_movie_post_type(), 'mbs_cinema'));
             }
         }
     }
@@ -2115,7 +2438,7 @@ add_action('wp_ajax_nopriv_movie_toggle_favorite', 'movie_theme_toggle_favorite'
 
 // Enqueue script cho yêu thích
 function movie_theme_favorite_scripts() {
-    if (is_singular('mbs_movie') || is_page('favorites') || is_page_template('page-favorites.php')) {
+    if (movie_theme_is_movie_singular() || is_page('favorites') || is_page_template('page-favorites.php')) {
         $js_file = get_template_directory() . '/js/movie-favorite.js';
         if (file_exists($js_file)) {
             wp_enqueue_script('movie-favorite', get_template_directory_uri() . '/js/movie-favorite.js', array('jquery'), filemtime($js_file), true);
@@ -2181,3 +2504,344 @@ add_action('init', function() {
     }
 }, 999);
 
+// ============================================
+// AJAX Handlers for Dynamic Booking Form
+// ============================================
+
+// AJAX: Get movies available at selected cinema
+function ajax_get_movies_by_cinema() {
+    check_ajax_referer('booking_nonce', 'nonce');
+    
+    $cinema_id = isset($_POST['cinema_id']) ? intval($_POST['cinema_id']) : 0;
+    
+    if (!$cinema_id) {
+        wp_send_json_error(array('message' => 'Invalid cinema ID'));
+    }
+    
+    global $wpdb;
+    $movies = array();
+    
+    // Try table first
+    $st_table = $wpdb->prefix . 'mbs_showtimes';
+    $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $st_table));
+    
+    if ($table_exists === $st_table) {
+        // Get distinct movie IDs from showtimes table
+        $movie_ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT movie_id FROM $st_table WHERE cinema_id = %d ORDER BY movie_id",
+            $cinema_id
+        ));
+        
+        if ($movie_ids) {
+            foreach ($movie_ids as $movie_id) {
+                $movie = get_post($movie_id);
+                if ($movie && $movie->post_status === 'publish') {
+                    $movies[] = array(
+                        'id' => $movie_id,
+                        'title' => get_the_title($movie_id)
+                    );
+                }
+            }
+        }
+    } elseif (post_type_exists('mbs_showtime')) {
+        // Fallback to CPT
+        $st = new WP_Query(array(
+            'post_type' => 'mbs_showtime',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                array('key' => '_mbs_cinema_id', 'value' => $cinema_id, 'compare' => '=')
+            )
+        ));
+        
+        $movie_ids = array();
+        if ($st->have_posts()) {
+            while ($st->have_posts()) {
+                $st->the_post();
+                $movie_id = intval(get_post_meta(get_the_ID(), '_mbs_movie_id', true));
+                if ($movie_id && !in_array($movie_id, $movie_ids)) {
+                    $movie_ids[] = $movie_id;
+                    $movies[] = array(
+                        'id' => $movie_id,
+                        'title' => get_the_title($movie_id)
+                    );
+                }
+            }
+            wp_reset_postdata();
+        }
+    }
+    
+    wp_send_json_success(array('movies' => $movies));
+}
+add_action('wp_ajax_get_movies_by_cinema', 'ajax_get_movies_by_cinema');
+add_action('wp_ajax_nopriv_get_movies_by_cinema', 'ajax_get_movies_by_cinema');
+
+// AJAX: Get dates available for selected cinema + movie
+function ajax_get_dates_by_cinema_movie() {
+    check_ajax_referer('booking_nonce', 'nonce');
+    
+    $cinema_id = isset($_POST['cinema_id']) ? intval($_POST['cinema_id']) : 0;
+    $movie_id = isset($_POST['movie_id']) ? intval($_POST['movie_id']) : 0;
+    
+    if (!$cinema_id || !$movie_id) {
+        wp_send_json_error(array('message' => 'Invalid parameters'));
+    }
+    
+    global $wpdb;
+    $dates = array();
+    
+    // Try table first
+    $st_table = $wpdb->prefix . 'mbs_showtimes';
+    $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $st_table));
+    
+    if ($table_exists === $st_table) {
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT DISTINCT show_date FROM $st_table 
+             WHERE cinema_id = %d AND movie_id = %d 
+             ORDER BY show_date",
+            $cinema_id, $movie_id
+        ));
+        
+        if ($rows) {
+            foreach ($rows as $row) {
+                $date = $row->show_date;
+                $timestamp = strtotime($date);
+                $day_names = array('Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy');
+                $day_name = $day_names[date('w', $timestamp)];
+                $formatted = $day_name . ', ' . date('d/m', $timestamp);
+                
+                $dates[] = array(
+                    'value' => $date,
+                    'label' => $formatted
+                );
+            }
+        }
+    } elseif (post_type_exists('mbs_showtime')) {
+        // Fallback to CPT
+        $st = new WP_Query(array(
+            'post_type' => 'mbs_showtime',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                'relation' => 'AND',
+                array('key' => '_mbs_cinema_id', 'value' => $cinema_id, 'compare' => '='),
+                array('key' => '_mbs_movie_id', 'value' => $movie_id, 'compare' => '=')
+            )
+        ));
+        
+        $date_list = array();
+        if ($st->have_posts()) {
+            while ($st->have_posts()) {
+                $st->the_post();
+                $dt = get_post_meta(get_the_ID(), '_mbs_showtime', true);
+                $timestamp = strtotime($dt);
+                if ($timestamp) {
+                    $date = date('Y-m-d', $timestamp);
+                    if (!in_array($date, $date_list)) {
+                        $date_list[] = $date;
+                    }
+                }
+            }
+            wp_reset_postdata();
+            
+            sort($date_list);
+            foreach ($date_list as $date) {
+                $timestamp = strtotime($date);
+                $day_names = array('Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy');
+                $day_name = $day_names[date('w', $timestamp)];
+                $formatted = $day_name . ', ' . date('d/m', $timestamp);
+                
+                $dates[] = array(
+                    'value' => $date,
+                    'label' => $formatted
+                );
+            }
+        }
+    }
+    
+    wp_send_json_success(array('dates' => $dates));
+}
+add_action('wp_ajax_get_dates_by_cinema_movie', 'ajax_get_dates_by_cinema_movie');
+add_action('wp_ajax_nopriv_get_dates_by_cinema_movie', 'ajax_get_dates_by_cinema_movie');
+
+// AJAX: Get showtimes for selected cinema + movie + date
+function ajax_get_showtimes() {
+    check_ajax_referer('booking_nonce', 'nonce');
+    
+    $cinema_id = isset($_POST['cinema_id']) ? intval($_POST['cinema_id']) : 0;
+    $movie_id = isset($_POST['movie_id']) ? intval($_POST['movie_id']) : 0;
+    $date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
+    
+    if (!$cinema_id || !$movie_id || !$date) {
+        wp_send_json_error(array('message' => 'Invalid parameters'));
+    }
+    
+    global $wpdb;
+    $showtimes = array();
+    
+    // Try table first
+    $st_table = $wpdb->prefix . 'mbs_showtimes';
+    $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $st_table));
+    
+    if ($table_exists === $st_table) {
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT show_time FROM $st_table 
+             WHERE cinema_id = %d AND movie_id = %d AND show_date = %s 
+             ORDER BY show_time",
+            $cinema_id, $movie_id, $date
+        ));
+        
+        if ($rows) {
+            foreach ($rows as $row) {
+                $showtimes[] = array(
+                    'value' => $row->show_time,
+                    'label' => $row->show_time . ' - 2D Standard'
+                );
+            }
+        }
+    } elseif (post_type_exists('mbs_showtime')) {
+        // Fallback to CPT
+        $st = new WP_Query(array(
+            'post_type' => 'mbs_showtime',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                'relation' => 'AND',
+                array('key' => '_mbs_cinema_id', 'value' => $cinema_id, 'compare' => '='),
+                array('key' => '_mbs_movie_id', 'value' => $movie_id, 'compare' => '=')
+            )
+        ));
+        
+        if ($st->have_posts()) {
+            while ($st->have_posts()) {
+                $st->the_post();
+                $dt = get_post_meta(get_the_ID(), '_mbs_showtime', true);
+                $timestamp = strtotime($dt);
+                if ($timestamp) {
+                    $show_date = date('Y-m-d', $timestamp);
+                    if ($show_date === $date) {
+                        $time = date('H:i', $timestamp);
+                        $showtimes[] = array(
+                            'value' => $time,
+                            'label' => $time . ' - 2D Standard'
+                        );
+                    }
+                }
+            }
+            wp_reset_postdata();
+        }
+    }
+    
+    wp_send_json_success(array('showtimes' => $showtimes));
+}
+add_action('wp_ajax_get_showtimes', 'ajax_get_showtimes');
+add_action('wp_ajax_nopriv_get_showtimes', 'ajax_get_showtimes');
+
+// ============================================
+// Movie Status Meta Box (Thay thế Taxonomy)
+// ============================================
+
+// Add meta box for movie status
+function movie_add_status_meta_box() {
+    add_meta_box(
+        'movie_status_meta_box',
+        'Trạng Thái Phim',
+        'movie_status_meta_box_callback',
+        'mbs_movie',
+        'side',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'movie_add_status_meta_box');
+
+// Meta box callback
+function movie_status_meta_box_callback($post) {
+    wp_nonce_field('movie_status_meta_box', 'movie_status_meta_box_nonce');
+    $current_status = get_post_meta($post->ID, '_movie_status', true);
+    ?>
+    <p>
+        <label>
+            <input type="radio" name="movie_status" value="dang-chieu" <?php checked($current_status, 'dang-chieu'); ?>>
+            Đang chiếu
+        </label>
+    </p>
+        <label>
+            <input type="radio" name="movie_status" value="sap-chieu" <?php checked($current_status, 'sap-chieu'); ?>>
+            Sắp chiếu
+        </label>
+    </p>
+    <p>
+        <label>
+            <input type="radio" name="movie_status" value="suat-chieu-dac-biet" <?php checked($current_status, 'suat-chieu-dac-biet'); ?>>
+            Suất chiếu đặc biệt
+        </label>
+    </p>
+    <p>
+        <label>
+            <input type="radio" name="movie_status" value="" <?php checked($current_status, ''); ?>>
+            Không xác định
+        </label>
+    </p>
+    <style>
+        #movie_status_meta_box label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        #movie_status_meta_box input[type="radio"] {
+            margin-right: 5px;
+        }
+    </style>
+    <?php
+}
+
+// Save meta box data
+function movie_save_status_meta_box($post_id) {
+    // Check nonce
+    if (!isset($_POST['movie_status_meta_box_nonce'])) {
+        return;
+    }
+    if (!wp_verify_nonce($_POST['movie_status_meta_box_nonce'], 'movie_status_meta_box')) {
+        return;
+    }
+    
+    // Check autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    // Check permissions
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    // Save data
+    if (isset($_POST['movie_status'])) {
+        update_post_meta($post_id, '_movie_status', sanitize_text_field($_POST['movie_status']));
+    }
+}
+add_action('save_post_mbs_movie', 'movie_save_status_meta_box');
+
+// Add column to movies list
+function movie_status_column($columns) {
+    $columns['movie_status'] = 'Trạng thái';
+    return $columns;
+}
+add_filter('manage_mbs_movie_posts_columns', 'movie_status_column');
+
+// Display column content
+function movie_status_column_content($column, $post_id) {
+    if ($column === 'movie_status') {
+        $status = get_post_meta($post_id, '_movie_status', true);
+        $status_labels = array(
+            'dang-chieu' => '🎬 Đang chiếu',
+            'sap-chieu' => '🎞️ Sắp chiếu',
+            'suat-chieu-dac-biet' => '🌟 Suất chiếu đặc biệt',
+        );
+        echo isset($status_labels[$status]) ? $status_labels[$status] : '—';
+    }
+}
+add_action('manage_mbs_movie_posts_custom_column', 'movie_status_column_content', 10, 2);
+
+// Ensure core pages are created
+add_action('init', 'movie_theme_ensure_core_pages');

@@ -46,7 +46,7 @@ if (post_password_required()) {
     <?php
     // Force enable comments for movies
     global $post;
-    if ($post && $post->post_type === 'mbs_movie' && !comments_open()) {
+    if ($post && $post->post_type === movie_theme_get_movie_post_type() && !comments_open()) {
         // Nếu comments bị đóng, vẫn hiển thị form
     }
     ?>

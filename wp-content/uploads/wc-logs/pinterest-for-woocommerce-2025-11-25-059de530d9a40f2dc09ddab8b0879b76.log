@@ -1,0 +1,5 @@
+2025-11-25T13:09:56+00:00 ERROR GET Request: https://api.pinterest.com/v5/catalogs/feeds?ad_account_id=
+Status Code: 401
+API response: Authentication failed.
+Pinterest Code: 2
+2025-11-25T13:09:56+00:00 ERROR Authentication failed.

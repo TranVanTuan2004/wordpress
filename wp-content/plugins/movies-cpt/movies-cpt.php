@@ -77,6 +77,37 @@ function register_movie_taxonomy() {
     ));
 }
 
+// Đăng ký Custom Post Type: Cinema (Rạp Phim)
+add_action('init', 'register_cinema_post_type');
+function register_cinema_post_type() {
+    $labels = array(
+        'name' => 'Rạp Phim',
+        'singular_name' => 'Rạp Phim',
+        'add_new' => 'Thêm Rạp',
+        'add_new_item' => 'Thêm Rạp Mới',
+        'edit_item' => 'Sửa Rạp',
+        'new_item' => 'Rạp Mới',
+        'view_item' => 'Xem Rạp',
+        'search_items' => 'Tìm Rạp',
+        'not_found' => 'Không tìm thấy rạp',
+        'all_items' => 'Tất Cả Rạp',
+        'menu_name' => 'Rạp Phim'
+    );
+    
+    $args = array(
+        'labels' => $labels,
+        'public' => true,
+        'has_archive' => true,
+        'menu_icon' => 'dashicons-building',
+        'menu_position' => 6,
+        'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'rap-phim')
+    );
+    
+    register_post_type('rap_phim', $args);
+}
+
 // Thêm Meta Box cho thông tin phim
 add_action('add_meta_boxes', 'add_movie_meta_boxes');
 function add_movie_meta_boxes() {
@@ -85,6 +116,15 @@ function add_movie_meta_boxes() {
         'Thông Tin Phim',
         'movie_details_callback',
         'movie',
+        'normal',
+        'high'
+    );
+    
+    add_meta_box(
+        'cinema_details',
+        'Thông Tin Rạp',
+        'cinema_details_callback',
+        'rap_phim',
         'normal',
         'high'
     );
@@ -131,6 +171,35 @@ function movie_details_callback($post) {
     <?php
 }
 
+function cinema_details_callback($post) {
+    wp_nonce_field('save_cinema_details', 'cinema_details_nonce');
+    
+    $address = get_post_meta($post->ID, 'cinema_address', true);
+    $phone = get_post_meta($post->ID, 'cinema_phone', true);
+    $screens = get_post_meta($post->ID, 'cinema_screens', true);
+    $seats = get_post_meta($post->ID, 'cinema_seats', true);
+    ?>
+    <table class="form-table">
+        <tr>
+            <th><label for="cinema_address">Địa Chỉ</label></th>
+            <td><input type="text" name="cinema_address" id="cinema_address" value="<?php echo esc_attr($address); ?>" style="width: 100%;"></td>
+        </tr>
+        <tr>
+            <th><label for="cinema_phone">Số Điện Thoại</label></th>
+            <td><input type="text" name="cinema_phone" id="cinema_phone" value="<?php echo esc_attr($phone); ?>" style="width: 100%;"></td>
+        </tr>
+        <tr>
+            <th><label for="cinema_screens">Số Phòng Chiếu</label></th>
+            <td><input type="number" name="cinema_screens" id="cinema_screens" value="<?php echo esc_attr($screens); ?>" style="width: 200px;"></td>
+        </tr>
+        <tr>
+            <th><label for="cinema_seats">Tổng Số Ghế</label></th>
+            <td><input type="number" name="cinema_seats" id="cinema_seats" value="<?php echo esc_attr($seats); ?>" style="width: 200px;"></td>
+        </tr>
+    </table>
+    <?php
+}
+
 // Lưu Meta Box
 add_action('save_post_movie', 'save_movie_details');
 function save_movie_details($post_id) {
@@ -167,11 +236,44 @@ function save_movie_details($post_id) {
     }
 }
 
+// Lưu Meta Box cho Cinema
+add_action('save_post_rap_phim', 'save_cinema_details');
+function save_cinema_details($post_id) {
+    if (!isset($_POST['cinema_details_nonce']) || !wp_verify_nonce($_POST['cinema_details_nonce'], 'save_cinema_details')) {
+        return;
+    }
+    
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    if (isset($_POST['cinema_address'])) {
+        update_post_meta($post_id, 'cinema_address', sanitize_text_field($_POST['cinema_address']));
+    }
+    
+    if (isset($_POST['cinema_phone'])) {
+        update_post_meta($post_id, 'cinema_phone', sanitize_text_field($_POST['cinema_phone']));
+    }
+    
+    if (isset($_POST['cinema_screens'])) {
+        update_post_meta($post_id, 'cinema_screens', intval($_POST['cinema_screens']));
+    }
+    
+    if (isset($_POST['cinema_seats'])) {
+        update_post_meta($post_id, 'cinema_seats', intval($_POST['cinema_seats']));
+    }
+}
+
 // Flush rewrite rules khi activate
 register_activation_hook(__FILE__, 'movies_cpt_activate');
 function movies_cpt_activate() {
     register_movie_post_type();
     register_movie_taxonomy();
+    register_cinema_post_type();
     flush_rewrite_rules();
 }
 

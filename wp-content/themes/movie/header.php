@@ -77,15 +77,15 @@ document.addEventListener("DOMContentLoaded", function () {
       <div class="header">
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="logo-header">
           <img
-            src="https://cinestar.com.vn/_next/image/?url=%2Fassets%2Fimages%2Fheader-logo.png&w=1920&q=75"
-            alt="header-logo"
+            src="<?php echo get_template_directory_uri(); ?>/assets/images/riot-logo.png"
+            alt="RIOT Cinema"
           />
         </a>
         <div class="actions" id="actions">
           <!--  -->
           <div class="book">
-            <a href="#" class="action-ticker">ĐẶT VÉ NGAY</a>
-            <a href="#" class="action-popcorn">ĐẶT BẮP NƯỚC</a>
+            <a href="<?php echo esc_url(home_url('/datve')); ?>" class="action-ticker">ĐẶT VÉ NGAY</a>
+            <a href="<?php echo esc_url(home_url('/bapnuoc')); ?>" class="action-popcorn">ĐẶT BẮP NƯỚC</a>
           </div>
           <!--  -->
           <form class="action-search form-search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
@@ -160,11 +160,15 @@ document.addEventListener("DOMContentLoaded", function () {
         <ul class="menu">
           <!-- menu-left -->
           <div class="menu-left">
-            <li class="menu-item">
+            <li class="menu-item cinema-dropdown-item">
               <a href="#">
                 <i class="fas fa-map-marker-alt location-icon"></i> Chọn rạp
               </a>
-              <div class="dropdown">
+              <div class="dropdown cinema-dropdown">
+                <div class="dropdown-header">
+                  <i class="fas fa-film"></i>
+                  <span>Hệ thống rạp RIOT Cinema</span>
+                </div>
                 <?php
                   // Lấy danh sách rạp từ CPT (thử các slug phổ biến)
                   $candidates = array('rap_phim','rap-phim','cinema','theater','mbs_cinema','rap','rapfilm','rap_phim_cpt');
@@ -197,7 +201,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     echo '<div class="dropdown-column">';
                     if (!empty($cols[$c])) {
                       foreach ($cols[$c] as $it) {
-                        echo '<a href="'.esc_url($it['link']).'">'.esc_html($it['title']).'</a>';
+                        echo '<a href="'.esc_url($it['link']).'" class="cinema-link">';
+                        echo '<i class="fas fa-building"></i>';
+                        echo '<span>'.esc_html($it['title']).'</span>';
+                        echo '</a>';
                       }
                     }
                     echo '</div>';
@@ -206,18 +213,16 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
             </li>
             <li class="menu-item">
-              <a href="#">
-                <i class="fas fa-map-marker-alt location-icon"></i>
-                Lịch chiếu</a
-              >
+              <a href="<?php echo home_url('/lich-chieu/'); ?>">
+                <i class="fas fa-map-marker-alt location-icon"></i> Lịch chiếu
+              </a>
             </li>
           </div>
           <!-- menu-right -->
           <div class="menu-right">
             <li class="menu-item"><a href="<?php echo esc_url(home_url('/khuyenmai')); ?>">Khuyến mãi</a></li>
             <li class="menu-item"><a href="<?php echo esc_url(home_url('/tochucsukien')); ?>">Tổ chức sự kiện</a></li>
-            <li class="menu-item"><a href="<?php echo get_post_type_archive_link('blog'); ?>">Xem tất cả bài viết</a>
-</li>
+            <li class="menu-item"><a href="<?php echo get_post_type_archive_link('blog'); ?>">Xem tất cả bài viết</a></li>
             <li class="menu-item"><a href="<?php echo esc_url(home_url('/gioithieu')); ?>">Giới thiệu</a></li>
           </div>
         </ul>
