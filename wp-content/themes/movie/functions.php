@@ -10,7 +10,7 @@ function movie_theme_is_movie_singular() {
 function mytheme_enqueue_styles() {
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
     
-    // Enqueue single movie CSS
+    // Nạp CSS cho trang chi tiết phim
     if (movie_theme_is_movie_singular()) {
         wp_enqueue_style('single-movie-style', get_template_directory_uri() . '/single-movie.css', array(), filemtime(get_template_directory() . '/single-movie.css'));
     }
@@ -507,7 +507,7 @@ add_action('pre_get_posts', function($query) {
     }
 });
 
-//css header, footer in all page
+// CSS cho header và footer trên tất cả các trang
 function mytheme_global_styles() {
     // Header CSS
     wp_enqueue_style(
@@ -529,165 +529,14 @@ function mytheme_global_styles() {
 add_action('wp_enqueue_scripts', 'mytheme_global_styles');
 
 
-// css in file front-page.php
-function mytheme_front_page_styles() {
-    if ( is_front_page() ) {  
-        wp_enqueue_style(
-            'mytheme-front-page-style',
-            get_stylesheet_directory_uri() . '/front-page.css',
-            array(),      // không phụ thuộc file khác
-            // filemtime(get_template_directory() . '/front-page.css'), //Update khi thay đổi
-            '1.0'         // version (để tránh cache)
-        );
-    }
-}
-add_action( 'wp_enqueue_scripts', 'mytheme_front_page_styles' );
-
-// Enqueue booking form JavaScript on front page
-function mytheme_booking_form_scripts() {
-    if ( is_front_page() ) {
-        wp_enqueue_script(
-            'booking-form',
-            get_template_directory_uri() . '/js/booking-form.js',
-            array('jquery'),
-            '1.0',
-            true
-        );
-        
-        // Localize script with AJAX URL and nonce
-        wp_localize_script('booking-form', 'bookingAjax', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('booking_nonce'),
-            'bookingPageUrl' => home_url('/datve/')
-        ));
-    }
-}
-add_action( 'wp_enqueue_scripts', 'mytheme_booking_form_scripts' );
-
-// CSS cho trang khuyến mãi
-function mytheme_promotions_styles() {
-    global $post;
-    $page_slug = is_page() ? get_post_field('post_name', get_the_ID()) : '';
-    $is_promotions_page = is_page('khuyenmai') || 
-                          is_page_template('page-khuyenmai.php') || 
-                          $page_slug === 'khuyenmai' ||
-                          (isset($post) && $post->post_name === 'khuyenmai');
-    
-    if ( $is_promotions_page ) {
-        wp_enqueue_style(
-            'mytheme-promotions-style',
-            get_stylesheet_directory_uri() . '/promotions.css',
-            array('header-style', 'footer-style'),
-            '1.2'
-        );
-        // Add body class
-        add_filter('body_class', function($classes) {
-            $classes[] = 'promotions-page';
-            return $classes;
-        });
-    }
-}
-add_action( 'wp_enqueue_scripts', 'mytheme_promotions_styles', 20 );
-
-// CSS cho trang tổ chức sự kiện
-function mytheme_events_styles() {
-    global $post;
-    $page_slug = is_page() ? get_post_field('post_name', get_the_ID()) : '';
-    $is_events_page = is_page('tochucsukien') || 
-                      is_page_template('page-tochucsukien.php') || 
-                      $page_slug === 'tochucsukien' ||
-                      (isset($post) && $post->post_name === 'tochucsukien');
-    
-    if ( $is_events_page ) {
-        wp_enqueue_style(
-            'mytheme-events-style',
-            get_stylesheet_directory_uri() . '/events.css',
-            array('header-style', 'footer-style'),
-            '1.0'
-        );
-        // Add body class
-        add_filter('body_class', function($classes) {
-            $classes[] = 'events-page';
-            return $classes;
-        });
-    }
-}
-add_action( 'wp_enqueue_scripts', 'mytheme_events_styles', 20 );
-
-// CSS cho trang giới thiệu
-function mytheme_about_styles() {
-    global $post;
-    $page_slug = is_page() ? get_post_field('post_name', get_the_ID()) : '';
-    $is_about_page = is_page('gioithieu') || 
-                     is_page_template('page-gioithieu.php') || 
-                     $page_slug === 'gioithieu' ||
-                     (isset($post) && $post->post_name === 'gioithieu');
-    
-    if ( $is_about_page ) {
-        wp_enqueue_style(
-            'mytheme-about-style',
-            get_stylesheet_directory_uri() . '/about.css',
-            array('header-style', 'footer-style'),
-            '1.0'
-        );
-        // Add body class
-        add_filter('body_class', function($classes) {
-            $classes[] = 'about-page';
-            return $classes;
-        });
-    }
-}
-add_action( 'wp_enqueue_scripts', 'mytheme_about_styles', 20 );
-
-function mytheme_enqueue_header_scripts() {
-    $script_file = get_stylesheet_directory() . '/script.js';
-    if (file_exists($script_file)) {
-        // Enqueue với jquery dependency để đảm bảo hoạt động trên cả front page và các trang khác
-        wp_enqueue_script(
-            'mytheme-header-script',
-            get_stylesheet_directory_uri() . '/script.js',
-            array('jquery'), // phụ thuộc jquery
-            filemtime($script_file),
-            true // load ở footer
-        );
-    }
-}
-add_action('wp_enqueue_scripts', 'mytheme_enqueue_header_scripts');
-
-// css in file single-movie.php
-function mytheme_single_movie_styles() {
-    if ( movie_theme_is_movie_singular() ) {
-        wp_enqueue_style(
-            'single-movie-style',
-            get_stylesheet_directory_uri() . '/single-movie.css',
-            array('header-style', 'footer-style'),
-            filemtime(get_stylesheet_directory() . '/single-movie.css')
-        );
-    }
-}
-add_action('wp_enqueue_scripts', 'mytheme_single_movie_styles');
-
-// Script riêng cho trang chi tiết phim (single-movie.php)
-function mytheme_single_movie_scripts() {
-    if ( movie_theme_is_movie_singular() ) {
-        wp_enqueue_script(
-            'mytheme-single-movie-script',
-            get_stylesheet_directory_uri() . '/script-movie.js',
-            array(), // phụ thuộc jquery nếu cần
-            filemtime(get_stylesheet_directory() . '/script-movie.js'),
-            true // load ở footer
-        );
-    }
-}
-add_action('wp_enqueue_scripts', 'mytheme_single_movie_scripts');
-
+// CSS cho file front-page.php (trang chủ)
 
 
 
 function movie_theme_handle_auth_post()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cns_action'])) {
-        // Handle Login
+        // Xử lý Đăng nhập
         if ($_POST['cns_action'] === 'login') {
             $error_message = '';
             if (! isset($_POST['cns_auth_nonce']) || ! wp_verify_nonce($_POST['cns_auth_nonce'], 'cns_auth_login')) {
@@ -713,7 +562,7 @@ function movie_theme_handle_auth_post()
                     }
                 }
             }
-            // Redirect back to the page with a transient error key
+            // Chuyển hướng về trang với mã lỗi tạm thời
             $referer = isset($_POST['form_url']) ? esc_url_raw(wp_unslash($_POST['form_url'])) : wp_get_referer();
             if (! $referer) {
                 $referer = home_url('/');
@@ -725,16 +574,16 @@ function movie_theme_handle_auth_post()
             exit;
         }
         
-        // Handle Registration
+        // Xử lý Đăng ký
         if ($_POST['cns_action'] === 'register') {
             $error_message = '';
             $success_message = '';
             
-            // Validate nonce
+            // Kiểm tra nonce
             if (! isset($_POST['cns_register_nonce']) || ! wp_verify_nonce($_POST['cns_register_nonce'], 'cns_auth_register')) {
                 $error_message = __('Phiên không hợp lệ, vui lòng thử lại.', 'movie-theme');
             } else {
-                // Get form data
+                // Lấy dữ liệu từ form
                 $full_name = isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '';
                 $birthday = isset($_POST['birthday']) ? sanitize_text_field(wp_unslash($_POST['birthday'])) : '';
                 $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
@@ -745,7 +594,7 @@ function movie_theme_handle_auth_post()
                 $user_pass_confirm = isset($_POST['user_pass_confirm']) ? (string) $_POST['user_pass_confirm'] : '';
                 $agree = isset($_POST['agree']);
                 
-                // Validation
+                // Kiểm tra dữ liệu
                 if (empty($full_name)) {
                     $error_message = __('Vui lòng nhập họ và tên.', 'movie-theme');
                 } elseif (empty($birthday)) {
@@ -792,13 +641,13 @@ function movie_theme_handle_auth_post()
                 } elseif (empty($error_message) && ! $agree) {
                     $error_message = __('Vui lòng đồng ý với các điều khoản và điều kiện.', 'movie-theme');
                 } elseif (empty($error_message)) {
-                    // Create user
+                    // Tạo người dùng
                     $user_id = wp_create_user($user_login, $user_pass, $user_email);
                     
                     if (is_wp_error($user_id)) {
                         $error_message = $user_id->get_error_message();
                     } else {
-                        // Update user meta
+                        // Cập nhật thông tin người dùng
                         wp_update_user(array(
                             'ID' => $user_id,
                             'display_name' => $full_name
@@ -810,11 +659,11 @@ function movie_theme_handle_auth_post()
                             update_user_meta($user_id, 'national_id', $national_id);
                         }
                         
-                        // Auto login
+                        // Tự động đăng nhập
                         wp_set_current_user($user_id);
                         wp_set_auth_cookie($user_id);
                         
-                        // Redirect to profile or home
+                        // Chuyển hướng đến trang hồ sơ hoặc trang chủ
                         $redirect_to = home_url('/profile');
                         wp_safe_redirect($redirect_to);
                         exit;
@@ -822,7 +671,7 @@ function movie_theme_handle_auth_post()
                 }
             }
             
-            // Redirect back with error/success message
+            // Chuyển hướng về với thông báo lỗi/thành công
             $referer = wp_get_referer();
             if (! $referer) {
                 $referer = home_url('/dangnhap');
@@ -845,7 +694,7 @@ function movie_theme_handle_auth_post()
 }
 add_action('template_redirect', 'movie_theme_handle_auth_post');
 
-// Handle Profile POST (update info / change password) before output
+// Xử lý POST cập nhật hồ sơ (cập nhật thông tin / đổi mật khẩu) trước khi hiển thị
 function movie_theme_handle_profile_post()
 {
     if (! is_user_logged_in()) {
@@ -858,7 +707,7 @@ function movie_theme_handle_profile_post()
     $user_id = get_current_user_id();
     $referer = wp_get_referer() ?: home_url('/profile');
 
-    // Update profile basic info
+    // Cập nhật thông tin cơ bản của hồ sơ
     if ($_POST['cns_action'] === 'profile_update') {
         if (! isset($_POST['cns_profile_nonce']) || ! wp_verify_nonce($_POST['cns_profile_nonce'], 'cns_profile_update')) {
             $msg = __('Phiên không hợp lệ, vui lòng thử lại.', 'movie-theme');
@@ -896,7 +745,7 @@ function movie_theme_handle_profile_post()
         exit;
     }
 
-    // Change password
+    // Đổi mật khẩu
     if ($_POST['cns_action'] === 'change_password') {
         if (! isset($_POST['cns_password_nonce']) || ! wp_verify_nonce($_POST['cns_password_nonce'], 'cns_profile_password')) {
             $msg = __('Phiên không hợp lệ, vui lòng thử lại.', 'movie-theme');
@@ -939,7 +788,7 @@ function movie_theme_handle_profile_post()
 add_action('template_redirect', 'movie_theme_handle_profile_post');
 
 
-// ====== Ticket Order (Đơn vé) ======
+// ====== Đơn vé (Ticket Order) ======
 add_action('init', function () {
     register_post_type('ticket_order', array(
         'labels' => array(
@@ -962,7 +811,7 @@ function movie_render_order_summary($order_id, $is_email = false){
     $total     = floatval(get_post_meta($order_id,'total',true));
     $user_id   = intval(get_post_meta($order_id,'user_id',true));
     
-    // Lấy thông tin user
+    // Lấy thông tin người dùng
     $user_name = '';
     $user_email = '';
     if ($user_id) {
@@ -976,7 +825,6 @@ function movie_render_order_summary($order_id, $is_email = false){
     // Lấy poster phim
     $movie_poster = get_the_post_thumbnail_url($movie_id, 'medium');
     
-    if ($is_email) {
         // Template email đẹp hơn
         $html = '
         <!DOCTYPE html>
@@ -1115,12 +963,12 @@ function movie_create_ticket_order() {
         wp_send_json_error(array('message' => 'Thiếu dữ liệu.'));
     }
 
-    // Calculate total including food
+    // Tính tổng bao gồm bắp nước
     $ticket_price = 95000;
     $total = count($seats) * $ticket_price;
     $calculated_total = $total; // Start with ticket total
     
-    // Add food cost
+    // Thêm chi phí bắp nước
     $food_cart_data = array();
     if (!empty($food_items)) {
         foreach ($food_items as $pid => $qty) {
@@ -1136,7 +984,7 @@ function movie_create_ticket_order() {
         }
     }
     
-    // Use calculated total
+    // Sử dụng tổng đã tính
     $total = $calculated_total;
 
     // Kiểm tra WooCommerce có active không
@@ -1172,52 +1020,6 @@ function movie_create_ticket_order() {
             'total'     => $total,
         ));
 
-        // Lưu payment method được chọn vào session
-        if ($method === 'credit_card') {
-            WC()->session->set('chosen_payment_method', 'credit_card');
-        }
-
-        // Thêm sản phẩm VÉ vào giỏ hàng với giá động
-        // Calculate ticket only total
-        $ticket_total = count($seats) * 95000; // Assuming fixed price for now
-        
-        $cart_item_key = WC()->cart->add_to_cart($product_id, 1, 0, array(), array(
-            'ticket_data' => array(
-                'movie_id'  => $movie_id,
-                'cinema_id' => $cinema_id,
-                'date'      => $date,
-                'time'      => $time,
-                'seats'     => $seats,
-            )
-        ));
-
-        if (!$cart_item_key) {
-            wp_send_json_error(array('message' => 'Không thể thêm vào giỏ hàng.'));
-        }
-
-        // Cập nhật giá cho item VÉ trong giỏ hàng
-        foreach (WC()->cart->get_cart() as $cart_key => $cart_item) {
-            if ($cart_key === $cart_item_key) {
-                $cart_item['data']->set_price($ticket_total);
-                break;
-            }
-        }
-        
-        // Thêm sản phẩm BẮP NƯỚC vào giỏ hàng
-        if (!empty($food_cart_data)) {
-            foreach ($food_cart_data as $pid => $qty) {
-                WC()->cart->add_to_cart($pid, $qty);
-            }
-        }
-        
-        WC()->cart->calculate_totals();
-
-        // Redirect đến checkout
-        // Đảm bảo trang checkout tồn tại
-        $checkout_page = get_page_by_path('checkout');
-        if (!$checkout_page) {
-            // Tạo trang checkout ngay lập tức
-            $page_id = wp_insert_post(array(
                 'post_title'   => 'Thanh toán',
                 'post_name'    => 'checkout',
                 'post_content' => '[woocommerce_checkout]',
@@ -1225,7 +1027,7 @@ function movie_create_ticket_order() {
                 'post_status'  => 'publish',
             ));
             if ($page_id && !is_wp_error($page_id)) {
-                // Set template nếu có
+                // Đặt template nếu có
                 $template_file = get_stylesheet_directory() . '/page-checkout.php';
                 if (file_exists($template_file)) {
                     update_post_meta($page_id, '_wp_page_template', 'page-checkout.php');
@@ -1234,7 +1036,7 @@ function movie_create_ticket_order() {
                 $checkout_page = get_post($page_id);
                 flush_rewrite_rules(false);
                 
-                // Log để debug
+                // Ghi log để debug
                 error_log('Movie Theme: Created checkout page with ID: ' . $page_id);
             }
         } else {
@@ -1942,7 +1744,6 @@ function movie_send_ticket_email_on_order_complete($order_id) {
 }
 
 
-
 // ====== CẤU HÌNH SMTP ĐỂ GỬI EMAIL ======
 // Trên LOCALHOST: Email sẽ được lưu vào file log thay vì gửi thật
 // Trên SERVER THẬT: Cần setup SMTP để gửi email thật
@@ -2279,7 +2080,7 @@ function movie_translate_checkout_texts($translated_text, $text, $domain) {
             'Billing details' => 'Thông tin thanh toán',
             'Additional information' => 'Thông tin bổ sung',
             'Order notes' => 'Ghi chú đơn hàng',
-            'Place order' => 'Đặt hàng',
+            'Place order' => 'Thanh toán',
             'Your order' => 'Đơn hàng của bạn',
             'Product' => 'Sản phẩm',
             'Subtotal' => 'Tạm tính',
@@ -2799,3 +2600,477 @@ add_action('manage_mbs_movie_posts_custom_column', 'movie_status_column_content'
 add_action('init', 'movie_theme_ensure_core_pages');
 
 
+function cinestar_customize_register( $wp_customize ) {
+
+    // 1. Tạo một Section (Khu vực) mới trong bảng Customize
+    $wp_customize->add_section( 'cinestar_theme_options', array(
+        'title'       => __( 'Cấu hình Giao diện Phim', 'cinestar' ),
+        'description' => __( 'Tùy chỉnh màu sắc và hình ảnh cho giao diện.', 'cinestar' ),
+        'priority'    => 30,
+    ) );
+
+    // --- A. TÙY CHỈNH MÀU NỀN BODY (GRADIENT 3 MÀU) ---
+
+    // Màu 1 (Trên cùng)
+    $wp_customize->add_setting( 'body_gradient_color_1', array(
+        'default'   => '#8e2de2',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'body_gradient_color_1', array(
+        'label'    => __( 'Màu nền Gradient 1 (Trên)', 'cinestar' ),
+        'section'  => 'cinestar_theme_options',
+        'settings' => 'body_gradient_color_1',
+    ) ) );
+
+    // Màu 2 (Giữa)
+    $wp_customize->add_setting( 'body_gradient_color_2', array(
+        'default'   => '#4a00e0',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'body_gradient_color_2', array(
+        'label'    => __( 'Màu nền Gradient 2 (Giữa)', 'cinestar' ),
+        'section'  => 'cinestar_theme_options',
+        'settings' => 'body_gradient_color_2',
+    ) ) );
+
+    // Màu 3 (Dưới cùng)
+    $wp_customize->add_setting( 'body_gradient_color_3', array(
+        'default'   => '#00c6ff',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'body_gradient_color_3', array(
+        'label'    => __( 'Màu nền Gradient 3 (Dưới)', 'cinestar' ),
+        'section'  => 'cinestar_theme_options',
+        'settings' => 'body_gradient_color_3',
+    ) ) );
+
+    // --- B. TÙY CHỈNH ẢNH NỀN MEMBERSHIP ---
+    
+    $wp_customize->add_setting( 'membership_bg_image', array(
+        'default'   => 'https://cinestar.com.vn/assets/images/bg-cfriends.webp', // Link mặc định như CSS cũ
+        'transport' => 'refresh',
+        'sanitize_callback' => 'esc_url_raw',
+    ) );
+    
+    $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'membership_bg_image', array(
+        'label'    => __( 'Ảnh nền khu vực Membership', 'cinestar' ),
+        'section'  => 'cinestar_theme_options',
+        'settings' => 'membership_bg_image',
+    ) ) );
+
+    // --- C. TÙY CHỈNH MÀU ĐIỂM NHẤN (ACCENT COLOR - Mặc định là Yellow) ---
+    
+    $wp_customize->add_setting( 'accent_color', array(
+        'default'   => 'yellow',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'accent_color', array(
+        'label'    => __( 'Màu điểm nhấn (Nút/Hover)', 'cinestar' ),
+        'section'  => 'cinestar_theme_options',
+        'settings' => 'accent_color',
+    ) ) );
+}
+add_action( 'customize_register', 'cinestar_customize_register' );
+
+
+/**
+ * Xuất mã CSS ra thẻ <head> dựa trên các giá trị đã chọn
+ */
+function cinestar_customize_css() {
+    ?>
+    <style type="text/css">
+        /* 1. Body Gradient */
+        body {
+            background: linear-gradient(to bottom, 
+                <?php echo get_theme_mod( 'body_gradient_color_1', '#8e2de2' ); ?>, 
+                <?php echo get_theme_mod( 'body_gradient_color_2', '#4a00e0' ); ?>, 
+                <?php echo get_theme_mod( 'body_gradient_color_3', '#00c6ff' ); ?>
+            ) !important;
+            background-attachment: fixed !important;
+            background-repeat: no-repeat !important;
+            background-size: cover !important;
+        }
+
+        /* 2. Membership Background Image */
+        .membership {
+            background-image: url('<?php echo get_theme_mod( 'membership_bg_image', 'https://cinestar.com.vn/assets/images/bg-cfriends.webp' ); ?>') !important;
+        }
+
+        /* 3. Accent Color (Thay thế màu Yellow) */
+        /* Nút Book Ticker */
+        .slider .slides .active .book-ticker,
+        .booking .form-group .form-select.active,
+        .btn-viewmore,
+        .brand .book-brand .btn-ticker {
+            background-color: <?php echo get_theme_mod( 'accent_color', 'yellow' ); ?> !important;
+        }
+
+        /* Hover Text Color */
+        button.prev:hover,
+        button.next:hover,
+        .nav-btn:hover,
+        .movie-overlay i,
+        .brand .book-brand .btn-corn,
+        .brand .book-brand .btn-corn:hover {
+            color: <?php echo get_theme_mod( 'accent_color', 'yellow' ); ?> !important;
+        }
+        
+        /* Border color cho nút bắp nước */
+        .brand .book-brand .btn-corn {
+             border-color: <?php echo get_theme_mod( 'accent_color', 'yellow' ); ?> !important;
+        }
+
+    </style>
+    <?php
+}
+add_action( 'wp_head', 'cinestar_customize_css' );
+
+
+/**
+ * Đăng ký các thiết lập Customize cho trang Đặt Vé (Booking Page)
+ */
+function booking_customize_register( $wp_customize ) {
+
+    // 1. Tạo Section mới: Cấu hình Trang Đặt Vé
+    $wp_customize->add_section( 'booking_page_options', array(
+        'title'       => __( 'Cấu hình Trang Đặt Vé', 'cinestar' ),
+        'description' => __( 'Tùy chỉnh màu sắc cho template Trang Đặt Vé.', 'cinestar' ),
+        'priority'    => 31, // Hiển thị ngay sau section giao diện chính
+    ) );
+
+    // --- A. MÀU CHỦ ĐẠO (Nút, Tiêu đề, Giá, Border active) ---
+    $wp_customize->add_setting( 'bk_primary_color', array(
+        'default'   => '#ffe44d',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'bk_primary_color', array(
+        'label'    => __( 'Màu chủ đạo (Vàng)', 'cinestar' ),
+        'description' => 'Dùng cho: Tiêu đề, Nút bấm, Giá tiền, Viền khi hover.',
+        'section'  => 'booking_page_options',
+        'settings' => 'bk_primary_color',
+    ) ) );
+
+    // --- B. MÀU NỀN TRANG (Background Body) ---
+    $wp_customize->add_setting( 'bk_bg_color', array(
+        'default'   => '#0f172a',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'bk_bg_color', array(
+        'label'    => __( 'Màu nền trang (Toàn bộ)', 'cinestar' ),
+        'section'  => 'booking_page_options',
+        'settings' => 'bk_bg_color',
+    ) ) );
+
+    // --- C. MÀU NỀN KHỐI (Card/Section Background) ---
+    $wp_customize->add_setting( 'bk_card_bg_color', array(
+        'default'   => '#1e293b',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'bk_card_bg_color', array(
+        'label'    => __( 'Màu nền Khối/Thẻ', 'cinestar' ),
+        'description' => 'Nền của: Danh sách phim, Rạp, Bắp nước, Sidebar.',
+        'section'  => 'booking_page_options',
+        'settings' => 'bk_card_bg_color',
+    ) ) );
+
+    // --- D. MÀU GHẾ ĐANG CHỌN (Selected) ---
+    $wp_customize->add_setting( 'bk_seat_selected_color', array(
+        'default'   => '#4f46e5',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'bk_seat_selected_color', array(
+        'label'    => __( 'Màu ghế: Đang chọn', 'cinestar' ),
+        'section'  => 'booking_page_options',
+        'settings' => 'bk_seat_selected_color',
+    ) ) );
+
+    // --- E. MÀU GHẾ ĐÃ ĐẶT (Booked) ---
+    $wp_customize->add_setting( 'bk_seat_booked_color', array(
+        'default'   => '#334155',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'bk_seat_booked_color', array(
+        'label'    => __( 'Màu ghế: Đã đặt / Không thể chọn', 'cinestar' ),
+        'section'  => 'booking_page_options',
+        'settings' => 'bk_seat_booked_color',
+    ) ) );
+}
+add_action( 'customize_register', 'booking_customize_register' );
+
+
+/**
+ * Xuất mã CSS đè lên style mặc định của trang Đặt Vé
+ */
+function booking_customize_css() {
+    // Lấy giá trị từ Customizer
+    $primary      = get_theme_mod( 'bk_primary_color', '#ffe44d' );
+    $bg_page      = get_theme_mod( 'bk_bg_color', '#0f172a' );
+    $bg_card      = get_theme_mod( 'bk_card_bg_color', '#1e293b' );
+    $seat_sel     = get_theme_mod( 'bk_seat_selected_color', '#4f46e5' );
+    $seat_booked  = get_theme_mod( 'bk_seat_booked_color', '#334155' );
+
+    ?>
+    <style type="text/css">
+        /* 1. Thay đổi màu nền toàn trang */
+        .bk-page {
+            background-color: <?php echo $bg_page; ?> !important;
+        }
+
+        /* 2. Thay đổi màu nền các khối (Phim, Rạp, Sidebar, Food) */
+        .bk-movie-card,
+        .bk-movie-header,
+        .bk-cinema-item,
+        .bk-food-item,
+        .bk-summary,
+        .bk-seats,
+        .bk-sidebar {
+            background-color: <?php echo $bg_card; ?> !important;
+        }
+        /* Làm trong suốt nền summary/sidebar nếu muốn giữ hiệu ứng gốc thì bỏ dòng này, 
+           nhưng ở đây set cứng để đồng bộ */
+        .bk-summary, .bk-seats, .bk-sidebar {
+            background: <?php echo $bg_card; ?> !important; 
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* 3. Thay đổi màu Chủ đạo (Vàng -> Màu tùy chọn) */
+        /* Text Color */
+        .bk-title,
+        .bk-mh-title,
+        .bk-food-price,
+        .bk-food-qty-ctrl button:hover {
+            color: <?php echo $primary; ?> !important;
+        }
+        
+        /* Border Left */
+        .bk-section-title {
+            border-left-color: <?php echo $primary; ?> !important;
+        }
+
+        /* Border Color Hover */
+        .bk-movie-card:hover,
+        .bk-time-btn:hover,
+        .bk-food-item:hover {
+            border-color: <?php echo $primary; ?> !important;
+        }
+
+        /* Background Button */
+        .bk-btn-select,
+        .bk-btn-select:hover,
+        .bk-time-btn:hover,
+        .bk-btn-next,
+        .bk-btn {
+            background-color: <?php echo $primary; ?> !important;
+        }
+        
+        /* Xử lý màu chữ cho nút bấm (nếu màu nền sáng thì chữ đen, nền tối chữ trắng) */
+        /* Mặc định code gốc dùng chữ đen (#000) hoặc (#0e1220) cho nền vàng */
+        .bk-btn-select,
+        .bk-time-btn:hover,
+        .bk-btn-next,
+        .bk-btn {
+            color: #000 !important; /* Ép chữ đen cho nổi trên nền màu sáng */
+        }
+
+        /* 4. Thay đổi màu ghế */
+        
+        /* Ghế đang chọn */
+        .bk-seat.is-sel,
+        .i.i-selected {
+            background-color: <?php echo $seat_sel; ?> !important;
+            border-color: <?php echo $seat_sel; ?> !important;
+        }
+
+        /* Ghế đã đặt */
+        .bk-seat.is-booked,
+        .bk-seat:disabled,
+        .i.i-booked {
+            background-color: <?php echo $seat_booked; ?> !important;
+            border-color: <?php echo $seat_booked; ?> !important;
+        }
+        
+        /* Hiệu ứng hover cho ghế trống */
+        .bk-seat:hover:not(.is-booked):not(:disabled) {
+            border-color: <?php echo $seat_sel; ?> !important; /* Dùng màu selected làm màu hover viền */
+        }
+
+    </style>
+    <?php
+}
+add_action( 'wp_head', 'booking_customize_css' );
+
+
+
+/**
+ * Đăng ký Customize cho trang Chi Tiết Phim (Movie Detail)
+ */
+function movie_detail_customize_register( $wp_customize ) {
+
+    // 1. Tạo Section: Cấu hình Chi Tiết Phim
+    $wp_customize->add_section( 'movie_detail_options', array(
+        'title'       => __( 'Cấu hình Chi Tiết Phim', 'cinestar' ),
+        'description' => __( 'Tùy chỉnh màu sắc cho trang chi tiết phim, lịch chiếu và bình luận.', 'cinestar' ),
+        'priority'    => 33,
+    ) );
+
+    // --- A. MÀU CHỦ ĐẠO (ACCENT COLOR) ---
+    // Dùng cho: Nút đặt vé, ngày đang chọn, tên tác giả, nút gửi bình luận...
+    $wp_customize->add_setting( 'md_accent_color', array(
+        'default'   => '#ffe44d',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'md_accent_color', array(
+        'label'    => __( 'Màu chủ đạo (Vàng)', 'cinestar' ),
+        'description' => 'Áp dụng cho: Nút đặt vé, Ngày đang chọn, Tên người bình luận.',
+        'section'  => 'movie_detail_options',
+    ) ) );
+
+    // --- B. MÀU NỀN KHỐI THÔNG TIN PHIM ---
+    $wp_customize->add_setting( 'md_info_bg', array(
+        'default'   => '#0d0f1a',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'md_info_bg', array(
+        'label'    => __( 'Màu nền: Khối thông tin phim', 'cinestar' ),
+        'section'  => 'movie_detail_options',
+    ) ) );
+
+    // --- C. MÀU NỀN KHỐI LỊCH CHIẾU ---
+    $wp_customize->add_setting( 'md_showtime_bg', array(
+        'default'   => '#1c1c3c',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'md_showtime_bg', array(
+        'label'    => __( 'Màu nền: Khối lịch chiếu', 'cinestar' ),
+        'section'  => 'movie_detail_options',
+    ) ) );
+
+    // --- D. MÀU NÚT YÊU THÍCH (Active) ---
+    $wp_customize->add_setting( 'md_favorite_color', array(
+        'default'   => '#ff6b9d',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'md_favorite_color', array(
+        'label'    => __( 'Màu nút Yêu thích (Khi đã like)', 'cinestar' ),
+        'section'  => 'movie_detail_options',
+    ) ) );
+    
+    // --- E. MÀU NÚT TRAILER ---
+    $wp_customize->add_setting( 'md_trailer_bg', array(
+        'default'   => '#ff0033',
+        'transport' => 'refresh',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'md_trailer_bg', array(
+        'label'    => __( 'Màu nút Xem Trailer', 'cinestar' ),
+        'section'  => 'movie_detail_options',
+    ) ) );
+}
+add_action( 'customize_register', 'movie_detail_customize_register' );
+
+
+/**
+ * Xuất CSS ra frontend cho trang Chi tiết phim
+ */
+function movie_detail_customize_css() {
+    // Lấy giá trị từ Customizer
+    $accent_color   = get_theme_mod('md_accent_color', '#ffe44d');
+    $info_bg        = get_theme_mod('md_info_bg', '#0d0f1a');
+    $showtime_bg    = get_theme_mod('md_showtime_bg', '#1c1c3c');
+    $favorite_color = get_theme_mod('md_favorite_color', '#ff6b9d');
+    $trailer_bg     = get_theme_mod('md_trailer_bg', '#ff0033');
+
+    // Tạo biến màu tối hơn chút cho gradient nút submit comment
+    // (Logic đơn giản: dùng cùng màu nhưng chỉnh opacity hoặc giữ nguyên)
+    ?>
+    <style type="text/css">
+        /* 1. MÀU NỀN CÁC KHỐI */
+        .movie-detail {
+            background-color: <?php echo $info_bg; ?> !important;
+        }
+        .showtime-section {
+            background-color: <?php echo $showtime_bg; ?> !important;
+        }
+        
+        /* 2. MÀU CHỦ ĐẠO (ACCENT) */
+        /* Ngày đang chọn */
+        .date.active {
+            background-color: <?php echo $accent_color; ?> !important;
+            color: #000 !important; /* Mặc định chữ đen trên nền sáng */
+        }
+        
+        /* Nút đặt vé (Book btn) trong Time chip */
+        .time-chip .book-btn {
+            background: <?php echo $accent_color; ?> !important;
+        }
+        .time-chip:hover {
+             box-shadow: 0 4px 12px <?php echo $accent_color; ?>4d !important; /* Thêm độ trong suốt 30% (hex 4d) */
+        }
+
+        /* Tên tác giả comment & Link đăng nhập */
+        .comment-author-name,
+        .comment-author-name a,
+        .logged-in-as a,
+        .comment-reply-title small a:hover,
+        .comment-actions a:hover {
+            color: <?php echo $accent_color; ?> !important;
+        }
+
+        /* Phân trang comment (Trang hiện tại) */
+        .comments-pagination .current,
+        .comments-pagination a:hover {
+            background: <?php echo $accent_color; ?> !important;
+            border-color: <?php echo $accent_color; ?> !important;
+            color: #0e1220 !important;
+        }
+        
+        /* Focus input comment */
+        .comment-form-comment textarea:focus, 
+        .comment-form-author input:focus, 
+        .comment-form-email input:focus {
+            border-color: <?php echo $accent_color; ?> !important;
+            box-shadow: 0 0 0 3px <?php echo $accent_color; ?>1a !important; /* 10% opacity */
+        }
+
+        /* Nút Gửi bình luận (Submit Btn) - Thay gradient bằng màu chủ đạo */
+        .submit-comment-btn {
+            background: <?php echo $accent_color; ?> !important; /* Fallback */
+            background: linear-gradient(135deg, <?php echo $accent_color; ?> 0%, <?php echo $accent_color; ?> 100%) !important;
+            box-shadow: 0 4px 15px <?php echo $accent_color; ?>4d !important;
+        }
+        .submit-comment-btn:hover {
+             box-shadow: 0 6px 20px <?php echo $accent_color; ?>66 !important;
+        }
+
+        /* 3. NÚT YÊU THÍCH (FAVORITE) */
+        .favorite-btn.is-favorite {
+            background: <?php echo $favorite_color; ?> !important; /* Fallback */
+            background: linear-gradient(135deg, <?php echo $favorite_color; ?> 0%, <?php echo $favorite_color; ?> 100%) !important;
+            border-color: <?php echo $favorite_color; ?> !important;
+        }
+        .favorite-btn.is-favorite:hover:not(:disabled) {
+            box-shadow: 0 4px 12px <?php echo $favorite_color; ?>66 !important;
+        }
+
+        /* 4. NÚT TRAILER */
+        .trailer-button {
+            background-color: <?php echo $trailer_bg; ?> !important;
+        }
+
+    </style>
+    <?php
+}
+add_action( 'wp_head', 'movie_detail_customize_css' );

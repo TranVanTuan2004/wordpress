@@ -842,3 +842,67 @@ a {
     font-size: 14px;
   }
 }
+
+/* SHOWTIMES GRID LAYOUT - 4 cột căn trái */
+.showtimes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin: 15px 0;
+  justify-items: start;
+}
+
+.time-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-width: 120px;
+}
+
+.time-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 228, 77, 0.3);
+}
+
+.time-chip .time-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.time-chip .book-btn {
+  font-size: 11px;
+  background: #ffe44d;
+  color: #0e1220;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Responsive: 3 cột trên tablet */
+@media (max-width: 900px) {
+  .showtimes {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Responsive: 2 cột trên mobile */
+@media (max-width: 600px) {
+  .showtimes {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .time-chip {
+    min-width: 100px;
+    padding: 10px 15px;
+  }
+}

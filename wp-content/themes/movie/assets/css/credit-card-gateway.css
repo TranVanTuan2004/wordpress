@@ -2,7 +2,7 @@
 .wc-credit-card-form {
     padding: 20px;
     background: #0b1221;
-    border: 1px solid rgba(148,163,184,.25);
+    border: 1px solid rgba(148, 163, 184, .25);
     border-radius: 8px;
     margin: 15px 0;
 }
@@ -21,20 +21,15 @@
 .wc-credit-card-form input[type="text"] {
     width: 100%;
     padding: 12px;
-    border: 1px solid rgba(148,163,184,.25);
+    border: 1px solid rgba(148, 163, 184, .25);
     border-radius: 8px;
-    background: rgba(15,23,42,.9);
+    background: rgba(15, 23, 42, .9);
     color: #e5e7eb;
     font-size: 16px;
     transition: all 0.2s ease;
 }
 
-.wc-credit-card-form input[type="text"]:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    background: rgba(15,23,42,1);
-}
+
 
 .wc-credit-card-form .form-row-first,
 .wc-credit-card-form .form-row-last {
@@ -84,6 +79,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+
     .wc-credit-card-form .form-row-first,
     .wc-credit-card-form .form-row-last {
         width: 100%;
@@ -91,4 +87,3 @@
         margin-right: 0;
     }
 }
-
