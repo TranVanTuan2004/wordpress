@@ -215,7 +215,7 @@ get_header();
       <div class="c-promotions">
         <!-- C'SCHOOL Promotion -->
         <div class="c-promo-card">
-            <img src="https://via.placeholder.com/400x200/6366f1/ffffff?text=C%27SCHOOL+-+45K" alt="C'SCHOOL">
+            <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=80" alt="C'SCHOOL">
             <div class="c-promo-overlay">
                 <h3>C'SCHOOL - Vé từ 45K</h3>
                 <p style="font-size:13px;margin:4px 0;color:#e5e7eb">Dành cho HSSV/U22/Giáo viên</p>
@@ -225,7 +225,7 @@ get_header();
         
         <!-- HAPPY HOUR Promotion -->
         <div class="c-promo-card">
-            <img src="https://via.placeholder.com/400x200/ec4899/ffffff?text=HAPPY+HOUR+-+45K" alt="Happy Hour">
+            <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80" alt="Happy Hour">
             <div class="c-promo-overlay">
                 <h3>Happy Hour - Vé từ 45K</h3>
                 <p style="font-size:13px;margin:4px 0;color:#e5e7eb">Trước 10h & sau 22h</p>
@@ -235,7 +235,7 @@ get_header();
         
         <!-- HAPPY DAY Promotion -->
         <div class="c-promo-card">
-            <img src="https://via.placeholder.com/400x200/8b5cf6/ffffff?text=HAPPY+DAY+-+45K" alt="Happy Day">
+            <img src="https://images.unsplash.com/photo-1513106580091-1d82408b8638?w=800&q=80" alt="Happy Day">
             <div class="c-promo-overlay">
                 <h3>Happy Day - Đồng giá 45K</h3>
                 <p style="font-size:13px;margin:4px 0;color:#e5e7eb">Thứ 2 hàng tuần</p>

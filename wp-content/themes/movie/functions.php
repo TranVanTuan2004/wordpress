@@ -17,34 +17,7 @@ function mytheme_enqueue_styles() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
 
-//thêm navbar phim
-// DISABLED: Sử dụng CPT 'movie' từ plugin movies-cpt thay vì mbs_movie
-/*
-function create_movie_post_type() {
-    $labels = array(
-        'name' => 'Phim',
-        'singular_name' => 'Phim',
-        'add_new' => 'Thêm phim',
-        'add_new_item' => 'Thêm phim mới',
-        'edit_item' => 'Chỉnh sửa phim',
-        'all_items' => 'Tất cả phim',
-        'menu_name' => 'Phim'
-    );
 
-    $args = array(
-        'labels' => $labels,
-        'public' => true,
-        'has_archive' => true,
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'comments'),
-        'menu_position' => 5,
-        'menu_icon' => 'dashicons-video-alt2',
-        'show_in_rest' => true, // để Gutenberg editor hoạt động
-    );
-
-    register_post_type('mbs_movie', $args);
-}
-add_action('init', 'create_movie_post_type');
-*/
 
 // Đảm bảo comments luôn được bật cho movie (CPT từ plugin)
 function movie_theme_enable_comments_for_movies($open, $post_id) {
@@ -1135,6 +1108,7 @@ function movie_create_ticket_order() {
     $cinema_id = isset($_POST['cinema_id']) ? intval($_POST['cinema_id']) : 0;
     $date      = isset($_POST['date'])      ? sanitize_text_field($_POST['date']) : '';
     $time      = isset($_POST['time'])      ? sanitize_text_field($_POST['time']) : '';
+    $seats     = isset($_POST['seats'])     ? (array) $_POST['seats'] : array();
     $food_items = isset($_POST['food_items']) ? (array) $_POST['food_items'] : array();
 
     if (!$movie_id || !$cinema_id || empty($date) || empty($time) || empty($seats)) {
@@ -1142,10 +1116,9 @@ function movie_create_ticket_order() {
     }
 
     // Calculate total including food
+    $ticket_price = 95000;
+    $total = count($seats) * $ticket_price;
     $calculated_total = $total; // Start with ticket total
-    // Re-calculate ticket total to be safe
-    // $ticket_price = 95000; // Should fetch from DB/Settings
-    // $calculated_total = count($seats) * $ticket_price;
     
     // Add food cost
     $food_cart_data = array();
@@ -1968,28 +1941,7 @@ function movie_send_ticket_email_on_order_complete($order_id) {
     }
 }
 
-// Function để test gửi email (có thể gọi từ admin hoặc AJAX)
-function movie_test_send_email() {
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => 'Không có quyền'));
-        return;
-    }
-    
-    $test_email = isset($_POST['email']) ? sanitize_email($_POST['email']) : get_option('admin_email');
-    
-    $subject = '🎬 Test Email - Đặt Vé Xem Phim';
-    $headers = array('Content-Type: text/html; charset=UTF-8');
-    $body = '<h1>Test Email</h1><p>Đây là email test từ hệ thống đặt vé.</p><p>Nếu bạn nhận được email này, hệ thống email đang hoạt động tốt.</p>';
-    
-    $result = wp_mail($test_email, $subject, $body, $headers);
-    
-    if ($result) {
-        wp_send_json_success(array('message' => 'Email đã được gửi thành công đến ' . $test_email));
-    } else {
-        wp_send_json_error(array('message' => 'Không thể gửi email. Vui lòng kiểm tra cấu hình SMTP.'));
-    }
-}
-add_action('wp_ajax_movie_test_email', 'movie_test_send_email');
+
 
 // ====== CẤU HÌNH SMTP ĐỂ GỬI EMAIL ======
 // Trên LOCALHOST: Email sẽ được lưu vào file log thay vì gửi thật
@@ -2845,3 +2797,5 @@ add_action('manage_mbs_movie_posts_custom_column', 'movie_status_column_content'
 
 // Ensure core pages are created
 add_action('init', 'movie_theme_ensure_core_pages');
+
+
