@@ -208,10 +208,6 @@ form.woocommerce-checkout {
 
 @media (min-width: 1024px) {
     form.woocommerce-checkout {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 50px;
-        align-items: start;
     }
 }
 
@@ -245,6 +241,9 @@ form.woocommerce-checkout {
     content: "";
     display: table;
     clear: both;
+}
+#customer_details {
+    display: none;
 }
 
 /* ============================================
@@ -311,13 +310,7 @@ form.woocommerce-checkout {
 .woocommerce-checkout input:focus,
 .woocommerce-checkout select:focus,
 .woocommerce-checkout textarea:focus {
-    outline: none;
-    border-color: #ffe44d;
-    background: rgba(30, 41, 59, 0.9);
-    box-shadow: 
-        0 0 0 4px rgba(255, 228, 77, 0.1),
-        0 4px 12px rgba(255, 228, 77, 0.15);
-    transform: translateY(-1px);
+ 
 }
 
 .woocommerce-checkout input::placeholder {
@@ -339,10 +332,7 @@ form.woocommerce-checkout {
     transition: all 0.3s ease !important;
 }
 
-.select2-container--default.select2-container--focus .select2-selection--single {
-    border-color: #ffe44d !important;
-    box-shadow: 0 0 0 4px rgba(255, 228, 77, 0.1) !important;
-}
+
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #fff !important;
@@ -526,14 +516,187 @@ form.woocommerce-checkout {
 
 .payment_box {
     margin-top: 16px;
-    padding: 16px;
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
     font-size: 14px;
     color: #94a3b8;
     line-height: 1.7;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
 }
+
+/* ============================================
+   CREDIT CARD FORM - Premium Design
+   ============================================ */
+.wc-credit-card-form {
+    margin-top: 20px;
+}
+
+.wc-credit-card-form .form-row {
+    background-color: transparent !important;
+}
+
+.wc-credit-card-form label {
+    color: #e2e8f0;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wc-credit-card-form label .required {
+    color: #f87171;
+}
+
+/* Card Number Input with Icons */
+.wc-credit-card-form-card-number {
+    width: 100%;
+    padding: 16px 50px 16px 18px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 2px solid rgba(139, 92, 246, 0.2);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.wc-credit-card-form-card-number:focus {
+    outline: none;
+    transform: translateY(-2px);
+}
+
+/* Expiry and CVV Row */
+.wc-credit-card-form .form-row-first,
+.wc-credit-card-form .form-row-last {
+    width: 48%;
+    float: left;
+}
+
+.wc-credit-card-form .form-row-first {
+    margin-right: 4%;
+}
+
+.wc-credit-card-form-card-expiry,
+.wc-credit-card-form-card-cvc {
+    width: 100%;
+    padding: 16px 18px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 2px solid rgba(139, 92, 246, 0.2);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.wc-credit-card-form-card-expiry {
+    letter-spacing: 2px;
+}
+
+.wc-credit-card-form-card-cvc {
+    letter-spacing: 3px;
+}
+
+.wc-credit-card-form-card-expiry:focus,
+.wc-credit-card-form-card-cvc:focus {
+
+}
+
+/* Card Name Input */
+.wc-credit-card-form input[name*="card-name"],
+.wc-credit-card-form input[id*="card-name"] {
+    width: 100%;
+    padding: 16px 18px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 2px solid rgba(139, 92, 246, 0.2);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+
+/* Placeholder Styling */
+.wc-credit-card-form input::placeholder {
+    color: #64748b;
+    font-weight: 400;
+    letter-spacing: normal;
+}
+
+/* Test Card Info Box */
+.payment_box p {
+    margin: 0 0 16px 0;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%);
+    border-left: 4px solid #a855f7;
+    border-radius: 10px;
+    color: #e0e7ff;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.payment_box strong {
+    color: #c4b5fd;
+    font-weight: 700;
+}
+
+/* Card Icons (Visa, Mastercard, JCB) */
+.wc-credit-card-form-card-number-wrapper {
+    position: relative;
+}
+
+.wc-credit-card-form-card-number-wrapper::after {
+    content: '💳';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Clear Fix */
+.wc-credit-card-form .form-row::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .wc-credit-card-form .form-row-first,
+    .wc-credit-card-form .form-row-last {
+        width: 100%;
+        float: none;
+        margin-right: 0;
+    }
+    
+    .wc-credit-card-form-card-number,
+    .wc-credit-card-form-card-expiry,
+    .wc-credit-card-form-card-cvc,
+    .wc-credit-card-form input[name*="card-name"],
+    .wc-credit-card-form input[id*="card-name"] {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+}
+
 
 /* ============================================
    PLACE ORDER BUTTON - Premium

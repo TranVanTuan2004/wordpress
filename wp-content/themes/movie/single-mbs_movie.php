@@ -186,7 +186,7 @@
                           'date'=> $date,
                           'time'=> $t
                         ), $book_link_base );
-                        echo '<a href="'. esc_url($link) .'" class="time-chip">'. esc_html($t) .'</a>';
+                        echo '<a href="'. esc_url($link) .'" class="time-chip"><span class="time-value">'. esc_html($t) .'</span><span class="book-btn">🎟 Đặt vé</span></a>';
                       }
                       echo '</div>';
                     }
