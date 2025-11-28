@@ -1,9 +1,51 @@
 <?php 
 /**
  * ============================================================================
+ * THEME FUNCTIONS - MOVIE BOOKING SYSTEM
+ * ============================================================================
+ * 
+ * CẤU TRÚC FILE:
+ * 
+ * PHẦN 1: CÁC HÀM XỬ LÝ DỮ LIỆU CHÍNH (Các hàm này xử lý logic nghiệp vụ chính)
+ *   - movie_theme_handle_auth_post() - Xử lý đăng nhập/đăng ký
+ *   - movie_theme_handle_profile_post() - Xử lý cập nhật profile
+ *   - movie_create_ticket_order() - Tạo đơn vé mới (AJAX)
+ *   - movie_get_reserved_seats() - Lấy ghế đã đặt (AJAX)
+ *   - movie_create_ticket_from_wc_order() - Tạo ticket từ WooCommerce order
+ *   - movie_send_ticket_email_on_order_complete() - Gửi email xác nhận
+ *   - movie_theme_toggle_favorite() - Bật/tắt yêu thích phim (AJAX)
+ *   - ajax_get_movies_by_cinema() - Lấy phim theo rạp (AJAX)
+ *   - ajax_get_dates_by_cinema_movie() - Lấy ngày theo rạp+phim (AJAX)
+ *   - ajax_get_showtimes() - Lấy suất chiếu (AJAX)
+ *   - movie_render_order_summary() - Render tóm tắt đơn vé
+ * 
+ * PHẦN 2: CÁC HÀM HỖ TRỢ/UTILITY
+ *   - movie_theme_get_movie_post_type() - Lấy post type phim
+ *   - movie_theme_is_movie_singular() - Kiểm tra trang chi tiết phim
+ *   - movie_theme_ensure_core_pages() - Tạo các trang cần thiết
+ *   - movie_theme_ensure_seat_code_column() - Migration database
+ *   - Các hàm enqueue styles/scripts
+ * 
+ * PHẦN 3: WOOCOMMERCE & PAYMENT GATEWAY
+ *   - movie_init_credit_card_gateway() - Khởi tạo payment gateway
+ *   - movie_add_credit_card_gateway() - Đăng ký payment gateway
+ *   - movie_auto_enable_credit_card_gateway() - Tự động bật gateway
+ *   - movie_save_ticket_data_to_order_item() - Lưu dữ liệu vào order
+ *   - movie_update_cart_item_price() - Cập nhật giá trong giỏ hàng
+ *   - Các hàm khác liên quan đến WooCommerce
+ * 
+ * PHẦN 4: CUSTOMIZE & UI
+ *   - cinestar_customize_register() - Đăng ký Customizer
+ *   - booking_customize_register() - Customizer cho trang đặt vé
+ *   - movie_detail_customize_register() - Customizer cho trang chi tiết phim
+ * 
+ * ============================================================================
+ */
+
+/**
+ * ============================================================================
  * PHẦN 1: CÁC HÀM XỬ LÝ DỮ LIỆU CHÍNH
  * ============================================================================
- * Các hàm này xử lý các tác vụ chính của hệ thống: đặt vé, xác thực, AJAX, v.v.
  */
 
 /**
@@ -22,6 +64,10 @@ function movie_theme_is_movie_singular() {
     return is_singular(movie_theme_get_movie_post_type());
 }
 
+/**
+ * Nạp CSS cho theme
+ * Hook: wp_enqueue_scripts
+ */
 function mytheme_enqueue_styles() {
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
     
@@ -34,7 +80,13 @@ add_action('wp_enqueue_scripts', 'mytheme_enqueue_styles');
 
 
 
-// Đảm bảo comments luôn được bật cho movie (CPT từ plugin)
+/**
+ * Đảm bảo comments luôn được bật cho movie (CPT từ plugin)
+ * @param bool $open Trạng thái comments hiện tại
+ * @param int $post_id ID của post
+ * @return bool True nếu là movie post type
+ * Hook: comments_open
+ */
 function movie_theme_enable_comments_for_movies($open, $post_id) {
     $post = get_post($post_id);
     if ($post && $post->post_type === movie_theme_get_movie_post_type()) {
@@ -44,7 +96,11 @@ function movie_theme_enable_comments_for_movies($open, $post_id) {
 }
 add_filter('comments_open', 'movie_theme_enable_comments_for_movies', 10, 2);
 
-// Đảm bảo comments được bật mặc định khi tạo phim mới
+/**
+ * Đảm bảo comments được bật mặc định khi tạo phim mới
+ * @param int $post_id ID của post
+ * Hook: save_post_{post_type}
+ */
 function movie_theme_default_comments_open($post_id) {
     $post = get_post($post_id);
     if ($post && $post->post_type === movie_theme_get_movie_post_type()) {
@@ -58,7 +114,10 @@ function movie_theme_default_comments_open($post_id) {
 }
 add_action('save_post_' . movie_theme_get_movie_post_type(), 'movie_theme_default_comments_open');
 
-// Bật comments cho tất cả các phim hiện có (chạy 1 lần)
+/**
+ * Bật comments cho tất cả các phim hiện có (chạy 1 lần)
+ * Hook: admin_init
+ */
 function movie_theme_enable_comments_for_existing_movies() {
     // Chỉ chạy 1 lần
     if (get_option('movie_comments_enabled_for_all') === 'yes') {
@@ -86,7 +145,11 @@ function movie_theme_enable_comments_for_existing_movies() {
 // Chạy khi admin init
 add_action('admin_init', 'movie_theme_enable_comments_for_existing_movies');
 
-// Tự tạo các trang cần thiết nếu chưa có
+/**
+ * Tự tạo các trang cần thiết nếu chưa có
+ * Tạo các trang như: đặt vé, đăng nhập, đăng ký, profile, checkout, v.v.
+ * Hook: after_switch_theme, init
+ */
 function movie_theme_ensure_core_pages() {
     $pages = array(
         array(
@@ -522,7 +585,10 @@ add_action('pre_get_posts', function($query) {
     }
 });
 
-// CSS cho header và footer trên tất cả các trang
+/**
+ * Nạp CSS cho header và footer trên tất cả các trang
+ * Hook: wp_enqueue_scripts
+ */
 function mytheme_global_styles() {
     // Header CSS
     wp_enqueue_style(
@@ -855,6 +921,7 @@ function movie_render_order_summary($order_id, $is_email = false){
     // Lấy poster phim
     $movie_poster = get_the_post_thumbnail_url($movie_id, 'medium');
     
+    if ($is_email) {
         // Template email đẹp hơn
         $html = '
         <!DOCTYPE html>
@@ -972,6 +1039,11 @@ function movie_render_order_summary($order_id, $is_email = false){
     return $html;
 }
 
+/**
+ * AJAX Handler: Tạo đơn vé mới
+ * Hàm này xử lý việc tạo đơn vé từ dữ liệu POST, tính toán giá, tạo order trong WooCommerce hoặc CPT
+ * Hook: wp_ajax_create_ticket_order, wp_ajax_nopriv_create_ticket_order
+ */
 add_action('wp_ajax_create_ticket_order', 'movie_create_ticket_order');
 add_action('wp_ajax_nopriv_create_ticket_order', 'movie_create_ticket_order');
 function movie_create_ticket_order() {
@@ -1050,6 +1122,10 @@ function movie_create_ticket_order() {
             'total'     => $total,
         ));
 
+        // Đảm bảo trang checkout tồn tại
+        $checkout_page = get_page_by_path('checkout');
+        if (!$checkout_page) {
+            $page_id = wp_insert_post(array(
                 'post_title'   => 'Thanh toán',
                 'post_name'    => 'checkout',
                 'post_content' => '[woocommerce_checkout]',
@@ -1215,6 +1291,11 @@ function movie_create_ticket_order() {
     }
 }
 
+/**
+ * AJAX Handler: Lấy danh sách ghế đã được đặt
+ * Hàm này lấy danh sách ghế đã được đặt cho một suất chiếu cụ thể (movie/cinema/date/time)
+ * Hook: wp_ajax_get_reserved_seats, wp_ajax_nopriv_get_reserved_seats
+ */
 add_action('wp_ajax_get_reserved_seats', 'movie_get_reserved_seats');
 add_action('wp_ajax_nopriv_get_reserved_seats', 'movie_get_reserved_seats');
 function movie_get_reserved_seats(){
@@ -1279,7 +1360,10 @@ add_action('wp_enqueue_scripts', function () {
     ));
 });
 
-// Load custom payment gateway
+/**
+ * Khởi tạo custom payment gateway (Credit Card)
+ * Hook: plugins_loaded, init, woocommerce_init
+ */
 add_action('plugins_loaded', 'movie_init_credit_card_gateway', 5);
 add_action('init', 'movie_init_credit_card_gateway', 5);
 add_action('woocommerce_init', 'movie_init_credit_card_gateway', 5);
@@ -1294,7 +1378,12 @@ function movie_init_credit_card_gateway() {
     }
 }
 
-// Register custom payment gateway
+/**
+ * Đăng ký custom payment gateway vào WooCommerce
+ * @param array $gateways Danh sách payment gateways hiện có
+ * @return array Danh sách payment gateways đã thêm credit_card gateway
+ * Hook: woocommerce_payment_gateways
+ */
 add_filter('woocommerce_payment_gateways', 'movie_add_credit_card_gateway', 10, 1);
 function movie_add_credit_card_gateway($gateways) {
     if (!class_exists('WC_Gateway_Credit_Card')) {
@@ -1322,7 +1411,10 @@ function movie_add_credit_card_gateway($gateways) {
     return $gateways;
 }
 
-// Tự động enable payment gateway credit_card khi theme được kích hoạt
+/**
+ * Tự động bật payment gateway credit_card khi theme được kích hoạt
+ * Hook: after_switch_theme, init, wp_loaded, woocommerce_init, woocommerce_settings_saved
+ */
 add_action('after_switch_theme', 'movie_auto_enable_credit_card_gateway');
 add_action('init', 'movie_auto_enable_credit_card_gateway', 20);
 add_action('wp_loaded', 'movie_auto_enable_credit_card_gateway', 20);
@@ -1388,7 +1480,12 @@ function movie_auto_enable_credit_card_gateway() {
     }
 }
 
-// Đảm bảo payment gateway được hiển thị trên checkout
+/**
+ * Đảm bảo payment gateway credit_card luôn có sẵn trên checkout
+ * @param array $available_gateways Danh sách payment gateways có sẵn
+ * @return array Danh sách đã thêm credit_card gateway nếu chưa có
+ * Hook: woocommerce_available_payment_gateways
+ */
 add_filter('woocommerce_available_payment_gateways', 'movie_ensure_credit_card_gateway_available', 999, 1);
 function movie_ensure_credit_card_gateway_available($available_gateways) {
     if (!class_exists('WooCommerce')) {
@@ -1434,7 +1531,10 @@ function movie_ensure_credit_card_gateway_available($available_gateways) {
     return $available_gateways;
 }
 
-// Validate payment method khi checkout được process
+/**
+ * Validate payment method khi checkout được process
+ * Hook: woocommerce_checkout_process
+ */
 add_action('woocommerce_checkout_process', 'movie_validate_payment_method');
 function movie_validate_payment_method() {
     if (!class_exists('WooCommerce') || !WC()->session) {
@@ -1453,7 +1553,10 @@ function movie_validate_payment_method() {
     }
 }
 
-// Enqueue styles and scripts for credit card gateway
+/**
+ * Nạp CSS và JS cho credit card gateway
+ * Hook: wp_enqueue_scripts
+ */
 add_action('wp_enqueue_scripts', 'movie_credit_card_gateway_scripts');
 function movie_credit_card_gateway_scripts() {
     // Kiểm tra xem WooCommerce có được load và function is_checkout() có tồn tại không
@@ -1478,7 +1581,14 @@ function movie_credit_card_gateway_scripts() {
     }
 }
 
-// Hook: Lưu thông tin đặt vé vào WooCommerce order khi checkout
+/**
+ * Lưu thông tin đặt vé vào WooCommerce order item khi checkout
+ * @param WC_Order_Item_Product $item Order item
+ * @param string $cart_item_key Cart item key
+ * @param array $values Cart item values
+ * @param WC_Order $order Order object
+ * Hook: woocommerce_checkout_create_order_line_item
+ */
 add_action('woocommerce_checkout_create_order_line_item', 'movie_save_ticket_data_to_order_item', 10, 4);
 function movie_save_ticket_data_to_order_item($item, $cart_item_key, $values, $order) {
     if (isset($values['ticket_data'])) {
@@ -1492,7 +1602,13 @@ function movie_save_ticket_data_to_order_item($item, $cart_item_key, $values, $o
     }
 }
 
-// Redirect về trang order-success sau khi thanh toán thành công
+/**
+ * Redirect về trang order-success sau khi thanh toán thành công
+ * @param array $result Kết quả thanh toán
+ * @param int $order_id ID của WooCommerce order
+ * @return array Kết quả đã thêm redirect URL
+ * Hook: woocommerce_payment_successful_result
+ */
 add_filter('woocommerce_payment_successful_result', 'movie_redirect_to_success_page', 10, 2);
 function movie_redirect_to_success_page($result, $order_id) {
     if (isset($result['result']) && $result['result'] === 'success') {
@@ -1518,8 +1634,12 @@ function movie_redirect_to_success_page($result, $order_id) {
     return $result;
 }
 
-// Hook: Tạo ticket_order sau khi WooCommerce order thanh toán thành công
-// Priority cao để đảm bảo chạy trước redirect
+/**
+ * Tạo ticket_order từ WooCommerce order sau khi thanh toán thành công
+ * Hàm này đồng bộ dữ liệu từ WooCommerce order sang ticket_order CPT và bảng mbs_bookings
+ * @param int $order_id ID của WooCommerce order
+ * Hook: woocommerce_payment_complete, woocommerce_thankyou
+ */
 add_action('woocommerce_payment_complete', 'movie_create_ticket_from_wc_order', 5, 1);
 add_action('woocommerce_thankyou', 'movie_create_ticket_from_wc_order', 10, 1);
 function movie_create_ticket_from_wc_order($order_id) {
@@ -1690,7 +1810,11 @@ function movie_create_ticket_from_wc_order($order_id) {
     }
 }
 
-// Hook: Gửi email khi WooCommerce order status thay đổi thành "completed"
+/**
+ * Gửi email xác nhận đặt vé khi WooCommerce order status thay đổi thành "completed"
+ * @param int $order_id ID của WooCommerce order
+ * Hook: woocommerce_order_status_completed
+ */
 add_action('woocommerce_order_status_completed', 'movie_send_ticket_email_on_order_complete', 10, 1);
 function movie_send_ticket_email_on_order_complete($order_id) {
     if (!class_exists('WooCommerce')) {
@@ -1778,7 +1902,12 @@ function movie_send_ticket_email_on_order_complete($order_id) {
 // Trên LOCALHOST: Email sẽ được lưu vào file log thay vì gửi thật
 // Trên SERVER THẬT: Cần setup SMTP để gửi email thật
 
-// Hook để log email trên localhost (sau khi wp_mail được gọi)
+/**
+ * Log email trên localhost (sau khi wp_mail được gọi)
+ * @param array $args Tham số của wp_mail
+ * @return array Tham số gốc
+ * Hook: wp_mail
+ */
 add_action('wp_mail_failed', 'movie_log_email_error', 10, 1);
 add_filter('wp_mail', 'movie_log_email_on_localhost', 10, 1);
 
@@ -1825,10 +1954,20 @@ function movie_log_email_on_localhost($args) {
     return $args; // Vẫn cho phép gửi email thật nếu có SMTP
 }
 
+/**
+ * Log lỗi khi gửi email thất bại
+ * @param WP_Error $wp_error Đối tượng lỗi
+ * Hook: wp_mail_failed
+ */
 function movie_log_email_error($wp_error) {
     error_log('Movie Booking Email Error: ' . $wp_error->get_error_message());
 }
 
+/**
+ * Cấu hình SMTP để gửi email
+ * @param PHPMailer $phpmailer Đối tượng PHPMailer
+ * Hook: phpmailer_init
+ */
 add_action('phpmailer_init', 'movie_configure_smtp', 10, 1);
 function movie_configure_smtp($phpmailer) {
     // Chỉ cấu hình nếu chưa có plugin SMTP nào khác
@@ -1880,7 +2019,11 @@ function movie_configure_smtp($phpmailer) {
     }
 }
 
-// Cập nhật giá sản phẩm trong giỏ hàng dựa trên số lượng ghế
+/**
+ * Cập nhật giá sản phẩm trong giỏ hàng dựa trên số lượng ghế và bắp nước
+ * @param WC_Cart $cart Đối tượng giỏ hàng
+ * Hook: woocommerce_before_calculate_totals
+ */
 add_action('woocommerce_before_calculate_totals', 'movie_update_cart_item_price', 10, 1);
 function movie_update_cart_item_price($cart) {
     if (!class_exists('WooCommerce')) {
@@ -1899,7 +2042,14 @@ function movie_update_cart_item_price($cart) {
     }
 }
 
-// Hiển thị thông tin đặt vé trong checkout
+/**
+ * Hiển thị thông tin đặt vé trong giỏ hàng
+ * @param string $name Tên sản phẩm
+ * @param array $cart_item Thông tin cart item
+ * @param string $cart_item_key Cart item key
+ * @return string Tên sản phẩm kèm thông tin đặt vé
+ * Hook: woocommerce_cart_item_name
+ */
 add_filter('woocommerce_cart_item_name', 'movie_display_ticket_info_in_cart', 10, 3);
 function movie_display_ticket_info_in_cart($name, $cart_item, $cart_item_key) {
     if (isset($cart_item['ticket_data'])) {
@@ -1917,7 +2067,10 @@ function movie_display_ticket_info_in_cart($name, $cart_item, $cart_item_key) {
     return $name;
 }
 
-// Tự động chọn payment method khi đến checkout từ đặt vé
+/**
+ * Tự động chọn payment method khi đến checkout từ đặt vé
+ * Hook: woocommerce_before_checkout_form, woocommerce_checkout_init
+ */
 add_action('woocommerce_before_checkout_form', 'movie_auto_select_payment_method');
 add_action('woocommerce_checkout_init', 'movie_auto_select_payment_method');
 function movie_auto_select_payment_method() {
@@ -1948,7 +2101,10 @@ function movie_auto_select_payment_method() {
     }
 }
 
-// Highlight payment method khi có parameter hoặc session
+/**
+ * Highlight payment method credit_card khi có parameter hoặc session
+ * Hook: wp_footer
+ */
 add_action('wp_footer', 'movie_highlight_credit_card_payment');
 function movie_highlight_credit_card_payment() {
     if (!is_checkout()) {
@@ -2045,7 +2201,10 @@ function movie_highlight_credit_card_payment() {
     <?php
 }
 
-// register_create blog page
+/**
+ * Đăng ký custom post type cho blog
+ * Hook: init
+ */
 function create_blog_post_type() {
     register_post_type('blog',
         array(
@@ -2064,6 +2223,10 @@ function create_blog_post_type() {
 }
 add_action('init', 'create_blog_post_type');
 
+/**
+ * Nạp CSS cho trang archive blog
+ * Hook: wp_enqueue_scripts
+ */
 function mytheme_blog_archive_styles() {
     if (is_post_type_archive('blog')) {
         wp_enqueue_style(
@@ -2081,7 +2244,12 @@ add_action('wp_enqueue_scripts', 'mytheme_blog_archive_styles');
 
 
 
-// Dịch text checkout sang tiếng Việt
+/**
+ * Xóa tất cả các field trong checkout form (billing, shipping, order comments)
+ * @param array $fields Danh sách fields trong checkout
+ * @return array Danh sách fields đã xóa các field không cần thiết
+ * Hook: woocommerce_checkout_fields
+ */
 add_filter('woocommerce_checkout_fields', 'movie_remove_all_checkout_fields');
 function movie_remove_all_checkout_fields($fields) {
     // Xóa tất cả billing fields
@@ -2102,7 +2270,14 @@ function movie_remove_all_checkout_fields($fields) {
     return $fields;
 }
 
-// Dịch các text khác trong checkout
+/**
+ * Dịch các text trong checkout sang tiếng Việt
+ * @param string $translated_text Text đã được dịch
+ * @param string $text Text gốc
+ * @param string $domain Text domain
+ * @return string Text đã dịch
+ * Hook: gettext
+ */
 add_filter('gettext', 'movie_translate_checkout_texts', 20, 3);
 function movie_translate_checkout_texts($translated_text, $text, $domain) {
     if ($domain === 'woocommerce') {
@@ -2141,13 +2316,23 @@ function movie_translate_checkout_texts($translated_text, $text, $domain) {
     return $translated_text;
 }
 
-// Dịch privacy policy text trong checkout
+/**
+ * Dịch privacy policy text trong checkout
+ * @param string $text Text gốc
+ * @param string $type Loại text
+ * @return string Text đã dịch
+ * Hook: woocommerce_get_privacy_policy_text
+ */
 add_filter('woocommerce_get_privacy_policy_text', 'movie_translate_privacy_policy_text', 10, 2);
 function movie_translate_privacy_policy_text($text, $type) {
    
 }
 
-// Thêm custom post types vào WordPress search
+/**
+ * Thêm custom post types (phim, rạp) vào WordPress search
+ * @param WP_Query $query Query object
+ * Hook: pre_get_posts
+ */
 function movie_theme_add_custom_post_types_to_search($query) {
     if (!is_admin() && $query->is_main_query()) {
         if ($query->is_search()) {
@@ -2165,7 +2350,11 @@ function movie_theme_add_custom_post_types_to_search($query) {
 }
 add_action('pre_get_posts', 'movie_theme_add_custom_post_types_to_search');
 
-// AJAX handler cho chức năng yêu thích
+/**
+ * AJAX Handler: Bật/tắt yêu thích phim
+ * Hàm này thêm hoặc xóa phim khỏi danh sách yêu thích của user
+ * Hook: wp_ajax_movie_toggle_favorite, wp_ajax_nopriv_movie_toggle_favorite
+ */
 function movie_theme_toggle_favorite() {
     // Kiểm tra nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'movie_favorite_nonce')) {
@@ -2219,7 +2408,10 @@ function movie_theme_toggle_favorite() {
 add_action('wp_ajax_movie_toggle_favorite', 'movie_theme_toggle_favorite');
 add_action('wp_ajax_nopriv_movie_toggle_favorite', 'movie_theme_toggle_favorite');
 
-// Enqueue script cho yêu thích
+/**
+ * Nạp script JavaScript cho chức năng yêu thích
+ * Hook: wp_enqueue_scripts
+ */
 function movie_theme_favorite_scripts() {
     if (movie_theme_is_movie_singular() || is_page('favorites') || is_page_template('page-favorites.php')) {
         $js_file = get_template_directory() . '/js/movie-favorite.js';
@@ -2235,7 +2427,11 @@ function movie_theme_favorite_scripts() {
 }
 add_action('wp_enqueue_scripts', 'movie_theme_favorite_scripts');
 
-// Đảm bảo cột seat_code tồn tại trong bảng mbs_seats
+/**
+ * Đảm bảo cột seat_code tồn tại trong bảng mbs_seats
+ * Hàm này thực hiện migration database để thêm cột seat_code nếu chưa có
+ * Hook: admin_init, init
+ */
 function movie_theme_ensure_seat_code_column() {
     global $wpdb;
     $table_seats = $wpdb->prefix . 'mbs_seats';
@@ -2291,7 +2487,11 @@ add_action('init', function() {
 // AJAX Handlers for Dynamic Booking Form
 // ============================================
 
-// AJAX: Get movies available at selected cinema
+/**
+ * AJAX Handler: Lấy danh sách phim có suất chiếu tại rạp được chọn
+ * @return void Trả về JSON với danh sách phim
+ * Hook: wp_ajax_get_movies_by_cinema, wp_ajax_nopriv_get_movies_by_cinema
+ */
 function ajax_get_movies_by_cinema() {
     check_ajax_referer('booking_nonce', 'nonce');
     
@@ -2359,7 +2559,11 @@ function ajax_get_movies_by_cinema() {
 add_action('wp_ajax_get_movies_by_cinema', 'ajax_get_movies_by_cinema');
 add_action('wp_ajax_nopriv_get_movies_by_cinema', 'ajax_get_movies_by_cinema');
 
-// AJAX: Get dates available for selected cinema + movie
+/**
+ * AJAX Handler: Lấy danh sách ngày có suất chiếu cho rạp và phim được chọn
+ * @return void Trả về JSON với danh sách ngày (đã format)
+ * Hook: wp_ajax_get_dates_by_cinema_movie, wp_ajax_nopriv_get_dates_by_cinema_movie
+ */
 function ajax_get_dates_by_cinema_movie() {
     check_ajax_referer('booking_nonce', 'nonce');
     
@@ -2447,7 +2651,11 @@ function ajax_get_dates_by_cinema_movie() {
 add_action('wp_ajax_get_dates_by_cinema_movie', 'ajax_get_dates_by_cinema_movie');
 add_action('wp_ajax_nopriv_get_dates_by_cinema_movie', 'ajax_get_dates_by_cinema_movie');
 
-// AJAX: Get showtimes for selected cinema + movie + date
+/**
+ * AJAX Handler: Lấy danh sách suất chiếu cho rạp/phim/ngày được chọn
+ * @return void Trả về JSON với danh sách suất chiếu
+ * Hook: wp_ajax_get_showtimes, wp_ajax_nopriv_get_showtimes
+ */
 function ajax_get_showtimes() {
     check_ajax_referer('booking_nonce', 'nonce');
     
@@ -2524,7 +2732,10 @@ add_action('wp_ajax_nopriv_get_showtimes', 'ajax_get_showtimes');
 // Movie Status Meta Box (Thay thế Taxonomy)
 // ============================================
 
-// Add meta box for movie status
+/**
+ * Thêm meta box cho trạng thái phim (đang chiếu, sắp chiếu, suất chiếu đặc biệt)
+ * Hook: add_meta_boxes
+ */
 function movie_add_status_meta_box() {
     add_meta_box(
         'movie_status_meta_box',
@@ -2537,7 +2748,10 @@ function movie_add_status_meta_box() {
 }
 add_action('add_meta_boxes', 'movie_add_status_meta_box');
 
-// Meta box callback
+/**
+ * Callback để hiển thị meta box trạng thái phim
+ * @param WP_Post $post Post object
+ */
 function movie_status_meta_box_callback($post) {
     wp_nonce_field('movie_status_meta_box', 'movie_status_meta_box_nonce');
     $current_status = get_post_meta($post->ID, '_movie_status', true);
@@ -2578,7 +2792,11 @@ function movie_status_meta_box_callback($post) {
     <?php
 }
 
-// Save meta box data
+/**
+ * Lưu dữ liệu meta box trạng thái phim
+ * @param int $post_id ID của post
+ * Hook: save_post_mbs_movie
+ */
 function movie_save_status_meta_box($post_id) {
     // Check nonce
     if (!isset($_POST['movie_status_meta_box_nonce'])) {
@@ -2605,14 +2823,24 @@ function movie_save_status_meta_box($post_id) {
 }
 add_action('save_post_mbs_movie', 'movie_save_status_meta_box');
 
-// Add column to movies list
+/**
+ * Thêm cột trạng thái vào danh sách phim trong admin
+ * @param array $columns Danh sách cột hiện có
+ * @return array Danh sách cột đã thêm cột trạng thái
+ * Hook: manage_mbs_movie_posts_columns
+ */
 function movie_status_column($columns) {
     $columns['movie_status'] = 'Trạng thái';
     return $columns;
 }
 add_filter('manage_mbs_movie_posts_columns', 'movie_status_column');
 
-// Display column content
+/**
+ * Hiển thị nội dung cột trạng thái trong danh sách phim
+ * @param string $column Tên cột
+ * @param int $post_id ID của post
+ * Hook: manage_mbs_movie_posts_custom_column
+ */
 function movie_status_column_content($column, $post_id) {
     if ($column === 'movie_status') {
         $status = get_post_meta($post_id, '_movie_status', true);
@@ -2630,6 +2858,11 @@ add_action('manage_mbs_movie_posts_custom_column', 'movie_status_column_content'
 add_action('init', 'movie_theme_ensure_core_pages');
 
 
+/**
+ * Đăng ký các tùy chọn customize cho theme (màu sắc, hình ảnh)
+ * @param WP_Customize_Manager $wp_customize Customize manager object
+ * Hook: customize_register
+ */
 function cinestar_customize_register( $wp_customize ) {
 
     // 1. Tạo một Section (Khu vực) mới trong bảng Customize
@@ -2708,7 +2941,8 @@ add_action( 'customize_register', 'cinestar_customize_register' );
 
 
 /**
- * Xuất mã CSS ra thẻ <head> dựa trên các giá trị đã chọn
+ * Xuất mã CSS ra thẻ <head> dựa trên các giá trị đã chọn trong Customizer
+ * Hook: wp_head
  */
 function cinestar_customize_css() {
     ?>
@@ -2762,6 +2996,8 @@ add_action( 'wp_head', 'cinestar_customize_css' );
 
 /**
  * Đăng ký các thiết lập Customize cho trang Đặt Vé (Booking Page)
+ * @param WP_Customize_Manager $wp_customize Customize manager object
+ * Hook: customize_register
  */
 function booking_customize_register( $wp_customize ) {
 
@@ -2838,7 +3074,8 @@ add_action( 'customize_register', 'booking_customize_register' );
 
 
 /**
- * Xuất mã CSS đè lên style mặc định của trang Đặt Vé
+ * Xuất mã CSS đè lên style mặc định của trang Đặt Vé dựa trên Customizer
+ * Hook: wp_head
  */
 function booking_customize_css() {
     // Lấy giá trị từ Customizer
@@ -2942,6 +3179,8 @@ add_action( 'wp_head', 'booking_customize_css' );
 
 /**
  * Đăng ký Customize cho trang Chi Tiết Phim (Movie Detail)
+ * @param WP_Customize_Manager $wp_customize Customize manager object
+ * Hook: customize_register
  */
 function movie_detail_customize_register( $wp_customize ) {
 
@@ -3013,7 +3252,8 @@ add_action( 'customize_register', 'movie_detail_customize_register' );
 
 
 /**
- * Xuất CSS ra frontend cho trang Chi tiết phim
+ * Xuất CSS ra frontend cho trang Chi tiết phim dựa trên Customizer
+ * Hook: wp_head
  */
 function movie_detail_customize_css() {
     // Lấy giá trị từ Customizer
