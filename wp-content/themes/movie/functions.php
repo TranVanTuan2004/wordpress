@@ -1,8 +1,23 @@
 <?php 
+/**
+ * ============================================================================
+ * PHẦN 1: CÁC HÀM XỬ LÝ DỮ LIỆU CHÍNH
+ * ============================================================================
+ * Các hàm này xử lý các tác vụ chính của hệ thống: đặt vé, xác thực, AJAX, v.v.
+ */
+
+/**
+ * Lấy post type của phim
+ * @return string Post type của phim (mbs_movie)
+ */
 function movie_theme_get_movie_post_type() {
     return 'mbs_movie';
 }
 
+/**
+ * Kiểm tra xem có đang ở trang chi tiết phim không
+ * @return bool True nếu đang ở trang chi tiết phim
+ */
 function movie_theme_is_movie_singular() {
     return is_singular(movie_theme_get_movie_post_type());
 }
@@ -533,6 +548,11 @@ add_action('wp_enqueue_scripts', 'mytheme_global_styles');
 
 
 
+/**
+ * Xử lý POST request cho đăng nhập và đăng ký
+ * Hàm này xử lý dữ liệu từ form đăng nhập/đăng ký, validate, tạo user mới hoặc đăng nhập
+ * Hook: template_redirect
+ */
 function movie_theme_handle_auth_post()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cns_action'])) {
@@ -694,7 +714,11 @@ function movie_theme_handle_auth_post()
 }
 add_action('template_redirect', 'movie_theme_handle_auth_post');
 
-// Xử lý POST cập nhật hồ sơ (cập nhật thông tin / đổi mật khẩu) trước khi hiển thị
+/**
+ * Xử lý POST request cập nhật hồ sơ người dùng
+ * Bao gồm: cập nhật thông tin cá nhân và đổi mật khẩu
+ * Hook: template_redirect
+ */
 function movie_theme_handle_profile_post()
 {
     if (! is_user_logged_in()) {
@@ -802,6 +826,12 @@ add_action('init', function () {
     ));
 });
 
+/**
+ * Render HTML cho tóm tắt đơn vé
+ * @param int $order_id ID của đơn vé
+ * @param bool $is_email Nếu true, render template email đẹp, nếu false render template web
+ * @return string HTML của tóm tắt đơn vé
+ */
 function movie_render_order_summary($order_id, $is_email = false){
     $movie_id  = intval(get_post_meta($order_id,'movie_id',true));
     $cinema_id = intval(get_post_meta($order_id,'cinema_id',true));
